@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import HashScroll from "./components/HashScroll";
 
 // Base URL used to resolve absolute URLs for OG / Twitter / canonical tags.
@@ -44,6 +45,7 @@ export default function RootLayout({ children }) {
       <body>
         <HashScroll />
         {children}
+        <Analytics />
       </body>
     </html>
   );
