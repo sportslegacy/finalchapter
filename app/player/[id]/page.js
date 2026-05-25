@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
 import Nav from "../../components/Nav";
@@ -45,7 +46,24 @@ export default async function PlayerPage({ params }) {
         <Link href="/" className="back-link">
           &larr; All Legends
         </Link>
-        <div className="profile-flag">{player.countryFlag}</div>
+        {player.photo ? (
+          <div className="profile-photo">
+            <Image
+              src={player.photo.src}
+              alt={`${player.name} portrait`}
+              width={720}
+              height={900}
+              priority
+              sizes="(max-width: 600px) 80vw, 360px"
+              style={{ objectPosition: player.photo.focus || "center top" }}
+            />
+            <span className="profile-photo-flag" aria-hidden="true">
+              {player.countryFlag}
+            </span>
+          </div>
+        ) : (
+          <div className="profile-flag">{player.countryFlag}</div>
+        )}
         <h1 className="profile-name">{player.name}</h1>
         <div className="profile-details">
           {player.country} &middot; {player.position} &middot; Age{" "}
@@ -235,6 +253,21 @@ export default async function PlayerPage({ params }) {
           <span />
         )}
       </div>
+
+      {/* Photo credit (CC attribution) */}
+      {player.photo && (
+        <div className="photo-credit">
+          Photo:{" "}
+          <a href={player.photo.sourceUrl} target="_blank" rel="noopener noreferrer">
+            {player.photo.credit}
+          </a>
+          ,{" "}
+          <a href={player.photo.licenseUrl} target="_blank" rel="noopener noreferrer">
+            {player.photo.license}
+          </a>
+          , via Wikimedia Commons (resized).
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="site-footer">

@@ -111,6 +111,15 @@ export const players = [
       "4× Champions League",
       "Finalissima 2022",
     ],
+    photo: {
+      src: "/players/messi.jpg",
+      credit: "Hossein Zohrevand",
+      license: "CC BY 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg",
+      focus: "center 20%",
+    },
     finalChapterReason:
       "He has said it himself, more than once: 2026 is the last one. The trophy lifted in Qatar finally settled the only open question. What remains is the goodbye — and the cosmic poetry that it happens on American soil, where he lives, where he plays, where the boy from Rosario built the back half of a life that already had everything.",
     milestonesAtStake: [
@@ -255,6 +264,15 @@ export const players = [
       "Nations League 2019",
       "All-time international top scorer (130+ goals)",
     ],
+    photo: {
+      src: "/players/ronaldo.jpg",
+      credit: "Анна Нэсси (Anna Nessi)",
+      license: "CC BY-SA 3.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Cristiano_Ronaldo_2018.jpg",
+      focus: "center 25%",
+    },
     finalChapterReason:
       "He turned 41 in February. The tears in Doha — at 37, with no trophy, against Morocco — looked like the end. They weren't. The only honor missing from his cabinet is the World Cup, and the most relentless career football has ever produced isn't leaving that box unchecked without one more fight.",
     milestonesAtStake: [
@@ -389,6 +407,15 @@ export const players = [
       "World Cup Runner-up 2018",
       "Croatia's greatest-ever player",
     ],
+    photo: {
+      src: "/players/modric.jpg",
+      credit: "Real Madrid",
+      license: "CC BY 3.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/3.0/",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Luka_Modric_Interview_2021_(cropped).jpg",
+      focus: "center 20%",
+    },
     finalChapterReason:
       "At 40, in his fourth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
     milestonesAtStake: [
@@ -512,6 +539,15 @@ export const players = [
       "Brazil's all-time top scorer (79 goals)",
       "3× Ligue 1 Player of the Year",
     ],
+    photo: {
+      src: "/players/neymar.jpg",
+      credit: "Fernando Frazão / Agência Brasil",
+      license: "CC BY 3.0 BR",
+      licenseUrl: "https://creativecommons.org/licenses/by/3.0/br/deed.en",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Brasil_conquista_primeiro_ouro_olímpico_no_futebol_1039230-20082016-_mg_2846_0a1.jpg",
+      focus: "70% center",
+    },
     finalChapterReason:
       "Three World Cups, three heartbreaks. A fractured vertebra in 2014. Belgium in 2018. Penalties to Croatia in 2022. Now 34 and rebuilt from an ACL tear, back at Santos where he started. Ancelotti named him anyway. Brazil's all-time leading scorer gets one last tournament where — God willing — the body holds and the moment is finally his.",
     milestonesAtStake: [
@@ -635,6 +671,15 @@ export const players = [
       "World Cup 3rd place 2018",
       "Belgium's qualifying top scorer 2026",
     ],
+    photo: {
+      src: "/players/debruyne.jpg",
+      credit: "Bryan Berlin",
+      license: "CC BY-SA 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_(cropped).jpg",
+      focus: "center 25%",
+    },
     finalChapterReason:
       "Hazard retired. Kompany coaches now. Vermaelen, Vertonghen, Witsel — all gone. De Bruyne is the last of Belgium's Golden Generation: the most-hyped, most-talented, most-disappointing group in the country's history. Third in 2018 was the ceiling. At 35, in his fourth World Cup, the captain gets one final chance to write the ending the generation deserved but never got.",
     milestonesAtStake: [

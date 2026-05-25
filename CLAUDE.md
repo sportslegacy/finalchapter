@@ -60,6 +60,12 @@ app/
     HashScroll.js        # smooth-scroll for /#section links
   lib/navigate-to-section.js
 data/players.js          # all content
+public/players/          # editorial portraits per player (CC-licensed from Wikimedia)
+  messi.jpg              #   Hossein Zohrevand · CC BY 4.0
+  ronaldo.jpg            #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0
+  modric.jpg             #   Real Madrid · CC BY 3.0
+  neymar.jpg             #   Fernando Frazão / Agência Brasil · CC BY 3.0 BR
+  debruyne.jpg           #   Bryan Berlin · CC BY-SA 4.0
 scripts/test-nav.mjs     # playwright test for nav dropdown widths
 .claude/launch.json      # for Claude Preview MCP — points at `npm run dev` on :3000
 ```
@@ -68,14 +74,16 @@ scripts/test-nav.mjs     # playwright test for nav dropdown widths
 
 (See `app/player/[id]/page.js`.)
 
-1. Profile hero (flag, name, country/position/age, quote, stats)
+1. Profile hero — **editorial portrait** (4:5, gold-glow border, country flag emoji as small corner badge) → name → country/position/age → quote → stats
 2. **Final Chapter pull-quote** — gold pill + serif italic, sets thematic anchor
 3. **Match Countdown** — "Next up · Country vs Opponent · in X days Y hours"
 4. Group Stage Schedule — group badge, storyline, 3 match cards
 5. **Records in Play** — 3-card milestone grid ("3 from Klose", "Sixth WC", etc.)
 6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card
 7. Bio + career honors tags
-8. Prev/next player nav, footer
+8. Prev/next player nav
+9. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
+10. Site footer
 
 ### `data/players.js` schema per player
 
@@ -90,6 +98,11 @@ scripts/test-nav.mjs     # playwright test for nav dropdown widths
   },
   worldCups: [{ year, host, age, result, goals, assists, apps, highlight, emoji }],
   careerHonors[],
+  photo: {                                                         // editorial portrait (CC-licensed from Wikimedia Commons)
+    src,                                                           //   /players/<id>.jpg
+    credit, license, licenseUrl, sourceUrl,                        //   shown as a small CC-attribution line near page footer
+    focus,                                                         //   CSS object-position for off-center crops (e.g. "70% center" for landscape originals)
+  },
   finalChapterReason,                                              // single poetic paragraph for the pull-quote
   milestonesAtStake: [{ headline, detail }],                       // 3 cards rendered in "Records in Play"
   bio,
@@ -150,6 +163,19 @@ Or manually: `npm run dev` and open in iPhone-sized window. **Production deploys
 
 The script is in `package-lock.json` already; if it's not installed locally: `npm i -D playwright && npx playwright install chromium`. Run it against `npm run dev` on `:3000` to verify nav widths.
 
+### CC attribution is required — don't drop the photo-credit footer
+
+All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC licenses (BY 3.0, BY 4.0, BY-SA 3.0, BY-SA 4.0). Per the license terms we must credit the author, link the license, link the source, and indicate that the image was modified (we resized them to 1200px long-edge JPEG at quality 80). All of that is rendered by the `.photo-credit` block on each player page just above the site footer. **If you change the photo for a player, update the corresponding `photo: { credit, license, licenseUrl, sourceUrl }` in `data/players.js` — and ideally re-verify the license is still valid on the source page.** Don't remove the credit block.
+
+### Adding / replacing a player photo
+
+1. Find a CC-licensed photo on Wikimedia Commons (filter by "free media" + check the file's license on its description page).
+2. Download the **original** file from `upload.wikimedia.org`.
+3. Drop it into `public/players/<id>.jpg`.
+4. Resize: `sips -Z 1200 public/players/<id>.jpg --setProperty formatOptions 80`. Keeps long-edge ≤ 1200px and quality at 80% — yields ~150–300KB per file.
+5. Update `data/players.js → players[i].photo` with the new credit/license/source.
+6. If the photo is landscape (or the player is off-center), set a `focus: "70% center"` (or similar) to override `object-position`.
+
 ### Stale player content to refresh as 2026 approaches
 
 `data/players.js` is the only file to touch for content. Things that may drift:
@@ -187,7 +213,7 @@ vercel certs issue finalchapterfc.com www.finalchapterfc.com
 
 In rough priority if traffic justifies more work:
 
-- **Real editorial photo per player** — single biggest UX upgrade. Use Wikipedia public-domain or commission. `next/image` already supported.
+- **Per-player accent color** (Argentina sky-blue for Messi, Croatia red for Modrić, etc.) — pure CSS, ~40 lines, would differentiate the 5 pages now that they each have a portrait. Add `colors: { primary, secondary }` to `data/players.js` and use them on the headline gradient + milestone-card top stripe + timeline accents.
 - **`robots.txt` / `sitemap.xml`** — Next.js can auto-generate via `app/robots.js` + `app/sitemap.js` (~15 lines each).
 - **Per-player OG images** — currently all share the site-level OG card. Easy with `app/player/[id]/opengraph-image.js`.
 - **Shareable player "career card"** — see Parked Ideas below; we built this and removed it for MVP.
