@@ -28,6 +28,38 @@ function formatMatchDate(dateStr) {
   });
 }
 
+const SITE_URL = "https://finalchapterfc.com";
+
+// Person schema for SEO — gives Google enough structured data to
+// surface Knowledge Panel-style displays on player-name queries.
+function buildPersonJsonLd(player) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: player.name,
+    alternateName: player.fullName,
+    nationality: { "@type": "Country", name: player.country },
+    birthDate: player.birthDate,
+    jobTitle: "Professional Footballer",
+    description: player.bio,
+    image: `${SITE_URL}${player.photo.src}`,
+    url: `${SITE_URL}/player/${player.id}`,
+    knowsAbout: ["Association Football", "FIFA World Cup"],
+    award: player.careerHonors,
+    memberOf: {
+      "@type": "SportsTeam",
+      name: `${player.country} national football team`,
+      sport: "Association Football",
+    },
+    subjectOf: {
+      "@type": "SportsEvent",
+      name: "2026 FIFA World Cup",
+      startDate: "2026-06-11",
+      endDate: "2026-07-19",
+    },
+  };
+}
+
 export default async function PlayerPage({ params }) {
   const { id } = await params;
   const player = getPlayerById(id);
@@ -39,6 +71,12 @@ export default async function PlayerPage({ params }) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(buildPersonJsonLd(player)),
+        }}
+      />
       <Nav />
 
       {/* Profile Hero */}

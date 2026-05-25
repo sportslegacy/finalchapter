@@ -3,9 +3,69 @@ import { players, tournament } from "../data/players";
 import Countdown from "./components/Countdown";
 import Nav from "./components/Nav";
 
+const SITE_URL = "https://finalchapterfc.com";
+
+// SportsEvent schema for the tournament itself + ItemList schema for
+// the five legends being celebrated. Google reads JSON-LD to enable
+// rich snippets in search results — fact boxes, image carousels,
+// Knowledge Panel-style displays.
+const eventJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  name: "2026 FIFA World Cup",
+  alternateName: ["FIFA World Cup 2026", "The Final Chapter"],
+  description:
+    "The first 48-team FIFA World Cup, hosted across USA, Canada, and Mexico from June 11 to July 19, 2026.",
+  startDate: "2026-06-11",
+  endDate: "2026-07-19",
+  eventStatus: "https://schema.org/EventScheduled",
+  eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
+  sport: "Association Football",
+  url: SITE_URL,
+  location: [
+    { "@type": "Country", name: "United States" },
+    { "@type": "Country", name: "Canada" },
+    { "@type": "Country", name: "Mexico" },
+  ],
+  organizer: {
+    "@type": "Organization",
+    name: "FIFA",
+    url: "https://www.fifa.com",
+  },
+};
+
+const legendsListJsonLd = (playersData) => ({
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Five Legends Playing Their Final World Cup",
+  description:
+    "Messi, Ronaldo, Modrić, Neymar, De Bruyne — one last time on the biggest stage.",
+  itemListElement: playersData.map((player, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Person",
+      name: player.name,
+      nationality: player.country,
+      url: `${SITE_URL}/player/${player.id}`,
+      image: `${SITE_URL}${player.photo.src}`,
+    },
+  })),
+});
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(legendsListJsonLd(players)),
+        }}
+      />
       <Nav />
 
       {/* Hero */}
