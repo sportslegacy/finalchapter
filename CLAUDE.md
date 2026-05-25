@@ -58,7 +58,6 @@ app/
     Countdown.js         # site-wide ticker to the tournament opener
     MatchCountdown.js    # per-player ticker to their first group match (handles TBD)
     HashScroll.js        # smooth-scroll for /#section links
-    ShareCard.js         # canvas-generated downloadable cards on player pages
   lib/navigate-to-section.js
 data/players.js          # all content
 scripts/test-nav.mjs     # playwright test for nav dropdown widths
@@ -76,8 +75,7 @@ scripts/test-nav.mjs     # playwright test for nav dropdown widths
 5. **Records in Play** — 3-card milestone grid ("3 from Klose", "Sixth WC", etc.)
 6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card
 7. Bio + career honors tags
-8. ShareCard (canvas download)
-9. Prev/next player nav, footer
+8. Prev/next player nav, footer
 
 ### `data/players.js` schema per player
 
@@ -192,10 +190,31 @@ In rough priority if traffic justifies more work:
 - **Real editorial photo per player** — single biggest UX upgrade. Use Wikipedia public-domain or commission. `next/image` already supported.
 - **`robots.txt` / `sitemap.xml`** — Next.js can auto-generate via `app/robots.js` + `app/sitemap.js` (~15 lines each).
 - **Per-player OG images** — currently all share the site-level OG card. Easy with `app/player/[id]/opengraph-image.js`.
+- **Shareable player "career card"** — see Parked Ideas below; we built this and removed it for MVP.
 - **JSON-LD `SportsEvent` structured data** — rich Google snippets for "World Cup 2026" queries.
 - **`error.js` boundary** — pure static + no API means basically nothing to crash, but it's polite.
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
+
+## Parked ideas (built, removed, may revisit)
+
+### Shareable player career card
+
+**What it was.** A vertical "trading card" on each player page showing flag + name + WC stat trio (goals/assists/apps) + a row of year stamps (gold-filled for champion years, dashed border for 2026). A "Share this card →" button generated a PNG via `<canvas>` and either invoked `navigator.share({ files: [...] })` (mobile) or downloaded the file (desktop).
+
+**Why we removed it for MVP** (decision: 2026-05-24):
+
+1. **Two implementations to maintain.** The HTML card and the canvas card were separate ~120-line implementations of the same visual; the canvas already had drifted (stale `finalchapter2026.com` URL while the HTML pointed at `finalchapterfc.com`).
+2. **Maintenance load disproportionate to payoff** for a 5-page site — the OG image already covers ~90% of "look at this site" sharing when the URL is pasted into iMessage/X/Slack.
+3. **Mobile/desktop UX divergence** — the same button gave a slick share sheet on mobile and an opaque "PNG appeared in Downloads" experience on desktop.
+
+**If we bring it back, two clean paths:**
+
+- **Minimal (recommended):** a single "Share this page" button that calls `navigator.share({ url, title, text })`. ~10 lines, no canvas, no PNG, no drift. The recipient's app uses the OG image automatically. This is what 95% of fan sites actually need.
+
+- **Full sticker (revisit if Instagram Stories matters):** instead of canvas-redrawing the card, generate the PNG at build time via `next/og` (same machinery as our OG/Apple icons) at e.g. `app/player/[id]/share-card.png`. Single source of truth, real Playfair fonts available, no client-side canvas browser quirks. Reference it from a Web Share API call. The old canvas approach is the wrong implementation; ImageResponse is the right one.
+
+**The original component, CSS, and import call sites are preserved in git history** at commit `d42bc84` (`app/components/ShareCard.js` + `.share-*` / `.wc-stamp*` rules in `globals.css`). If reviving: `git show d42bc84:app/components/ShareCard.js` is a starting point but rebuild via `next/og` rather than copying the canvas code.
 
 ## Quick checks after any deploy
 

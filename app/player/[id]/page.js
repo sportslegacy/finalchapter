@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
 import Nav from "../../components/Nav";
-import ShareCard from "../../components/ShareCard";
 import MatchCountdown from "../../components/MatchCountdown";
 
 export function generateStaticParams() {
@@ -206,9 +205,6 @@ export default async function PlayerPage({ params }) {
           ))}
         </div>
       </section>
-
-      {/* Shareable Card */}
-      <ShareCard player={player} />
 
       {/* Player Navigation */}
       <div
