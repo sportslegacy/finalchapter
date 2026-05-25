@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
 import Nav from "../../components/Nav";
 import ShareCard from "../../components/ShareCard";
+import MatchCountdown from "../../components/MatchCountdown";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -75,12 +76,27 @@ export default async function PlayerPage({ params }) {
         </div>
       </section>
 
+      {/* Final Chapter pull-quote — the thematic anchor */}
+      {player.finalChapterReason && (
+        <section className="final-chapter-quote">
+          <div className="final-chapter-mark">The Final Chapter</div>
+          <p className="final-chapter-text">{player.finalChapterReason}</p>
+        </section>
+      )}
+
       {/* 2026 Match Schedule */}
       <section className="schedule-section">
         <div className="section-header">
           <div className="section-label">World Cup 2026</div>
           <h2 className="section-title">Group Stage Schedule</h2>
         </div>
+
+        {player.wc2026.matches[0] && (
+          <MatchCountdown
+            match={player.wc2026.matches[0]}
+            country={player.country}
+          />
+        )}
 
         <div className="group-header">
           <div className="group-badge">Group {player.wc2026.group}</div>
@@ -115,6 +131,24 @@ export default async function PlayerPage({ params }) {
           ))}
         </div>
       </section>
+
+      {/* Milestones at stake — what's on the line in 2026 */}
+      {player.milestonesAtStake?.length > 0 && (
+        <section className="milestones-section">
+          <div className="section-header">
+            <div className="section-label">What's on the line</div>
+            <h2 className="section-title">Records in Play</h2>
+          </div>
+          <div className="milestones-grid">
+            {player.milestonesAtStake.map((m, i) => (
+              <div key={i} className="milestone-card">
+                <div className="milestone-headline">{m.headline}</div>
+                <p className="milestone-detail">{m.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Career Timeline */}
       <section className="timeline-section">

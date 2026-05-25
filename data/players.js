@@ -22,6 +22,7 @@ export const players = [
           opponent: "Algeria",
           date: "2026-06-16",
           time: "9:00 PM ET",
+          kickoffUtc: "2026-06-17T01:00:00.000Z",
           venue: "Arrowhead Stadium",
           city: "Kansas City",
         },
@@ -110,6 +111,25 @@ export const players = [
       "4× Champions League",
       "Finalissima 2022",
     ],
+    finalChapterReason:
+      "He has said it himself, more than once: 2026 is the last one. The trophy lifted in Qatar finally settled the only open question. What remains is the goodbye — and the cosmic poetry that it happens on American soil, where he lives, where he plays, where the boy from Rosario built the back half of a life that already had everything.",
+    milestonesAtStake: [
+      {
+        headline: "3 from Klose",
+        detail:
+          "Miroslav Klose holds the all-time World Cup goal record at 16. Messi enters with 13 — three short, with up to seven matches left to find them.",
+      },
+      {
+        headline: "Sixth World Cup",
+        detail:
+          "No outfield player has ever played in six World Cups. He shared the previous record of five with Mexico's Rafa Márquez. He stands alone now.",
+      },
+      {
+        headline: "Most WC appearances ever",
+        detail:
+          "26 World Cup appearances and counting. Lothar Matthäus held the record at 25 before Messi passed him in Qatar. Every minute on the pitch widens the gap.",
+      },
+    ],
     bio: "The greatest player of all time returns for a record sixth World Cup. At 39, Messi has nothing left to prove — he won it all in Qatar. But the magic of a home-continent tournament, on American soil where he now lives and plays for Inter Miami, is too poetic to resist. Argentina open their title defense in Kansas City before heading to Dallas. This is his farewell.",
   },
   {
@@ -135,6 +155,7 @@ export const players = [
           opponent: "DR Congo",
           date: "2026-06-17",
           time: "TBD",
+          kickoffUtc: null,
           venue: "NRG Stadium",
           city: "Houston, TX",
         },
@@ -234,6 +255,25 @@ export const players = [
       "Nations League 2019",
       "All-time international top scorer (130+ goals)",
     ],
+    finalChapterReason:
+      "He turned 41 in February. The tears in Doha — at 37, with no trophy, against Morocco — looked like the end. They weren't. The only honor missing from his cabinet is the World Cup, and the most relentless career football has ever produced isn't leaving that box unchecked without one more fight.",
+    milestonesAtStake: [
+      {
+        headline: "Score in 6 different World Cups",
+        detail:
+          "Ronaldo is the only man to have scored in five different World Cups (2006, 2010, 2014, 2018, 2022). A sixth would extend a record nobody else is anywhere near.",
+      },
+      {
+        headline: "Oldest at the tournament",
+        detail:
+          "At 41, the oldest outfield player in the field. Roger Milla scored at 42 for Cameroon in 1994 — Ronaldo could become the second-oldest scorer in World Cup history.",
+      },
+      {
+        headline: "The only one missing",
+        detail:
+          "Five Champions Leagues. Five Ballons d'Or. A European Championship. A Nations League. The all-time international scoring record. The World Cup is the one trophy his cabinet still doesn't hold.",
+      },
+    ],
     bio: "At 41, Cristiano Ronaldo will be the oldest outfield player at the 2026 World Cup — and he's heading into his sixth tournament. The all-time international goalscorer has defied every prediction about his decline. His tears in Qatar told the story — this World Cup dream remains unfinished. Portugal start in Houston before a crucial Colombia test in Miami.",
   },
   {
@@ -246,7 +286,7 @@ export const players = [
     position: "Midfielder",
     birthDate: "1985-09-09",
     ageAtTournament: 40,
-    clubAtTournament: "Real Madrid",
+    clubAtTournament: "AC Milan",
     quote: "I'm not the biggest, the strongest, or the fastest. But I have something others don't — the ball is my friend.",
     worldCupGoals: 4,
     worldCupAssists: 4,
@@ -259,6 +299,7 @@ export const players = [
           opponent: "England",
           date: "2026-06-17",
           time: "4:00 PM ET",
+          kickoffUtc: "2026-06-17T20:00:00.000Z",
           venue: "AT&T Stadium",
           city: "Dallas, TX",
         },
@@ -348,7 +389,26 @@ export const players = [
       "World Cup Runner-up 2018",
       "Croatia's greatest-ever player",
     ],
-    bio: "The boy who grew up in a war-torn village, who was told he was too small and too frail, became the most elegant midfielder of his generation. At 40, Modrić is still playing for Real Madrid — still dictating games with his vision and touch. Croatia open against England in Dallas in a Group L blockbuster. This will be the last time.",
+    finalChapterReason:
+      "At 40, in his fourth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
+    milestonesAtStake: [
+      {
+        headline: "Oldest captain in the field",
+        detail:
+          "At 40, Modrić is the oldest captain at the 2026 World Cup. Every match he starts is another page added to the record book.",
+      },
+      {
+        headline: "Croatia's iron man",
+        detail:
+          "19 World Cup appearances — already a Croatian record. Every minute he plays extends the books for a country of four million.",
+      },
+      {
+        headline: "Third major run in a row",
+        detail:
+          "2018: Golden Ball, World Cup Final. 2022: third place. No Croatian generation has come close to this. The maestro gets one last conducting opportunity.",
+      },
+    ],
+    bio: "The boy who grew up in a war-torn village, who was told he was too small and too frail, became the most elegant midfielder of his generation. At 40, Modrić is now at AC Milan — still dictating games with his vision and touch. Croatia open against England in Dallas in a Group L blockbuster. This will be the last time.",
   },
   {
     id: "neymar",
@@ -373,6 +433,7 @@ export const players = [
           opponent: "Morocco",
           date: "2026-06-13",
           time: "6:00 PM ET",
+          kickoffUtc: "2026-06-13T22:00:00.000Z",
           venue: "MetLife Stadium",
           city: "New York / New Jersey",
         },
@@ -451,6 +512,25 @@ export const players = [
       "Brazil's all-time top scorer (79 goals)",
       "3× Ligue 1 Player of the Year",
     ],
+    finalChapterReason:
+      "Three World Cups, three heartbreaks. A fractured vertebra in 2014. Belgium in 2018. Penalties to Croatia in 2022. Now 34 and rebuilt from an ACL tear, back at Santos where he started. Ancelotti named him anyway. Brazil's all-time leading scorer gets one last tournament where — God willing — the body holds and the moment is finally his.",
+    milestonesAtStake: [
+      {
+        headline: "5 from Pelé",
+        detail:
+          "Pelé scored 12 World Cup goals for Brazil. Neymar enters with 7 — five short of tying the king on Brazil's own record book.",
+      },
+      {
+        headline: "Brazil's all-time top scorer",
+        detail:
+          "79 international goals — already past Pelé in the overall count. Every Neymar goal in 2026 is uncharted Brazilian territory.",
+      },
+      {
+        headline: "A first World Cup, period",
+        detail:
+          "Three campaigns, three quarter- or semi-final exits. The most gifted Brazilian generation since the 70s has never won. This is almost certainly the last opportunity for this group.",
+      },
+    ],
     bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022. Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad. He opens against Morocco at MetLife Stadium — the same venue that will host the Final. Brazil's all-time leading scorer has one last shot at the trophy that defines Brazilian football.",
   },
   {
@@ -463,7 +543,7 @@ export const players = [
     position: "Midfielder",
     birthDate: "1991-06-28",
     ageAtTournament: 35,
-    clubAtTournament: "Manchester City",
+    clubAtTournament: "Napoli",
     quote: "I don't play for individual awards. I play to win with my team.",
     worldCupGoals: 2,
     worldCupAssists: 3,
@@ -476,6 +556,7 @@ export const players = [
           opponent: "Egypt",
           date: "2026-06-16",
           time: "TBD",
+          kickoffUtc: null,
           venue: "TBD",
           city: "TBD",
         },
@@ -553,6 +634,25 @@ export const players = [
       "4× PL Player of the Season",
       "World Cup 3rd place 2018",
       "Belgium's qualifying top scorer 2026",
+    ],
+    finalChapterReason:
+      "Hazard retired. Kompany coaches now. Vermaelen, Vertonghen, Witsel — all gone. De Bruyne is the last of Belgium's Golden Generation: the most-hyped, most-talented, most-disappointing group in the country's history. Third in 2018 was the ceiling. At 35, in his fourth World Cup, the captain gets one final chance to write the ending the generation deserved but never got.",
+    milestonesAtStake: [
+      {
+        headline: "Belgium's first World Cup",
+        detail:
+          "Belgium have never won a World Cup. Best finish: third in 2018. The Golden Generation gets one final swing at delivering the trophy a decade of talent kept just out of reach.",
+      },
+      {
+        headline: "The last man standing",
+        detail:
+          "Hazard, Kompany, Vermaelen, Vertonghen — all gone. KDB captains a transitional Belgium into a tournament that almost certainly has no Belgian veterans next time.",
+      },
+      {
+        headline: "Top scorer in qualifying",
+        detail:
+          "Six goals in qualifying — Belgium's leading marksman as a midfielder, at 35. The talent hasn't gone anywhere; this is the last campaign with it.",
+      },
     ],
     bio: "The most creative midfielder in the world for the last decade, De Bruyne is the last man standing from Belgium's vaunted Golden Generation. Hazard retired. Kompany became a manager. Lukaku is there but diminished. At 35, De Bruyne captains a younger squad into what will almost certainly be his final tournament. Belgium have never won a World Cup — and the window is closing.",
   },
