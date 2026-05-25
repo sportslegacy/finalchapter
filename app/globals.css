@@ -524,6 +524,19 @@ a {
   flex-wrap: wrap;
 }
 
+/* On narrow phones (iPhone 17 ≈ 393pt, SE ≈ 375pt) the 4 stat tiles
+   can't fit in a single row, so the 4th orphans onto its own line and
+   leaves a strip of dead space. Force a 2×2 grid below 430px instead. */
+@media (max-width: 430px) {
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+    max-width: 18rem;
+    margin: 0 auto;
+  }
+}
+
 .profile-stat {
   text-align: center;
 }
