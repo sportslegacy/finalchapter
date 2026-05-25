@@ -81,6 +81,18 @@ export const players = [
         emoji: "\u{1F948}",
       },
       {
+        year: 2018,
+        host: "Russia",
+        age: 31,
+        result: "Round of 16",
+        goals: 1,
+        assists: 2,
+        apps: 4,
+        highlight:
+          "A stunning curler vs Nigeria saved Argentina; Mbappé and France ended the dream in the Round of 16",
+        emoji: "\u{1F494}",
+      },
+      {
         year: 2022,
         host: "Qatar",
         age: 35,
@@ -306,8 +318,8 @@ export const players = [
     ageAtTournament: 40,
     clubAtTournament: "AC Milan",
     quote: "I'm not the biggest, the strongest, or the fastest. But I have something others don't — the ball is my friend.",
-    worldCupGoals: 4,
-    worldCupAssists: 4,
+    worldCupGoals: 3,
+    worldCupAssists: 2,
     worldCupApps: 19,
     wc2026: {
       group: "L",
@@ -382,7 +394,7 @@ export const players = [
         result: "Semi-finals (3rd place)",
         goals: 0,
         assists: 1,
-        apps: 5,
+        apps: 7,
         highlight:
           "Still pulling strings at 37 — Croatia's heartbeat once again",
         emoji: "\u{1FAB6}",
