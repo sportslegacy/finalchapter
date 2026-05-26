@@ -192,13 +192,41 @@ All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC lice
 
 We learned the hard way: it's easy to update a stat number in one place and not the other. The page renders count-of-past-WCs as `worldCups.length - 1`, which is independent from the top-level `worldCupApps` total. They can silently drift.
 
-After ANY edit to `data/players.js`, run this one-liner to confirm the per-WC sums match the stated totals across all 5 players:
+After ANY edit to `data/players.js`, run **both** of these checks. They catch different bug classes.
+
+#### Check 1: numeric — per-WC sums match the stated totals
 
 ```bash
 node -e "const{players}=require('./data/players.js');players.forEach(p=>{const past=p.worldCups.filter(w=>w.year!==2026);const sumG=past.reduce((s,w)=>s+(w.goals||0),0);const sumA=past.reduce((s,w)=>s+(w.assists||0),0);const sumApps=past.reduce((s,w)=>s+(w.apps||0),0);const ok=sumG===p.worldCupGoals&&sumA===p.worldCupAssists&&sumApps===p.worldCupApps;console.log(p.name+': '+(ok?'OK':'MISMATCH G='+sumG+'/'+p.worldCupGoals+' A='+sumA+'/'+p.worldCupAssists+' Apps='+sumApps+'/'+p.worldCupApps))})"
 ```
 
 Should print `OK` for all 5 players. Any `MISMATCH` line tells you which totals don't match which per-WC sums.
+
+#### Check 2: prose — ordinal WC-count claims in bio copy match `worldCups.length`
+
+This catches text like *"in his fourth World Cup"* when the data actually has him at his fifth. Different bug class than Check 1 — the numbers can all sum correctly while the prose still lies.
+
+```bash
+# Step 1: print what number each player's 2026 actually is
+node -e "const{players}=require('./data/players.js');players.forEach(p=>console.log(p.id+': 2026 = his #'+p.worldCups.length+' WC'))"
+
+# Step 2: grep for any ordinal-WC mentions in player copy
+grep -nE "(second|third|fourth|fifth|sixth|seventh) World Cup" data/players.js
+```
+
+Manually reconcile the two outputs — each ordinal-WC phrase in the copy should match the player's actual 2026 count.
+
+**Expected counts (will not change unless a player is added/removed):**
+
+| Player | Past WCs | 2026 is his... | Why |
+|---|---|---|---|
+| Messi | 5 (06, 10, 14, 18, 22) | 6th | full cohort |
+| Ronaldo | 5 (06, 10, 14, 18, 22) | 6th | full cohort |
+| Modrić | 4 (06, 14, 18, 22) | **5th** | Croatia missed 2010 qualifying |
+| Neymar | 3 (14, 18, 22) | 4th | wasn't in 2010 squad |
+| De Bruyne | 3 (14, 18, 22) | 4th | Belgium didn't qualify 2002/06/10; KDB debuted post-2010 |
+
+The Modrić "Croatia missed 2010" footnote is the trap — easy to assume the same-age cohort played the same number of WCs.
 
 **Past audit failures we already fixed (don't repeat):**
 - Messi's `worldCups` array originally missing the 2018 entry — page showed "4 WORLD CUPS" instead of 5. Totals included 2018 but the array didn't.
