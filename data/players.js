@@ -429,7 +429,7 @@ export const players = [
       focus: "center 20%",
     },
     finalChapterReason:
-      "At 40, in his fourth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
+      "At 40, in his fifth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
     milestonesAtStake: [
       {
         headline: "Oldest captain in the field",
