@@ -81,7 +81,7 @@ export default async function PlayerPage({ params }) {
 
       {/* Profile Hero */}
       <section className="profile-hero">
-        <Link href="/" className="back-link">
+        <Link href="/#legends" className="back-link">
           &larr; All Legends
         </Link>
         {player.photo ? (
