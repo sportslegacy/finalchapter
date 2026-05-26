@@ -44,30 +44,33 @@ To force a manual deploy: `vercel --prod` from the repo root.
 
 ```
 app/
-  layout.js              # root metadata (OG, Twitter, metadataBase) + <Analytics/>
-  page.js                # homepage (hero, tournament, legends grid, cities)
-  not-found.js           # branded 404
-  globals.css            # all styles + CSS variables (--accent-gold, etc.)
-  icon.svg               # favicon — static SVG, gold "F" on dark
-  apple-icon.js          # 180×180 PNG for iOS home screen, generated via next/og
-  opengraph-image.js     # 1200×630 PNG OG card, generated at build via next/og
-  twitter-image.js       # re-exports opengraph-image
-  player/[id]/page.js    # per-player detail page (SSG'd for all 5 ids)
+  layout.js                       # root metadata (OG, Twitter, metadataBase) + <Analytics/>
+  page.js                         # homepage (hero, tournament, legends grid, cities) + JSON-LD SportsEvent + ItemList
+  not-found.js                    # branded 404
+  globals.css                     # all styles + CSS variables (--accent-gold, etc.)
+  icon.svg                        # favicon — static SVG, gold "F" on dark
+  apple-icon.js                   # 180×180 PNG for iOS home screen, generated via next/og
+  opengraph-image.js              # 1200×630 site-level OG card (fallback), generated at build via next/og
+  twitter-image.js                # re-exports opengraph-image
+  robots.js                       # → /robots.txt, allow-all + sitemap pointer
+  sitemap.js                      # → /sitemap.xml, lists homepage + 5 player URLs
+  player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema
+  player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
-    Nav.js               # header w/ hamburger drawer + LEGENDS dropdown
-    Countdown.js         # site-wide ticker to the tournament opener
-    MatchCountdown.js    # per-player ticker to their first group match (handles TBD)
-    HashScroll.js        # smooth-scroll for /#section links
+    Nav.js                        # header w/ hamburger drawer + LEGENDS dropdown
+    Countdown.js                  # site-wide ticker to the tournament opener
+    MatchCountdown.js             # per-player ticker to their first group match (handles TBD)
+    HashScroll.js                 # smooth-scroll for /#section links
   lib/navigate-to-section.js
-data/players.js          # all content
-public/players/          # editorial portraits per player (CC-licensed from Wikimedia)
-  messi.jpg              #   Hossein Zohrevand · CC BY 4.0
-  ronaldo.jpg            #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0
-  modric.jpg             #   Real Madrid · CC BY 3.0
-  neymar.jpg             #   Fernando Frazão / Agência Brasil · CC BY 3.0 BR
-  debruyne.jpg           #   Bryan Berlin · CC BY-SA 4.0
-scripts/test-nav.mjs     # playwright test for nav dropdown widths
-.claude/launch.json      # for Claude Preview MCP — points at `npm run dev` on :3000
+data/players.js                   # all content
+public/players/                   # editorial portraits per player (CC-licensed from Wikimedia)
+  messi.jpg                       #   Hossein Zohrevand · CC BY 4.0
+  ronaldo.jpg                     #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0
+  modric.jpg                      #   Real Madrid · CC BY 3.0
+  neymar.jpg                      #   Fernando Frazão / Agência Brasil · CC BY 3.0 BR
+  debruyne.jpg                    #   Bryan Berlin · CC BY-SA 4.0
+scripts/test-nav.mjs              # playwright test for nav dropdown widths
+.claude/launch.json               # for Claude Preview MCP — points at `npm run dev` on :3000
 ```
 
 ### Player page section order
@@ -182,6 +185,37 @@ All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC lice
 - `clubAtTournament` (Modrić → AC Milan, KDB → Napoli — already updated for 2025 transfers)
 - `wc2026.matches[*].time` / `kickoffUtc` — FIFA will lock in TBD times closer to tournament
 - `worldCups[*].apps/goals/assists` for the 2026 entry — currently `null`, fill post-tournament
+- `careerHonors` numbers (e.g. Ballons d'Or count) — verify on Wikipedia after any awards ceremony
+- `worldCupGoals`/`worldCupAssists`/`worldCupApps` top-level totals MUST equal the sum of the per-WC entries. See "Stat data integrity" below.
+
+### Stat data integrity — ALWAYS run the consistency check after editing `data/players.js`
+
+We learned the hard way: it's easy to update a stat number in one place and not the other. The page renders count-of-past-WCs as `worldCups.length - 1`, which is independent from the top-level `worldCupApps` total. They can silently drift.
+
+After ANY edit to `data/players.js`, run this one-liner to confirm the per-WC sums match the stated totals across all 5 players:
+
+```bash
+node -e "const{players}=require('./data/players.js');players.forEach(p=>{const past=p.worldCups.filter(w=>w.year!==2026);const sumG=past.reduce((s,w)=>s+(w.goals||0),0);const sumA=past.reduce((s,w)=>s+(w.assists||0),0);const sumApps=past.reduce((s,w)=>s+(w.apps||0),0);const ok=sumG===p.worldCupGoals&&sumA===p.worldCupAssists&&sumApps===p.worldCupApps;console.log(p.name+': '+(ok?'OK':'MISMATCH G='+sumG+'/'+p.worldCupGoals+' A='+sumA+'/'+p.worldCupAssists+' Apps='+sumApps+'/'+p.worldCupApps))})"
+```
+
+Should print `OK` for all 5 players. Any `MISMATCH` line tells you which totals don't match which per-WC sums.
+
+**Past audit failures we already fixed (don't repeat):**
+- Messi's `worldCups` array originally missing the 2018 entry — page showed "4 WORLD CUPS" instead of 5. Totals included 2018 but the array didn't.
+- Modrić 2022 was listed as 5 apps; should be 7 (Croatia played 7 games on the run to 3rd place, he started all).
+- Neymar 2022 was 4 apps + 1 goal; correct is 3 apps + 2 goals (he missed group games 2/3 with the ankle injury, returned for R16 + QF where he scored a penalty vs South Korea and the extra-time goal vs Croatia).
+- Neymar "5 from Pelé" milestone hook was based on a worldCupGoals total of 7, but he actually has 8.
+- KDB "4× PL Player of the Season" — should be 2× (2019-20, 2021-22). The 4× likely conflated with PL Playmaker of the Season (the assists award), which is a different trophy.
+- Neymar "3× Ligue 1 Player of the Year" — only 1× (2017-18); Mbappé won the rest.
+- Neymar "2× Copa Libertadores" — only 1× (2011 with Santos).
+
+**Trusted sources for verification:**
+- Wikipedia "Lionel Messi at the FIFA World Cup" / per-player WC articles — game-by-game appearances and goals
+- Wikipedia "List of international goals scored by [player]" — definitive goal list
+- `thesoccerworldcups.com/players/<name>.php` — clean per-tournament totals (apps + goals)
+- FIFA's player profile pages on fifa.com — sometimes outdated but authoritative when current
+
+**Assist counts are the murkiest stat.** FIFA, Opta, StatsBomb, and Wikipedia frequently differ on what counts as an assist. Don't waste time chasing perfect parity across providers. As long as our per-WC entries sum to the page total, the page is internally consistent — that's the bar.
 
 ## Domain / DNS (GoDaddy)
 
@@ -213,14 +247,78 @@ vercel certs issue finalchapterfc.com www.finalchapterfc.com
 
 In rough priority if traffic justifies more work:
 
-- **Per-player accent color** (Argentina sky-blue for Messi, Croatia red for Modrić, etc.) — pure CSS, ~40 lines, would differentiate the 5 pages now that they each have a portrait. Add `colors: { primary, secondary }` to `data/players.js` and use them on the headline gradient + milestone-card top stripe + timeline accents.
-- **`robots.txt` / `sitemap.xml`** — Next.js can auto-generate via `app/robots.js` + `app/sitemap.js` (~15 lines each).
-- **Per-player OG images** — currently all share the site-level OG card. Easy with `app/player/[id]/opengraph-image.js`.
+- **Per-player accent color** (Argentina sky-blue for Messi, Croatia red for Modrić, etc.) — pure CSS, ~40 lines, would differentiate the 5 pages now that they each have a portrait. Add `colors: { primary, secondary }` to `data/players.js` and use them on the headline gradient + milestone-card top stripe + timeline accents. **This is the natural next move** since the portraits and per-player OG cards already differentiate visually, but the in-page chrome is still uniform gold.
 - **Shareable player "career card"** — see Parked Ideas below; we built this and removed it for MVP.
-- **JSON-LD `SportsEvent` structured data** — rich Google snippets for "World Cup 2026" queries.
 - **`error.js` boundary** — pure static + no API means basically nothing to crash, but it's polite.
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
+- **Match-result updates during the tournament** — currently the schedule shows match times but no result field. As matches happen, a tiny `match.result: "W 2-0"` style field + a few lines of JSX in the schedule card would give returning visitors a reason to come back. Update manually after each match (5 min of work per game for a 5-player site).
+
+### Shipped — was on this list previously
+- ✅ Editorial photo per player (5 CC-licensed Wikipedia photos in `public/players/`)
+- ✅ `robots.txt` + `sitemap.xml` (auto-generated via `app/robots.js` + `app/sitemap.js`)
+- ✅ Per-player OG images (`app/player/[id]/opengraph-image.js`, photo + name + first milestone hook)
+- ✅ JSON-LD structured data (SportsEvent + ItemList on homepage, Person on player pages)
+
+## Distribution playbook
+
+Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current analytics show ~16 visitors, 3.3 pages/visitor, 88% US traffic. Most growth ahead will come from social, not SEO (which compounds over months).
+
+### What works for this site
+
+**X / Twitter:**
+- Football Twitter is the right audience but new-account reach is ~zero — algorithm de-prioritizes for 1–3 months
+- Use **personal account, not a brand handle.** Existing follower count + posting history > zero followers from `@finalchapterfc`
+- **Tweet the content, not just the link.** A thread that drips one player per tweet, with the URL only in the LAST tweet, outperforms a single "I built this →" tweet by 10×
+- Standalone milestone tweets ("Messi is 3 goals from breaking Klose's all-time WC record. He has up to 7 matches to find them.") are scroll-stoppers and don't need to point to the site
+- Reply thoughtfully to bigger football accounts — each good reply gets exposure to that account's audience. One viral quote-tweet from a 50K+ follower account does more than 20 of our own posts.
+
+**Reddit:**
+- **r/WorldCup (~350K subs) is the best target** — exact topical match for a "Final Chapter" site
+- **r/soccer (~1.2M)** is bigger but stricter; save it for after r/WorldCup has worked
+- Country/club-specific subs are smaller (5–50K) but engagement is high: `r/realmadrid` covers both Modrić and Ronaldo's histories, `r/Barca` covers Messi
+- **Warm up before posting:** comment 2–3× in an active thread (no link) before dropping a linked post. Drive-by self-promo gets removed even when the content is good.
+- **Reply, don't post, when you find a thread that's already debating your topic.** Example: a 7-day-old r/worldcup thread debating "Portugal stacked but held back by 41-year-old Ronaldo" — reply with the "not tactical, terminal" reframe + per-player URL. The OG card preview in the reply does the selling.
+- Bare URLs on their own line render with the OG card preview directly in the comment. Don't bury URLs in markdown brackets.
+- Each country/club sub gets ONE post, spread over a week. Mods cross-check; don't copy-paste the same framing.
+- **Existing personal Reddit account, NOT a new brand account.** AutoMod auto-removes posts from low-karma/new accounts in most football subs. Personal account with even 50+ karma clears the filter.
+
+### Subs to avoid for this project
+
+- **Hacker News:** wrong audience, would not perform
+- **Product Hunt:** for software, not editorial sites
+- **TikTok / YouTube Shorts:** wrong format unless committing to video content
+- **Facebook:** declining organic reach, older demographic, not where football discussion lives
+- **Instagram feed posts:** zero off-platform click conversion — IG actively suppresses outbound links
+
+### Timing for the tournament window
+
+- **Pre-tournament (now through June 10):** awareness build via Reddit + X
+- **Opening week (June 11+):** repost on every platform with the "kickoff today" angle; this is when search/scroll volume for "World Cup 2026" peaks
+- **During tournament:** standalone "milestone hit" tweets after every match a featured player plays
+- **Post-tournament:** SEO compounds; long-tail queries like "Modrić last World Cup" start ranking 3–6 months out
+
+## OG card cache busting
+
+The OG cards we generate (site-level + per-player) are correct on the server, but every messaging platform caches link previews aggressively. **A URL that was shared before today's per-player-OG push will continue showing the OLD generic card for days** until the platform re-fetches.
+
+| Platform | Cache window | Force-refresh tool |
+|---|---|---|
+| iMessage | ~24–48h per device | Delete the message + re-paste; or send to a contact who's never seen the URL |
+| Twitter / X | ~7 days | [cards-dev.twitter.com/validator](https://cards-dev.twitter.com/validator) |
+| LinkedIn | ~7 days | [linkedin.com/post-inspector](https://www.linkedin.com/post-inspector/) |
+| Facebook / Threads | ~30 days | [developers.facebook.com/tools/debug](https://developers.facebook.com/tools/debug/) |
+| WhatsApp | ~30 days | None public — wait it out, or use a new URL |
+| Slack | hours to days | Delete + re-post; or `/unfurl-cache` on paid plans |
+| Discord | a few hours | Delete + re-paste usually works |
+
+**Sanity-test the live OG endpoint directly** (bypasses all caches):
+
+```
+https://finalchapterfc.com/player/<id>/opengraph-image
+```
+
+Opening that URL in any browser shows the actual generated PNG — what crawlers receive on first fetch.
 
 ## Parked ideas (built, removed, may revisit)
 
@@ -248,6 +346,13 @@ In rough priority if traffic justifies more work:
 2. **Countdown** is ticking and the day count matches `(2026-06-11T19:00:00Z − Now())`
 3. **Per-player MatchCountdown** renders "Next up · …" above each schedule
 4. **Records in Play** cards show with the gold top stripe
-5. **OG preview:** paste URL into iMessage → gold "The Final Chapter" 1200×630 card shows
-6. **`Add to Home Screen`** on iOS → gold "F" icon, not a screenshot thumbnail
-7. **Analytics dashboard** (Vercel project → Analytics tab): page views appearing within 1–2 min of a real visit (use mobile data / incognito if ad-blocker is suspected)
+5. **OG preview (site-level):** paste `finalchapterfc.com` into iMessage → gold "The Final Chapter" 1200×630 card shows
+6. **OG preview (per-player):** paste `finalchapterfc.com/player/messi` into iMessage → personalized Messi card with "3 from Klose" hook shows
+7. **`Add to Home Screen`** on iOS → gold "F" icon, not a screenshot thumbnail
+8. **Analytics dashboard** (Vercel project → Analytics tab): page views appearing within 1–2 min of a real visit (use mobile data / incognito if ad-blocker is suspected)
+9. **`/robots.txt` and `/sitemap.xml`** return reasonable content (curl them or browse directly)
+10. **Search Console** (whenever set up): no new structured-data errors on JSON-LD
+
+## Verifying stats after editing `data/players.js`
+
+This is important enough to repeat. After ANY content change in `data/players.js`, run the consistency check (see "Stat data integrity" section above). The page-level rendering uses `worldCups.length - 1` for the "WORLD CUPS" stat, which is independent from the `worldCupApps`/`worldCupGoals`/`worldCupAssists` totals. They MUST agree, or one of them is wrong.
