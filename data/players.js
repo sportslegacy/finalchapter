@@ -143,7 +143,7 @@ export const players = [
       {
         headline: "Sixth World Cup",
         detail:
-          "No outfield player has ever played in six World Cups. He shared the previous record of five with Mexico's Rafa Márquez. He stands alone now.",
+          "No outfield player has ever played in six World Cups. The previous record of five was shared by Rafa Márquez, Cristiano Ronaldo, and Messi himself. In 2026, only Messi and Ronaldo will reach six — the historic first.",
       },
       {
         headline: "Most WC appearances ever",
@@ -461,9 +461,9 @@ export const players = [
     ageAtTournament: 34,
     clubAtTournament: "Santos",
     quote: "There is no pressure when you are making a dream come true.",
-    worldCupGoals: 7,
+    worldCupGoals: 8,
     worldCupAssists: 3,
-    worldCupApps: 14,
+    worldCupApps: 13,
     wc2026: {
       group: "C",
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
@@ -524,11 +524,11 @@ export const players = [
         host: "Qatar",
         age: 30,
         result: "Quarter-finals",
-        goals: 1,
+        goals: 2,
         assists: 2,
-        apps: 4,
+        apps: 3,
         highlight:
-          "A stunning goal vs Croatia in extra time — then heartbreak on penalties",
+          "Returned from an ankle injury to score vs South Korea and a stunner vs Croatia in extra time — then heartbreak on penalties",
         emoji: "\u{1F622}",
       },
       {
@@ -546,10 +546,10 @@ export const players = [
     ],
     careerHonors: [
       "Champions League 2015",
-      "2× Copa Libertadores",
+      "Copa Libertadores 2011",
       "Olympic Gold 2016",
       "Brazil's all-time top scorer (79 goals)",
-      "3× Ligue 1 Player of the Year",
+      "Ligue 1 Player of the Year 2017-18",
     ],
     photo: {
       src: "/players/neymar.jpg",
@@ -564,9 +564,9 @@ export const players = [
       "Three World Cups, three heartbreaks. A fractured vertebra in 2014. Belgium in 2018. Penalties to Croatia in 2022. Now 34 and rebuilt from an ACL tear, back at Santos where he started. Ancelotti named him anyway. Brazil's all-time leading scorer gets one last tournament where — God willing — the body holds and the moment is finally his.",
     milestonesAtStake: [
       {
-        headline: "5 from Pelé",
+        headline: "4 from Pelé",
         detail:
-          "Pelé scored 12 World Cup goals for Brazil. Neymar enters with 7 — five short of tying the king on Brazil's own record book.",
+          "Pelé scored 12 World Cup goals for Brazil. Neymar enters with 8 — four short of tying the king on Brazil's own record book.",
       },
       {
         headline: "Brazil's all-time top scorer",
@@ -579,7 +579,7 @@ export const players = [
           "Three campaigns, three quarter- or semi-final exits. The most gifted Brazilian generation since the 70s has never won. This is almost certainly the last opportunity for this group.",
       },
     ],
-    bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022. Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad. He opens against Morocco at MetLife Stadium — the same venue that will host the Final. Brazil's all-time leading scorer has one last shot at the trophy that defines Brazilian football.",
+    bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022 (despite a stunner of his own in extra time). Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad. He opens against Morocco at MetLife Stadium — the same venue that will host the Final. Brazil's all-time leading scorer has one last shot at the trophy that defines Brazilian football.",
   },
   {
     id: "debruyne",
@@ -679,7 +679,7 @@ export const players = [
     careerHonors: [
       "6× Premier League",
       "Champions League 2023",
-      "4× PL Player of the Season",
+      "2× PL Player of the Season",
       "World Cup 3rd place 2018",
       "Belgium's qualifying top scorer 2026",
     ],
