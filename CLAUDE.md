@@ -236,6 +236,7 @@ The Modrić "Croatia missed 2010" footnote is the trap — easy to assume the sa
 - KDB "4× PL Player of the Season" — should be 2× (2019-20, 2021-22). The 4× likely conflated with PL Playmaker of the Season (the assists award), which is a different trophy.
 - Neymar "3× Ligue 1 Player of the Year" — only 1× (2017-18); Mbappé won the rest.
 - Neymar "2× Copa Libertadores" — only 1× (2011 with Santos).
+- Modrić "Oldest captain in the field" — **false**. Ronaldo at 41 captains Portugal and is older than Modrić at 40. **Always check comparative-age claims against Ronaldo first** — he's the oldest outfield player + captain at the tournament. Anyone claiming "oldest X" for Modrić, Messi (39), Neymar (34), or De Bruyne (35) is wrong by default. Fixed by replacing the milestone with "Fifth World Cup at 40" (Croatia missed 2010 qualifying — a true Modrić-specific fact).
 
 **Trusted sources for verification:**
 - Wikipedia "Lionel Messi at the FIFA World Cup" / per-player WC articles — game-by-game appearances and goals
@@ -325,6 +326,46 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 - **Opening week (June 11+):** repost on every platform with the "kickoff today" angle; this is when search/scroll volume for "World Cup 2026" peaks
 - **During tournament:** standalone "milestone hit" tweets after every match a featured player plays
 - **Post-tournament:** SEO compounds; long-tail queries like "Modrić last World Cup" start ranking 3–6 months out
+
+### What's actually working (data from week 1)
+
+Analytics after 7 days live (May 24 → May 27, 2026):
+- **58 visitors, 179 page views, 3.3 pages/visit** (engagement is strong)
+- **Reddit is THE channel.** 8 reddit.com referrers vs 3 t.co (Twitter/X). Both Reddit replies we posted drove measurable lifts:
+  - Portugal/Ronaldo r/worldcup reply → `/player/ronaldo` jumped from 2 → 16 visits (+14)
+  - Messi MLS r/worldcup reply → `/player/messi` jumped from 4 → 16 visits (+12)
+- **X is dead at our scale.** 13 followers, 3 total t.co clicks in a week. Don't invest more X effort beyond the pinned tweet + URL in bio. **Focus all marketing time on Reddit.**
+- **Geographic concentration:** 71% US, then India 5%, Canada 3%, Germany 3%, France 3%. Country-specific subreddits (Croatia, Belgium, Brazil) would diversify the geo mix.
+- **Devices:** 64% desktop, 36% mobile (more desktop than expected for a fan site — possible Reddit-from-desktop bias)
+- **Under-served players:** Modrić, Neymar, De Bruyne each got only 4–5 visits. Same Reddit-reply playbook should pull them up. The proven recipe is below.
+
+### Reddit reply tactics that worked (3 successful examples)
+
+The pattern across all three successful replies:
+
+1. **Reply to a specific high-upvoted comment in the thread, NOT a top-level new comment.** Top-level comments on 7-day-old threads get buried. Replying under a 100+ upvote comment piggybacks on its visibility.
+2. **Quote/validate the parent commenter's framing first.** "The reframe I'd offer..." / "The 'rationed not gone' line nails it..." — shows you read, not promoted.
+3. **Add one specific fact other commenters don't have.** Not generic stats; a sharp footnote like "Croatia missed 2010 qualifying" or "Messi won MLS MVP at 37."
+4. **End with a single bare URL on its own line.** No "check out my site" preamble. Reddit auto-renders the per-player OG card preview, doing the visual selling.
+5. **Skip generic praise threads.** Best targets have an **active debate** — Ronaldo "held back the team" thread, Messi MLS-vs-international, Modrić retiring after WC. Look for disagreement in the comments; that's where a reframe lands.
+
+**Worked examples preserved in git history** (in case you want to study the tone):
+- Portugal/Ronaldo reply: "2026 isn't tactical for him, it's terminal..." (Fragahah comment in r/worldcup)
+- Messi MLS reply: "The discourse is louder than the data..." (taube_d's post in r/worldcup)
+- Modrić retirement reply: "Win or not, the participating is already historic..." (Abideguide comment in r/soccer)
+
+### Sub-priorities (Modrić, Neymar, KDB needed Reddit reply love)
+
+- **Modrić:** r/soccer "Modric retiring after WC" thread (5.2K upvotes) was the win. Future: country-specific r/CroatianFootball if it has karma threshold under your account.
+- **Neymar:** Find r/worldcup or r/soccer threads about Brazil's chances, Ancelotti's selection, or Pelé record. r/Brazil_Football_Talk if active.
+- **De Bruyne:** Belgium / Golden Generation / KDB's Napoli move are the topical hooks. Smaller national team = smaller threads but easier to dominate the conversation.
+
+### What to NOT do (learned)
+
+- **Don't tweet standalone content on X at <100 followers.** Reach is effectively zero. Reply-guy strategy or skip.
+- **Don't post on r/soccer cold.** Comment 1–2× in the thread first (no link) to register as a participant before the linked reply.
+- **Don't reply to threads >2 weeks old as a top-level comment.** Sub-reply under a high-upvote comment instead.
+- **Don't make comparative-age claims about Modrić/Messi/Neymar/KDB without checking Ronaldo first.** Ronaldo is 41; everyone else is younger. "Oldest X" claims default to him.
 
 ## OG card cache busting
 

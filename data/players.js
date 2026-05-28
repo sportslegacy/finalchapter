@@ -432,9 +432,9 @@ export const players = [
       "At 40, in his fifth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
     milestonesAtStake: [
       {
-        headline: "Oldest captain in the field",
+        headline: "Fifth World Cup at 40",
         detail:
-          "At 40, Modrić is the oldest captain at the 2026 World Cup. Every match he starts is another page added to the record book.",
+          "Croatia missed 2010 qualifying, so Modrić's count is one short of the Messi/Ronaldo cohort. But captaining Croatia at his fifth World Cup at 40 puts him in a tiny club — only a handful of midfielders have ever played five.",
       },
       {
         headline: "Croatia's iron man",
