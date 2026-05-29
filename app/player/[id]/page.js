@@ -11,13 +11,24 @@ export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
 }
 
+const ORDINALS = ["", "first", "second", "third", "fourth", "fifth", "sixth"];
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const player = getPlayerById(id);
   if (!player) return {};
+  const ordinal = ORDINALS[player.worldCups.length] || `${player.worldCups.length}th`;
+  const description = `Is 2026 ${player.name}'s last World Cup? At ${player.ageAtTournament}, it's his ${ordinal} and likely final World Cup — Group ${player.wc2026.group} with ${player.wc2026.groupTeams.filter((t) => t !== player.country).join(", ")}, ${player.worldCupGoals} career WC goals. His full journey, records at stake, and 2026 schedule.`;
   return {
-    title: `${player.name} — The Final Chapter | World Cup 2026`,
-    description: `${player.name}'s World Cup 2026 journey. Group ${player.wc2026.group}: ${player.wc2026.groupTeams.join(", ")}. ${player.bio}`,
+    title: `Is 2026 ${player.name}'s Last World Cup? — The Final Chapter`,
+    description,
+    alternates: { canonical: `/player/${player.id}` },
+    openGraph: {
+      title: `${player.name} — The Final Chapter | World Cup 2026`,
+      description,
+      url: `/player/${player.id}`,
+      type: "profile",
+    },
   };
 }
 
@@ -62,6 +73,24 @@ function buildPersonJsonLd(player) {
   };
 }
 
+// FAQPage schema — mirrors the on-page Q&A so search engines can associate
+// the answers with the long-tail queries they target ("is 2026 X's last
+// World Cup", etc.). Note: Google now limits FAQ *rich results* to a few
+// authoritative domains, but the markup remains valid and the on-page copy
+// still serves the search intent + People Also Ask.
+function buildFaqJsonLd(player) {
+  if (!player.faqs?.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: player.faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
 export default async function PlayerPage({ params }) {
   const { id } = await params;
   const player = getPlayerById(id);
@@ -70,6 +99,8 @@ export default async function PlayerPage({ params }) {
   const idx = players.findIndex((p) => p.id === player.id);
   const prev = idx > 0 ? players[idx - 1] : null;
   const next = idx < players.length - 1 ? players[idx + 1] : null;
+  const faqJsonLd = buildFaqJsonLd(player);
+  const firstName = player.name.split(" ")[0];
 
   return (
     <>
@@ -79,6 +110,12 @@ export default async function PlayerPage({ params }) {
           __html: JSON.stringify(buildPersonJsonLd(player)),
         }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <Nav />
 
       <div
@@ -278,6 +315,26 @@ export default async function PlayerPage({ params }) {
           ))}
         </div>
       </section>
+
+      {/* FAQ — targets long-tail "is 2026 X's last World Cup" search queries */}
+      {player.faqs?.length > 0 && (
+        <section className="faq-section">
+          <div className="section-header">
+            <div className="section-label">Common Questions</div>
+            <h2 className="section-title">
+              {firstName}&apos;s 2026 World Cup, Answered
+            </h2>
+          </div>
+          <div className="faq-list">
+            {player.faqs.map((f, i) => (
+              <div key={i} className="faq-item">
+                <h3 className="faq-q">{f.q}</h3>
+                <p className="faq-a">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Player Navigation */}
       <div

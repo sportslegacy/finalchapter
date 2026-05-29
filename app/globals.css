@@ -1703,3 +1703,39 @@ body.nav-menu-open {
     transition: none;
   }
 }
+
+/* ========== FAQ (SEO long-tail) ========== */
+.faq-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.35rem;
+}
+
+.faq-q {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+  color: var(--player-accent, var(--accent-gold));
+}
+
+.faq-a {
+  margin: 0;
+  font-size: 0.97rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
