@@ -67,8 +67,23 @@ function buildPersonJsonLd(player) {
     subjectOf: {
       "@type": "SportsEvent",
       name: "2026 FIFA World Cup",
+      description:
+        "The first 48-team FIFA World Cup, hosted across the USA, Canada, and Mexico from June 11 to July 19, 2026.",
       startDate: "2026-06-11",
       endDate: "2026-07-19",
+      eventStatus: "https://schema.org/EventScheduled",
+      sport: "Association Football",
+      image: `${SITE_URL}${player.photo.src}`,
+      location: [
+        { "@type": "Country", name: "United States" },
+        { "@type": "Country", name: "Canada" },
+        { "@type": "Country", name: "Mexico" },
+      ],
+      organizer: {
+        "@type": "Organization",
+        name: "FIFA",
+        url: "https://www.fifa.com",
+      },
     },
   };
 }
