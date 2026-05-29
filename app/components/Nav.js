@@ -31,6 +31,21 @@ export default function Nav() {
     [closeAll]
   );
 
+  // On the homepage, clicking the logo otherwise navigates to "/" — a no-op when
+  // the path is unchanged, so a scrolled-down user sees nothing happen. Scroll
+  // to top instead. On player pages, let the Link navigate normally.
+  const onLogoClick = useCallback(
+    (e) => {
+      closeAll();
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.replaceState(null, "", "/");
+      }
+    },
+    [closeAll]
+  );
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
@@ -83,7 +98,7 @@ export default function Nav() {
           >
             <span className="nav-menu-icon" aria-hidden="true" />
           </button>
-          <Link href="/" className="nav-logo" onClick={closeAll}>
+          <Link href="/" className="nav-logo" onClick={onLogoClick}>
             <span className="nav-logo-full">The Final Chapter</span>
             <span className="nav-logo-short">Final Chapter</span>
           </Link>
