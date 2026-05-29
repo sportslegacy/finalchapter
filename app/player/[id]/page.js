@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
+import CountUp from "../../components/CountUp";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -79,6 +80,15 @@ export default async function PlayerPage({ params }) {
       />
       <Nav />
 
+      <div
+        className="player-accent-scope"
+        style={{
+          "--player-accent": player.colors?.primary || "var(--accent-gold)",
+          "--player-accent-2":
+            player.colors?.secondary || "var(--accent-gold-dim)",
+        }}
+      >
+
       {/* Profile Hero */}
       <section className="profile-hero">
         <Link href="/#legends" className="back-link">
@@ -111,21 +121,22 @@ export default async function PlayerPage({ params }) {
         <div className="profile-quote">&ldquo;{player.quote}&rdquo;</div>
         <div className="profile-stats">
           <div className="profile-stat">
-            <div className="profile-stat-value">{player.worldCupGoals}</div>
+            <CountUp value={player.worldCupGoals} className="profile-stat-value" />
             <div className="profile-stat-label">WC Goals</div>
           </div>
           <div className="profile-stat">
-            <div className="profile-stat-value">{player.worldCupAssists}</div>
+            <CountUp value={player.worldCupAssists} className="profile-stat-value" />
             <div className="profile-stat-label">WC Assists</div>
           </div>
           <div className="profile-stat">
-            <div className="profile-stat-value">{player.worldCupApps}</div>
+            <CountUp value={player.worldCupApps} className="profile-stat-value" />
             <div className="profile-stat-label">WC Apps</div>
           </div>
           <div className="profile-stat">
-            <div className="profile-stat-value">
-              {player.worldCups.length - 1}
-            </div>
+            <CountUp
+              value={player.worldCups.length - 1}
+              className="profile-stat-value"
+            />
             <div className="profile-stat-label">World Cups</div>
           </div>
         </div>
@@ -306,6 +317,8 @@ export default async function PlayerPage({ params }) {
           , via Wikimedia Commons (resized).
         </div>
       )}
+
+      </div>
 
       {/* Footer */}
       <footer className="site-footer">

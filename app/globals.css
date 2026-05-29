@@ -1552,3 +1552,73 @@ body.nav-menu-open {
   color: var(--text-secondary);
   margin: 0;
 }
+
+/* ========== PER-PLAYER ACCENT COLOR ========== */
+/* Each player page sets --player-accent / --player-accent-2 (their national
+   colors) on .player-accent-scope. These overrides recolor the page chrome
+   so the 5 profiles feel distinct instead of uniform gold. Defaults fall back
+   to gold via the inline style on the scope element. */
+
+.player-accent-scope .profile-name {
+  background: linear-gradient(
+    100deg,
+    var(--player-accent) 0%,
+    var(--player-accent-2) 50%,
+    var(--player-accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.player-accent-scope .profile-stat-value {
+  font-size: 3.4rem;
+  color: var(--player-accent);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 28px color-mix(in srgb, var(--player-accent) 35%, transparent);
+}
+
+.player-accent-scope .section-label,
+.player-accent-scope .timeline-year,
+.player-accent-scope .group-badge,
+.player-accent-scope .milestone-headline,
+.player-accent-scope .timeline-result.champion {
+  color: var(--player-accent);
+}
+
+.player-accent-scope .group-badge {
+  border-color: color-mix(in srgb, var(--player-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--player-accent) 7%, transparent);
+}
+
+.player-accent-scope .final-chapter-mark {
+  color: var(--player-accent);
+  border-color: color-mix(in srgb, var(--player-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--player-accent) 6%, transparent);
+}
+
+.player-accent-scope .milestone-card::before {
+  background: linear-gradient(
+    90deg,
+    var(--player-accent),
+    var(--player-accent-2)
+  );
+  opacity: 0.85;
+}
+
+.player-accent-scope .milestone-card:hover {
+  border-color: color-mix(in srgb, var(--player-accent) 55%, transparent);
+}
+
+@media (max-width: 430px) {
+  .player-accent-scope .profile-stat-value {
+    font-size: 2.9rem;
+  }
+}
+
+.player-accent-scope .profile-photo {
+  border-color: color-mix(in srgb, var(--player-accent) 40%, transparent);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 0 1px color-mix(in srgb, var(--player-accent) 12%, transparent),
+    0 0 90px -20px color-mix(in srgb, var(--player-accent) 45%, transparent);
+}
