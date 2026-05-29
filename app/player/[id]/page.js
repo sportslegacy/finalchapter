@@ -5,6 +5,7 @@ import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
 import CountUp from "../../components/CountUp";
+import GoalChart from "../../components/GoalChart";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -221,6 +222,11 @@ export default async function PlayerPage({ params }) {
         <div className="section-header">
           <div className="section-label">World Cup Journey</div>
           <h2 className="section-title">Every Chapter</h2>
+        </div>
+
+        <div className="goal-chart-wrap">
+          <div className="goal-chart-caption">Goals by World Cup</div>
+          <GoalChart worldCups={player.worldCups} />
         </div>
 
         <div className="timeline">
