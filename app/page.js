@@ -172,43 +172,55 @@ export default function Home() {
               key={player.id}
               href={`/player/${player.id}`}
               className="player-card"
+              style={{
+                "--player-accent": player.colors?.primary || "var(--accent-gold)",
+                "--player-accent-2":
+                  player.colors?.secondary || "var(--accent-gold-dim)",
+              }}
             >
-              <div className="card-top">
+              <div className="card-photo">
+                <img
+                  src={player.photo.src}
+                  alt={player.name}
+                  loading="lazy"
+                  style={{ objectPosition: player.photo.focus || "center top" }}
+                />
                 <div className="card-flag">{player.countryFlag}</div>
                 <div className="card-age">
-                  Age at WC
-                  <span>{player.ageAtTournament}</span>
+                  Age at WC <span>{player.ageAtTournament}</span>
                 </div>
               </div>
-              <h3 className="card-name">{player.name}</h3>
-              <div className="card-country">
-                {player.country} &middot; {player.position} &middot; Group{" "}
-                {player.wc2026.group}
-              </div>
-              <div className="card-meta">
-                <div className="card-stat">
-                  <div className="card-stat-value">{player.worldCupGoals}</div>
-                  <div className="card-stat-label">WC Goals</div>
+              <div className="card-body">
+                <h3 className="card-name">{player.name}</h3>
+                <div className="card-country">
+                  {player.country} &middot; {player.position} &middot; Group{" "}
+                  {player.wc2026.group}
                 </div>
-                <div className="card-stat">
-                  <div className="card-stat-value">{player.worldCupApps}</div>
-                  <div className="card-stat-label">WC Apps</div>
-                </div>
-                <div className="card-stat">
-                  <div className="card-stat-value">
-                    {player.worldCups.length - 1}
+                <div className="card-meta">
+                  <div className="card-stat">
+                    <div className="card-stat-value">{player.worldCupGoals}</div>
+                    <div className="card-stat-label">WC Goals</div>
                   </div>
-                  <div className="card-stat-label">World Cups</div>
+                  <div className="card-stat">
+                    <div className="card-stat-value">{player.worldCupApps}</div>
+                    <div className="card-stat-label">WC Apps</div>
+                  </div>
+                  <div className="card-stat">
+                    <div className="card-stat-value">
+                      {player.worldCups.length - 1}
+                    </div>
+                    <div className="card-stat-label">World Cups</div>
+                  </div>
                 </div>
-              </div>
-              <div className="card-group-preview">
-                <span className="card-group-label">
-                  Group {player.wc2026.group}:
-                </span>{" "}
-                {player.wc2026.groupTeams.join(", ")}
-              </div>
-              <div className="card-cta">
-                View their story <span>&rarr;</span>
+                <div className="card-group-preview">
+                  <span className="card-group-label">
+                    Group {player.wc2026.group}:
+                  </span>{" "}
+                  {player.wc2026.groupTeams.join(", ")}
+                </div>
+                <div className="card-cta">
+                  View their story <span>&rarr;</span>
+                </div>
               </div>
             </Link>
           ))}
