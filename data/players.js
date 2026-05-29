@@ -42,7 +42,7 @@ export const players = [
         },
       ],
       storyline:
-        "Defending champions and heavy favorites. Messi's record sixth World Cup — on American soil where he now lives. The group should be comfortable, but the knockouts await. Can he lead one more magical run?",
+        "Defending champions and heavy favorites — but Scaloni named a 26-man squad with six fitness concerns, Messi himself nursing a left-hamstring overload from Inter Miami. The record sixth World Cup, on American soil where he now lives. The group should be comfortable, but the knockouts await. Can he lead one more magical run?",
     },
     worldCups: [
       {
@@ -196,7 +196,7 @@ export const players = [
         },
       ],
       storyline:
-        "At 41, Ronaldo will be the oldest outfield player in the tournament. Group K offers a tricky Colombia clash, but the real question is whether the ultimate competitor can finally lift the one trophy that has always eluded him. A sixth World Cup and possibly his last chance.",
+        "At 41, Ronaldo will be the oldest outfield player in the tournament — and he arrives as the Nations League's top scorer with Portugal as reigning champions. Martinez named him in a 27+1 squad, the symbolic +1 in memory of the late Diogo Jota. Group K offers a tricky Colombia clash, but the real question is whether the ultimate competitor can finally lift the one trophy that has always eluded him.",
     },
     worldCups: [
       {
@@ -429,7 +429,7 @@ export const players = [
       focus: "center 20%",
     },
     finalChapterReason:
-      "At 40, in his fifth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
+      "At 40, in his fifth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Schira reported in May 2026 that he's set to retire from professional football after the tournament. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
     milestonesAtStake: [
       {
         headline: "Fifth World Cup at 40",
@@ -492,7 +492,7 @@ export const players = [
         },
       ],
       storyline:
-        "Named in Ancelotti's 26-man squad despite lingering fitness concerns after his 2023 ACL tear. Brazil open against a dangerous Morocco at MetLife Stadium. At 34, Neymar is Brazil's all-time top scorer with 79 goals — this is his shot at redemption after three World Cups of heartbreak.",
+        "Named in Ancelotti's 26-man squad — then ruled out of the Morocco opener with a grade 2 calf tear (May 2026, 2–3 weeks). Brazil should have him back for the rest of the group stage. At 34, Brazil's all-time top scorer is fighting his body one more time for a goodbye three campaigns of heartbreak never gave him.",
     },
     worldCups: [
       {
@@ -579,7 +579,7 @@ export const players = [
           "Three campaigns, three quarter- or semi-final exits. The most gifted Brazilian generation since the 70s has never won. This is almost certainly the last opportunity for this group.",
       },
     ],
-    bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022 (despite a stunner of his own in extra time). Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad. He opens against Morocco at MetLife Stadium — the same venue that will host the Final. Brazil's all-time leading scorer has one last shot at the trophy that defines Brazilian football.",
+    bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022 (despite a stunner of his own in extra time). Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad — then ruled out of the Morocco opener two weeks before kickoff with a grade 2 calf tear. Brazil should have him back for the knockouts if they advance. The body has fought him at every World Cup. Brazil's all-time leading scorer is fighting it one more time for the goodbye three campaigns of heartbreak never let him have.",
   },
   {
     id: "debruyne",
@@ -693,7 +693,7 @@ export const players = [
       focus: "center 25%",
     },
     finalChapterReason:
-      "Hazard retired. Kompany coaches now. Vermaelen, Vertonghen, Witsel — all gone. De Bruyne is the last of Belgium's Golden Generation: the most-hyped, most-talented, most-disappointing group in the country's history. Third in 2018 was the ceiling. At 35, in his fourth World Cup, the captain gets one final chance to write the ending the generation deserved but never got.",
+      "Hazard retired. Kompany coaches now. Vermaelen, Vertonghen — gone. Witsel came out of international retirement just to ride along. De Bruyne is the last torchbearer of Belgium's Golden Generation: the most-hyped, most-talented, most-disappointing group in the country's history. Third in 2018 was the ceiling. At 35, in his fourth World Cup, the captain gets one final chance to write the ending the generation deserved but never got.",
     milestonesAtStake: [
       {
         headline: "Belgium's first World Cup",
