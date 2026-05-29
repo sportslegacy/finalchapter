@@ -6,6 +6,7 @@ import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
+import JsonLd from "../../components/JsonLd";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -119,18 +120,8 @@ export default async function PlayerPage({ params }) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(buildPersonJsonLd(player)),
-        }}
-      />
-      {faqJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-        />
-      )}
+      <JsonLd id={`person-${player.id}`} data={buildPersonJsonLd(player)} />
+      {faqJsonLd && <JsonLd id={`faq-${player.id}`} data={faqJsonLd} />}
       <Nav />
 
       <div

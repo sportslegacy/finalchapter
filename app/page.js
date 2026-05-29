@@ -2,6 +2,7 @@ import Link from "next/link";
 import { players, tournament } from "../data/players";
 import Countdown from "./components/Countdown";
 import Nav from "./components/Nav";
+import JsonLd from "./components/JsonLd";
 
 const SITE_URL = "https://finalchapterfc.com";
 
@@ -56,16 +57,8 @@ const legendsListJsonLd = (playersData) => ({
 export default function Home() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(legendsListJsonLd(players)),
-        }}
-      />
+      <JsonLd id="event-sportsevent" data={eventJsonLd} />
+      <JsonLd id="legends-itemlist" data={legendsListJsonLd(players)} />
       <Nav />
 
       {/* Hero */}
