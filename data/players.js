@@ -460,12 +460,12 @@ export const players = [
     ],
     photo: {
       src: "/players/modric.jpg",
-      credit: "Real Madrid",
-      license: "CC BY 3.0",
-      licenseUrl: "https://creativecommons.org/licenses/by/3.0/",
+      credit: "Светлана Бекетова (Svetlana Beketova)",
+      license: "CC BY-SA 3.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
       sourceUrl:
-        "https://commons.wikimedia.org/wiki/File:Luka_Modric_Interview_2021_(cropped).jpg",
-      focus: "center 20%",
+        "https://commons.wikimedia.org/wiki/File:Modri%C4%87_World_Cup_2018.jpg",
+      focus: "center 10%",
     },
     finalChapterReason:
       "At 40, in his fifth World Cup, on the back of a Final and a third-place finish no other Croatian generation will ever reach again. Real Madrid let him go after 13 years; Milan took him. Schira reported in May 2026 that he's set to retire from professional football after the tournament. Croatia's golden midfield convenes one more time — knowing, this time, it will not convene again.",
@@ -611,12 +611,12 @@ export const players = [
     ],
     photo: {
       src: "/players/neymar.jpg",
-      credit: "Fernando Frazão / Agência Brasil",
-      license: "CC BY 3.0 BR",
-      licenseUrl: "https://creativecommons.org/licenses/by/3.0/br/deed.en",
+      credit: "Julia Engel (Granada)",
+      license: "CC BY-SA 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
       sourceUrl:
-        "https://commons.wikimedia.org/wiki/File:Brasil_conquista_primeiro_ouro_olímpico_no_futebol_1039230-20082016-_mg_2846_0a1.jpg",
-      focus: "70% center",
+        "https://commons.wikimedia.org/wiki/File:20180610_FIFA_Friendly_Match_Austria_vs._Brazil_Neymar_850_1705.jpg",
+      focus: "center 22%",
     },
     finalChapterReason:
       "Three World Cups, three heartbreaks. A fractured vertebra in 2014. Belgium in 2018. Penalties to Croatia in 2022. Now 34 and rebuilt from an ACL tear, back at Santos where he started. Ancelotti named him anyway. Brazil's all-time leading scorer gets one last tournament where — God willing — the body holds and the moment is finally his.",
