@@ -68,8 +68,8 @@ data/players.js                   # all content
 public/players/                   # editorial portraits per player (CC-licensed from Wikimedia)
   messi.jpg                       #   Hossein Zohrevand · CC BY 4.0 (2022 WC, Argentina fist-pump)
   ronaldo.jpg                     #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0 (2018 WC face close-up)
-  modric.jpg                      #   Светлана Бекетова (Svetlana Beketova) · CC BY-SA 3.0 (2018 WC action, Croatia kit + armband)
-  neymar.jpg                      #   Julia Engel (Granada) · CC BY-SA 4.0 (2018 Brazil-kit head-on portrait)
+  modric-wc18.jpg                 #   Светлана Бекетова (Svetlana Beketova) · CC BY-SA 3.0 (2018 WC action, Croatia kit + armband)
+  neymar-wc18.jpg                 #   Julia Engel (Granada) · CC BY-SA 4.0 (2018 Brazil-kit head-on portrait)
   debruyne.jpg                    #   Bryan Berlin · CC BY-SA 4.0 (Belgium anthem shot)
 scripts/test-nav.mjs              # playwright test for nav dropdown widths
 .claude/launch.json               # for Claude Preview MCP — points at `npm run dev` on :3000
@@ -154,9 +154,15 @@ CSS then reads `var(--player-accent, ...)` for the name gradient, stat numbers, 
 
 `<Link href="/">` is a no-op when you're already on `/` (path unchanged → nothing happens, looked like a dead click when scrolled down). `Nav.js`'s `onLogoClick` detects `pathname === "/"`, `preventDefault`s, and smooth-scrolls to top instead. On player pages it lets the Link navigate home normally. Don't revert it to a bare `onClick={closeAll}`.
 
-### Swapping a `public/players/*.jpg` — bust the next/image dev cache
+### Swapping a `public/players/*.jpg` — RENAME the file, don't overwrite in place
 
-When you replace a portrait file in dev, the raw file at `http://localhost:3000/players/<id>.jpg` updates immediately, but the **`next/image`-optimized** version the page renders stays stale (the optimizer/browser caches the `/_next/image?url=...` response). The first screenshot after a swap shows the OLD photo. Fix in the Claude Preview MCP: `location.reload(true)` then re-check — verify the new image loaded by reading `naturalWidth/naturalHeight` ratio (it should match the new source aspect, e.g. 0.667 for an 800×1200 portrait vs ~1.5 for the old landscape). Only then screenshot. The live deploy is unaffected — this is purely a local dev-cache artifact.
+Replacing a portrait at the **same path** leaves stale copies everywhere the URL is the cache key:
+- **Browsers** cache `/players/<id>.jpg` (the homepage card is a plain `<img>`, so a returning visitor keeps seeing the OLD photo there).
+- The **player page** uses `next/image` → a *different* URL (`/_next/image?url=...`), which busts independently. Net effect: homepage shows old, player page shows new — they look like two different photos. (This is exactly what happened with Neymar/Modrić; fixed by renaming.)
+
+**Rule:** when you change a player's photo, give the new file a fresh name (e.g. `neymar-wc18.jpg`) and update `photo.src` in `data/players.js`. Everything (homepage card, player `<Image>`, OG card, JSON-LD) derives from `photo.src`, so one rename busts all caches consistently. Don't reuse the old filename.
+
+Local dev has a milder version of the same staleness: after editing, the raw file at `http://localhost:3000/players/<file>.jpg` updates but the page's `next/image` render can lag. In Claude Preview MCP, `location.reload(true)` then verify via `naturalWidth/naturalHeight` ratio (0.667 for an 800×1200 portrait vs ~1.5 for a landscape) before screenshotting.
 
 ### CC photo sourcing — 2022 Qatar World Cup shots are scarce
 
@@ -203,9 +209,9 @@ All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC lice
 
 1. Find a CC-licensed photo on Wikimedia Commons (filter by "free media" + check the file's license on its description page).
 2. Download the **original** file from `upload.wikimedia.org`.
-3. Drop it into `public/players/<id>.jpg`.
-4. Resize: `sips -Z 1200 public/players/<id>.jpg --setProperty formatOptions 80`. Keeps long-edge ≤ 1200px and quality at 80% — yields ~150–300KB per file.
-5. Update `data/players.js → players[i].photo` with the new credit/license/source.
+3. Drop it into `public/players/` under a **NEW filename** (e.g. `<id>-wc18.jpg`) — never overwrite the existing file in place, or browser/CDN caches will keep serving the old photo on the plain-`<img>` homepage card. See the "RENAME the file" gotcha.
+4. Resize: `sips -Z 1200 public/players/<file>.jpg --setProperty formatOptions 80`. Keeps long-edge ≤ 1200px and quality at 80% — yields ~150–300KB per file.
+5. Update `data/players.js → players[i].photo` (`src` to the new filename, plus credit/license/source).
 6. If the photo is landscape (or the player is off-center), set a `focus: "70% center"` (or similar) to override `object-position`.
 
 ### Stale player content to refresh as 2026 approaches

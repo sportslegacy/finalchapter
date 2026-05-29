@@ -459,7 +459,7 @@ export const players = [
       "Croatia's greatest-ever player",
     ],
     photo: {
-      src: "/players/modric.jpg",
+      src: "/players/modric-wc18.jpg",
       credit: "Светлана Бекетова (Svetlana Beketova)",
       license: "CC BY-SA 3.0",
       licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
@@ -610,7 +610,7 @@ export const players = [
       "Ligue 1 Player of the Year 2017-18",
     ],
     photo: {
-      src: "/players/neymar.jpg",
+      src: "/players/neymar-wc18.jpg",
       credit: "Julia Engel (Granada)",
       license: "CC BY-SA 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
