@@ -57,18 +57,20 @@ app/
   player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema
   player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
-    Nav.js                        # header w/ hamburger drawer + LEGENDS dropdown
+    Nav.js                        # header w/ hamburger drawer + LEGENDS dropdown; logo scrolls-to-top when already on "/"
     Countdown.js                  # site-wide ticker to the tournament opener
     MatchCountdown.js             # per-player ticker to their first group match (handles TBD)
     HashScroll.js                 # smooth-scroll for /#section links
+    CountUp.js                    # animates profile stat numbers 0→value on scroll-in (IO + reduced-motion aware)
+    GoalChart.js                  # "goals by World Cup" bar chart on the player timeline (bars grow on scroll-in)
   lib/navigate-to-section.js
 data/players.js                   # all content
 public/players/                   # editorial portraits per player (CC-licensed from Wikimedia)
-  messi.jpg                       #   Hossein Zohrevand · CC BY 4.0
-  ronaldo.jpg                     #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0
-  modric.jpg                      #   Real Madrid · CC BY 3.0
-  neymar.jpg                      #   Fernando Frazão / Agência Brasil · CC BY 3.0 BR
-  debruyne.jpg                    #   Bryan Berlin · CC BY-SA 4.0
+  messi.jpg                       #   Hossein Zohrevand · CC BY 4.0 (2022 WC, Argentina fist-pump)
+  ronaldo.jpg                     #   Анна Нэсси (Anna Nessi) · CC BY-SA 3.0 (2018 WC face close-up)
+  modric.jpg                      #   Светлана Бекетова (Svetlana Beketova) · CC BY-SA 3.0 (2018 WC action, Croatia kit + armband)
+  neymar.jpg                      #   Julia Engel (Granada) · CC BY-SA 4.0 (2018 Brazil-kit head-on portrait)
+  debruyne.jpg                    #   Bryan Berlin · CC BY-SA 4.0 (Belgium anthem shot)
 scripts/test-nav.mjs              # playwright test for nav dropdown widths
 .claude/launch.json               # for Claude Preview MCP — points at `npm run dev` on :3000
 ```
@@ -77,22 +79,26 @@ scripts/test-nav.mjs              # playwright test for nav dropdown widths
 
 (See `app/player/[id]/page.js`.)
 
-1. Profile hero — **editorial portrait** (4:5, gold-glow border, country flag emoji as small corner badge) → name → country/position/age → quote → stats
-2. **Final Chapter pull-quote** — gold pill + serif italic, sets thematic anchor
+Everything below (after Nav, before footer) is wrapped in a `.player-accent-scope` div that sets inline CSS vars `--player-accent` / `--player-accent-2` from `colors.primary/secondary` — see "Per-player accent colors" gotcha.
+
+1. Profile hero — **editorial portrait** (4:5, accent-glow border, country flag emoji as small corner badge) → name (accent gradient) → country/position/age → quote → stats (stat numbers animate via `CountUp`)
+2. **Final Chapter pull-quote** — accent pill + serif italic, sets thematic anchor
 3. **Match Countdown** — "Next up · Country vs Opponent · in X days Y hours"
 4. Group Stage Schedule — group badge, storyline, 3 match cards
 5. **Records in Play** — 3-card milestone grid ("3 from Klose", "Sixth WC", etc.)
-6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card
+6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card; includes the `GoalChart` "goals by World Cup" bar chart
 7. Bio + career honors tags
-8. Prev/next player nav
-9. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
-10. Site footer
+8. **Common Questions** — FAQ section (4 Q&As from `faqs[]`); also emits a second JSON-LD `<script>` with FAQPage schema (`buildFaqJsonLd`)
+9. Prev/next player nav
+10. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
+11. Site footer
 
 ### `data/players.js` schema per player
 
 ```js
 {
   id, name, fullName, country, countryCode, countryFlag,
+  colors: { primary, secondary },                                  // national accent colors — drives .player-accent-scope vars + homepage card
   position, birthDate, ageAtTournament, clubAtTournament,
   quote, worldCupGoals, worldCupAssists, worldCupApps,
   wc2026: {
@@ -109,6 +115,7 @@ scripts/test-nav.mjs              # playwright test for nav dropdown widths
   finalChapterReason,                                              // single poetic paragraph for the pull-quote
   milestonesAtStake: [{ headline, detail }],                       // 3 cards rendered in "Records in Play"
   bio,
+  faqs: [{ q, a }],                                                // 4 Q&As → "Common Questions" section + FAQPage JSON-LD
 }
 ```
 
@@ -132,6 +139,28 @@ scripts/test-nav.mjs              # playwright test for nav dropdown widths
 | `--font-sans` | Inter | body, UI |
 
 ## Gotchas / lessons learned
+
+### Per-player accent colors — `.player-accent-scope`
+
+Each player's `colors: { primary, secondary }` (in `data/players.js`) flow into the page via a wrapper div that sets inline CSS vars:
+
+```jsx
+<div className="player-accent-scope" style={{ "--player-accent": player.colors?.primary || "var(--accent-gold)", "--player-accent-2": player.colors?.secondary || "var(--accent-gold-dim)" }}>
+```
+
+CSS then reads `var(--player-accent, ...)` for the name gradient, stat numbers, section labels, milestone stripe, photo glow, etc. The homepage legend cards use the **same** inline-var pattern per `.player-card`. Tints use `color-mix(in srgb, var(--player-accent) X%, transparent)`. Always provide the gold fallback so a player missing `colors` still renders.
+
+### Nav logo scrolls to top when already on the homepage
+
+`<Link href="/">` is a no-op when you're already on `/` (path unchanged → nothing happens, looked like a dead click when scrolled down). `Nav.js`'s `onLogoClick` detects `pathname === "/"`, `preventDefault`s, and smooth-scrolls to top instead. On player pages it lets the Link navigate home normally. Don't revert it to a bare `onClick={closeAll}`.
+
+### Swapping a `public/players/*.jpg` — bust the next/image dev cache
+
+When you replace a portrait file in dev, the raw file at `http://localhost:3000/players/<id>.jpg` updates immediately, but the **`next/image`-optimized** version the page renders stays stale (the optimizer/browser caches the `/_next/image?url=...` response). The first screenshot after a swap shows the OLD photo. Fix in the Claude Preview MCP: `location.reload(true)` then re-check — verify the new image loaded by reading `naturalWidth/naturalHeight` ratio (it should match the new source aspect, e.g. 0.667 for an 800×1200 portrait vs ~1.5 for the old landscape). Only then screenshot. The live deploy is unaffected — this is purely a local dev-cache artifact.
+
+### CC photo sourcing — 2022 Qatar World Cup shots are scarce
+
+Most freely-licensed (CC) football photos on Wikimedia Commons come from **Russia 2018 and earlier** (soccer.ru photographers, etc.). Qatar 2022 match photography was tightly controlled → almost all 2022 shots are copyrighted (Getty/AP) and unusable. When refreshing portraits, expect the best CC option to be a 2018 WC or recent-friendly national-team shot, not 2022. Exceptions found: Messi's 2022 fist-pump (CC BY 4.0) and a Ronaldo 2022 WC shot (CC BY 4.0, but full-body → frames poorly as a tight portrait, so we kept his 2018 face close-up). To download a Commons original: `curl -L -A "FinalChapterBot/1.0 (contact <email>)" "https://commons.wikimedia.org/wiki/Special:FilePath/<File_Name>.jpg" -o out.jpg`. Always confirm license + author on the file page before use, then update `data/players.js → photo` and re-verify the `.photo-credit` block renders the new attribution.
 
 ### Opening-match kickoff time — FIFA's widget is wrong
 
@@ -276,7 +305,6 @@ vercel certs issue finalchapterfc.com www.finalchapterfc.com
 
 In rough priority if traffic justifies more work:
 
-- **Per-player accent color** (Argentina sky-blue for Messi, Croatia red for Modrić, etc.) — pure CSS, ~40 lines, would differentiate the 5 pages now that they each have a portrait. Add `colors: { primary, secondary }` to `data/players.js` and use them on the headline gradient + milestone-card top stripe + timeline accents. **This is the natural next move** since the portraits and per-player OG cards already differentiate visually, but the in-page chrome is still uniform gold.
 - **Shareable player "career card"** — see Parked Ideas below; we built this and removed it for MVP.
 - **`error.js` boundary** — pure static + no API means basically nothing to crash, but it's polite.
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
@@ -287,7 +315,11 @@ In rough priority if traffic justifies more work:
 - ✅ Editorial photo per player (5 CC-licensed Wikipedia photos in `public/players/`)
 - ✅ `robots.txt` + `sitemap.xml` (auto-generated via `app/robots.js` + `app/sitemap.js`)
 - ✅ Per-player OG images (`app/player/[id]/opengraph-image.js`, photo + name + first milestone hook)
-- ✅ JSON-LD structured data (SportsEvent + ItemList on homepage, Person on player pages)
+- ✅ JSON-LD structured data (SportsEvent + ItemList on homepage, Person + FAQPage on player pages)
+- ✅ Per-player accent colors (`colors: { primary, secondary }` in `data/players.js`) — drive the `.player-accent-scope` chrome on detail pages AND the homepage legend cards (top stripe, name, age badge, CTA, hover glow)
+- ✅ Animated profile stat numbers (`CountUp`) + "goals by World Cup" bar chart (`GoalChart`)
+- ✅ Per-player FAQ sections + FAQPage JSON-LD (SEO / People-Also-Ask)
+- ✅ Homepage legend cards: portrait banner + national color (was text-only flag + stats)
 
 ## Distribution playbook
 
