@@ -363,7 +363,7 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-05-29)
+## Session handoff — current state (last updated 2026-05-30)
 
 Quick orientation for a fresh session. Everything below was done/decided in the late-May 2026 work; details live in the gotchas above.
 
@@ -371,12 +371,23 @@ Quick orientation for a fresh session. Everything below was done/decided in the 
 - FAQPage "duplicate field" fix (server-rendered JSON-LD + dedupe client component).
 - React #418 hydration error fix (both sources: the JSON-LD client component AND the countdown timers).
 - "Broken links" report investigated → **false-positive** from a link-checker extension reacting to the #418 console error. All URLs return 200; nav works. Do not re-chase.
-- SportsEvent JSON-LD enrichment (image / location address / performer) — commit `9e7881b`. `offers` deliberately skipped (no tickets sold).
+- SportsEvent JSON-LD enrichment (image / location address / performer) on BOTH homepage `eventJsonLd` and player-page `buildPersonJsonLd` subjectOf — commit `9e7881b`. `offers` deliberately skipped (no tickets sold). All 5 player SportsEvents + homepage now use Place + PostalAddress (addressCountry US/CA/MX) and declare a `performer` SportsTeam.
+- Reddit-playbook correction (commit on `main`, CLAUDE.md only): **comment links never show an OG card** (cards are link-POSTS only) and **a bare domain without `https://` renders as dead gray text** in Reddit's mobile app. Week-1 traffic came from clickable taps, not card previews. See the "Reddit comment links" gotcha in the playbook.
+
+**2026-05-30 Champions League final marketing push (in progress):**
+- Context: PSG beat Arsenal on penalties (4–3) in the 2025/26 UCL final in Budapest; Luis Enrique back-to-back (Munich 2025, Budapest 2026). User posted an X tweet + an r/soccer post-match top-level comment right after.
+- **Best Reddit landing found & used:** the `[Official] PSG wins the 2025/26 UCL` megathread (~2.1k upvotes). User sub-replied (as `Ok-Departure6297`) under `rocknroll-refugee`'s "back-to-back after Mbappe leaves… certified UCL kryptonite" comment with the **Neymar/galáctico angle** (PSG paid world-record €222m for Neymar to win this, never did, win it once he's gone → his last stage is the WC). **ACTION STILL PENDING: that comment's URL was posted without `https://` → dead gray text. User needs to EDIT it to `https://finalchapterfc.com/player/neymar` to make it tappable.**
+- A **link-free second comment** (the ">€1bn galáctico project, missing ingredient was not having the superstars" line) was drafted for the same/another sub-thread to build participation without tripping self-promo.
+- **X play:** replying under Fabrizio Romano's back-to-back PSG tweet (huge reach) is the one worthwhile X move. Draft given: link-free (links suppress reach + barely convert on X), names all 5 legends + "11 days till the script flips" hook. Treat as impressions/brand, not traffic. **Make sure the X bio has the site URL first** — that's the only conversion path there.
 
 **Open / next actions (rough priority):**
-1. **Reddit push for the laggard players** — Modrić reply already posted. Neymar (~13 visits) and De Bruyne (~12) still under-served. Use the proven recipe in "Reddit reply tactics that worked": reply to a FRESH (hours-old, rising) thread, sub-reply under a high-upvote comment, validate the parent's framing, add one sharp fact, end with a bare per-player URL for the OG preview. Hooks: Neymar → Brazil chances / Ancelotti selection / Pelé record; KDB → Belgium golden generation / Napoli move.
-2. **GSC request-indexing** for the other 4 player URLs (Messi was done) once they're crawled, to speed first indexing.
-3. **X profile polish** (low ROI at our scale — X is effectively dead for us): upload branding/avatar, rename handle display to "The Final Chapter", URL in bio. Don't invest beyond a pinned tweet.
+1. **Finish the CL-final wave TODAY** — (a) edit the Neymar Reddit comment to add `https://`; (b) post the link-free second Reddit comment; (c) post the link-free Fabrizio Romano X reply (after confirming bio URL is set). The megathread peaks within ~24h.
+2. **Reddit push for the laggard players** — Modrić reply already posted earlier. Neymar (~13 visits) and De Bruyne (~12) still under-served — the CL-final Neymar angle above directly serves Neymar. KDB hooks: Belgium golden generation / Napoli move / club-football-peak nights.
+3. **Bing Webmaster Tools** (covers DuckDuckGo too — DDG has no own tools, sources from Bing). Fastest path: bing.com/webmasters → "Import from Google Search Console" (skips verification). Then submit `https://finalchapterfc.com/sitemap.xml` + Submit-URL the 6 pages. Sitemap + robots confirmed live & 200. Set-and-forget, ~4–8% of search, low payoff but free. Not yet done — needs user's Microsoft/Google login.
+4. **GSC request-indexing** for the other player URLs (Messi was done) once crawled.
+5. **Email capture** — flagged as the biggest structural gap (the only audience they'd OWN). Minimal play: one-field "reminder before each legend's first match" form → one broadcast email on June 11 kickoff. Needs user to create a free Buttondown/ConvertKit account (I can't create accounts); then I wire a static form (no backend) matching the gold/dark brand. Not started.
+6. **Internal cross-linking** — bios could cross-link players where natural (Real Madrid: Modrić↔Ronaldo; Barça/PSG: Messi↔Neymar). Real, free, in-our-control SEO. Offered, not yet done. (Outbound external links give ~no ranking benefit — only do 1–2 for reader credibility. Inbound/backlinks are the real lever, earned via distribution.)
+7. **X profile polish** (low ROI — X is effectively dead for us): upload branding/avatar (`avatar-globe-400.png`), rename display to "The Final Chapter", URL in bio. Don't invest beyond a pinned tweet + the bio link.
 
 **Verification etiquette the user asked for:** avoid noisy/repeated permission prompts for headless-Chrome and `npm run build`. Self-test with a single build; only run the browser when a UI render is genuinely needed. After deploys, use Google's Rich Results Test for instant schema validation rather than waiting on GSC's crawl.
 
