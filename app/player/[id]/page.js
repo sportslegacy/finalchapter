@@ -77,10 +77,26 @@ function buildPersonJsonLd(player) {
       sport: "Association Football",
       image: `${SITE_URL}${player.photo.src}`,
       location: [
-        { "@type": "Country", name: "United States" },
-        { "@type": "Country", name: "Canada" },
-        { "@type": "Country", name: "Mexico" },
+        {
+          "@type": "Place",
+          name: "United States",
+          address: { "@type": "PostalAddress", addressCountry: "US" },
+        },
+        {
+          "@type": "Place",
+          name: "Canada",
+          address: { "@type": "PostalAddress", addressCountry: "CA" },
+        },
+        {
+          "@type": "Place",
+          name: "Mexico",
+          address: { "@type": "PostalAddress", addressCountry: "MX" },
+        },
       ],
+      performer: {
+        "@type": "SportsTeam",
+        name: `${player.country} national football team`,
+      },
       organizer: {
         "@type": "Organization",
         name: "FIFA",

@@ -24,11 +24,28 @@ const eventJsonLd = {
   eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
   sport: "Association Football",
   url: SITE_URL,
+  image: `${SITE_URL}/opengraph-image`,
   location: [
-    { "@type": "Country", name: "United States" },
-    { "@type": "Country", name: "Canada" },
-    { "@type": "Country", name: "Mexico" },
+    {
+      "@type": "Place",
+      name: "United States",
+      address: { "@type": "PostalAddress", addressCountry: "US" },
+    },
+    {
+      "@type": "Place",
+      name: "Canada",
+      address: { "@type": "PostalAddress", addressCountry: "CA" },
+    },
+    {
+      "@type": "Place",
+      name: "Mexico",
+      address: { "@type": "PostalAddress", addressCountry: "MX" },
+    },
   ],
+  performer: players.map((p) => ({
+    "@type": "SportsTeam",
+    name: `${p.country} national football team`,
+  })),
   organizer: {
     "@type": "Organization",
     name: "FIFA",
