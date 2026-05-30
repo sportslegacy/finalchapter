@@ -398,8 +398,11 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 - **r/soccer (~1.2M)** is bigger but stricter; save it for after r/WorldCup has worked
 - Country/club-specific subs are smaller (5–50K) but engagement is high: `r/realmadrid` covers both Modrić and Ronaldo's histories, `r/Barca` covers Messi
 - **Warm up before posting:** comment 2–3× in an active thread (no link) before dropping a linked post. Drive-by self-promo gets removed even when the content is good.
-- **Reply, don't post, when you find a thread that's already debating your topic.** Example: a 7-day-old r/worldcup thread debating "Portugal stacked but held back by 41-year-old Ronaldo" — reply with the "not tactical, terminal" reframe + per-player URL. The OG card preview in the reply does the selling.
-- Bare URLs on their own line render with the OG card preview directly in the comment. Don't bury URLs in markdown brackets.
+- **Reply, don't post, when you find a thread that's already debating your topic.** Example: a 7-day-old r/worldcup thread debating "Portugal stacked but held back by 41-year-old Ronaldo" — reply with the "not tactical, terminal" reframe + a clickable per-player URL. The clickable link does the converting (see "Reddit comment links" gotcha below — there is NO card preview in comments).
+- **Reddit comment links: always include `https://`, and don't expect an OG card.** Two hard rules learned the hard way (2026-05-30):
+  1. **Comments never render the OG card thumbnail** — that only happens on link *posts* (submissions). A comment link is just a blue hyperlink at best. The week-1 wins (Ronaldo 2→16, Messi 4→16) came from people *tapping a clickable link*, NOT from a card preview. Don't tell the user "the card will sell it" for a comment.
+  2. **A bare domain with no scheme renders as plain gray un-tappable text** in Reddit's official mobile app. Always write the full `https://finalchapterfc.com/player/<id>` on its own line so it becomes a clickable blue link. `finalchapterfc.com/player/neymar` (no `https://`) failed to link on mobile — the comment was posted but the URL was dead text until edited.
+  - If you genuinely need the OG card to show, that requires a standalone **link post** (riskier — self-promo filters), not a comment.
 - Each country/club sub gets ONE post, spread over a week. Mods cross-check; don't copy-paste the same framing.
 - **Existing personal Reddit account, NOT a new brand account.** AutoMod auto-removes posts from low-karma/new accounts in most football subs. Personal account with even 50+ karma clears the filter.
 
@@ -437,7 +440,7 @@ The pattern across all three successful replies:
 1. **Reply to a specific high-upvoted comment in the thread, NOT a top-level new comment.** Top-level comments on 7-day-old threads get buried. Replying under a 100+ upvote comment piggybacks on its visibility.
 2. **Quote/validate the parent commenter's framing first.** "The reframe I'd offer..." / "The 'rationed not gone' line nails it..." — shows you read, not promoted.
 3. **Add one specific fact other commenters don't have.** Not generic stats; a sharp footnote like "Croatia missed 2010 qualifying" or "Messi won MLS MVP at 37."
-4. **End with a single bare URL on its own line.** No "check out my site" preamble. Reddit auto-renders the per-player OG card preview, doing the visual selling.
+4. **End with a single full `https://` URL on its own line.** No "check out my site" preamble. It renders as a clickable blue hyperlink (NOT a card preview — comments don't get those; see the "Reddit comment links" gotcha). The tap-through is what converts. A bare domain without `https://` is dead gray text on mobile.
 5. **Skip generic praise threads.** Best targets have an **active debate** — Ronaldo "held back the team" thread, Messi MLS-vs-international, Modrić retiring after WC. Look for disagreement in the comments; that's where a reframe lands.
 
 **Worked examples preserved in git history** (in case you want to study the tone):
