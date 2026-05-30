@@ -34,7 +34,7 @@ export default function Countdown() {
         <div className="countdown-units">
           {Object.entries(timeLeft).map(([unit, value]) => (
             <div key={unit} className="countdown-unit">
-              <div className="countdown-value">
+              <div className="countdown-value" suppressHydrationWarning>
                 {String(value).padStart(2, "0")}
               </div>
               <div className="countdown-unit-label">{unit}</div>

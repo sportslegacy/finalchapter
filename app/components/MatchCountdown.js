@@ -15,12 +15,29 @@ export default function MatchCountdown({ match, country }) {
       // Anchor on the date at 00:00 ET (4 AM UTC) — a neutral mid-night.
       new Date(match.date + "T04:00:00.000Z");
 
-  const [now, setNow] = useState(() => new Date());
+  // Start as null so the server render and the first client render match
+  // (rendering a time-relative string on both would mismatch -> React #418).
+  const [now, setNow] = useState(null);
 
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // Stable placeholder until mounted: team names only, no ticking value.
+  if (now === null) {
+    return (
+      <div className="match-countdown">
+        <span className="match-countdown-label">Next up</span>
+        <span className="match-countdown-value">
+          <strong>
+            {country} vs {match.opponent}
+          </strong>
+        </span>
+      </div>
+    );
+  }
 
   const diffMs = target - now;
 
