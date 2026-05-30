@@ -52,9 +52,10 @@ const PLAYERS = [
 // where the player is incidental, e.g. a substitute in a lineup dump).
 const NOISE_TITLE = /(match thread|post-?match|pre-?match|free agents|daily discussion|rate the|highlights?:)/i;
 
-// Subreddits that are bot-run news mirrors, user profile pages, or meme/spam
-// dumps — no live human discussion, so they're not worth replying in.
-const JUNK_SUB = /(auto|newspaper|^u_|_news$|memes?$|bot$|trials$)/i;
+// Subreddits that are bot-run news mirrors, user profile pages, meme/spam
+// dumps, FIFA-game card subs, or merch/repost feeds — no live human football
+// discussion, so they're not worth replying in.
+const JUNK_SUB = /(auto|newspaper|^u_|_news$|memes?$|bot$|trials$|goalupon|getnoted|starcutouts|cults3d|^fut$|futmobile)/i;
 
 // Keywords that signal a thread is on-topic for us (World Cup / final-chapter angle).
 const WC_TERMS = ["world cup", "wc2026", "wc26", "2026", "retire", "retirement", "last dance", "final", "swan song", "international"];
@@ -313,8 +314,10 @@ Write the reply draft now.`;
   return text || "(empty draft)";
 }
 
-// Draft a reply for each player's single top-scored Reddit hit. Runs the calls
-// in parallel; a failure on one player just leaves that hit undrafted.
+// Draft replies for each player's top 2 scored Reddit hits, so the digest
+// gives you a choice when the #1 thread is a weak reply target. All calls run
+// in parallel; a failure on one thread just leaves that hit undrafted.
+const DRAFT_TOP_N = 2;
 async function attachDrafts(reddit) {
   if (!reddit) return;
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -324,18 +327,19 @@ async function attachDrafts(reddit) {
     return;
   }
   const voice = await loadVoice();
-  await Promise.all(
-    reddit.byPlayer.map(async (p) => {
-      const top = p.hits[0];
-      const player = voice.get(p.player);
-      if (!top || !player) return;
-      try {
-        top.draft = await draftReply({ player, thread: top, apiKey });
-      } catch (e) {
-        top.draftError = e.message;
-      }
-    })
-  );
+  const tasks = [];
+  for (const p of reddit.byPlayer) {
+    const player = voice.get(p.player);
+    if (!player) continue;
+    for (const hit of p.hits.slice(0, DRAFT_TOP_N)) {
+      tasks.push(
+        draftReply({ player, thread: hit, apiKey })
+          .then((d) => { hit.draft = d; })
+          .catch((e) => { hit.draftError = e.message; })
+      );
+    }
+  }
+  await Promise.all(tasks);
 }
 
 // ---------- Output ----------
