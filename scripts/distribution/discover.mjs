@@ -110,14 +110,34 @@ function parseAtomEntries(xml) {
   return entries;
 }
 
+// Tagged error so callers can tell a throttled feed apart from an empty one.
+class RateLimitError extends Error {
+  constructor(status) {
+    super(`reddit feed returned HTTP ${status}`);
+    this.name = "RateLimitError";
+    this.status = status;
+  }
+}
+
 async function redditRssSearch({ sub, query }) {
   const t = redditWindow();
   const path = sub
     ? `/r/${sub}/search.rss?restrict_sr=1&sort=new&t=${t}&limit=25&q=${encodeURIComponent(query)}`
     : `/search.rss?sort=new&t=${t}&limit=25&q=${encodeURIComponent(query)}`;
-  const res = await fetch("https://www.reddit.com" + path, { headers: { "User-Agent": UA } });
-  if (!res.ok) return [];
-  return parseAtomEntries(await res.text());
+  const url = "https://www.reddit.com" + path;
+  // Reddit's public feeds throttle aggressively (429). Retry a couple of times
+  // with backoff before giving up — and THROW (don't return []) so a throttled
+  // feed is never silently reported as "no threads found".
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await sleep(1500 * attempt);
+    const res = await fetch(url, { headers: { "User-Agent": UA } });
+    if (res.ok) return parseAtomEntries(await res.text());
+    lastStatus = res.status;
+    // 4xx other than 429 won't fix itself on retry; bail immediately.
+    if (res.status !== 429 && res.status < 500) break;
+  }
+  throw new RateLimitError(lastStatus);
 }
 
 // Score 0..100 from RSS-available signals only (no upvotes/comments).
@@ -147,13 +167,15 @@ async function gatherReddit() {
   for (const p of players) {
     const seen = new Set();
     const hits = [];
+    let throttled = false;
     const targets = [{ sub: null }, ...p.subs.map((sub) => ({ sub }))];
     for (const { sub } of targets) {
       let entries = [];
       try {
         entries = await redditRssSearch({ sub, query: p.query });
-      } catch {
-        /* ignore a single failed feed */
+      } catch (e) {
+        if (e instanceof RateLimitError) throttled = true;
+        /* ignore a single failed feed; keep whatever other feeds returned */
       }
       for (const e of entries) {
         if (seen.has(e.link)) continue;
@@ -171,7 +193,7 @@ async function gatherReddit() {
           site: p.site,
         });
       }
-      await sleep(700); // be polite to Reddit's public feeds
+      await sleep(1100); // be polite to Reddit's public feeds (it throttles fast)
     }
     hits.sort((a, b) => b.score - a.score);
     // Collapse the same headline reposted across subs — keep the top-scored.
@@ -180,7 +202,7 @@ async function gatherReddit() {
       const k = titleKey(h.title);
       if (!byTitle.has(k)) byTitle.set(k, h);
     }
-    out.push({ player: p.id, name: p.name, site: p.site, hits: [...byTitle.values()] });
+    out.push({ player: p.id, name: p.name, site: p.site, hits: [...byTitle.values()], throttled });
   }
   return { authMode: "public RSS (no auth)", byPlayer: out };
 }
@@ -354,7 +376,11 @@ function printDigest({ reddit, news }) {
     for (const p of reddit.byPlayer) {
       console.log(`\n## ${p.name}  (${p.site})`);
       if (!p.hits.length) {
-        console.log("  (no fresh Reddit threads found)");
+        console.log(
+          p.throttled
+            ? "  (Reddit rate-limited this feed — re-run later; NOT a real empty result)"
+            : "  (no fresh Reddit threads found)"
+        );
         continue;
       }
       for (const h of p.hits.slice(0, 5)) {
