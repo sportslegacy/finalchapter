@@ -1,36 +1,23 @@
-"use client";
-
-import { useEffect } from "react";
-
 /**
- * Renders a JSON-LD <script> exactly once.
+ * Server component: emits a JSON-LD <script> into the static HTML.
  *
- * The script IS server-rendered (it ships in the static HTML, which crawlers read
- * on first pass). The problem this solves: on production, React 19 re-inserts the
- * inline `<script type="application/ld+json">` during client hydration, leaving a
- * DUPLICATE node in the live DOM — Google's Rich Results Test flagged this as
- * "Duplicate field FAQPage". The duplication did not reproduce on a local build, so
- * a source-only change wasn't enough.
+ * IMPORTANT: this is NOT a client component. A previous attempt rendered the
+ * ld+json script from a client component, which caused a React 19 hydration
+ * mismatch (Minified React error #418) — when hydration throws, the whole tree
+ * fails to attach event handlers and client-side <Link> navigation dies
+ * site-wide. Keeping this server-only means the script is plain static markup
+ * with nothing to hydrate.
  *
- * Fix: tag each script with a stable `data-jsonld` id and, on mount, remove every
- * copy past the first. Result — present in SSR HTML, exactly one node after hydration.
+ * On production, React still re-inserts the inline script during hydration,
+ * leaving a duplicate (Google flagged "Duplicate field FAQPage"). The duplicate
+ * is removed at runtime by <JsonLdDedupe />, which renders nothing.
  */
-export default function JsonLd({ id, data }) {
-  const json = data ? JSON.stringify(data) : null;
-
-  useEffect(() => {
-    if (!json) return;
-    const tags = document.querySelectorAll(`script[data-jsonld="${id}"]`);
-    for (let i = 1; i < tags.length; i += 1) tags[i].remove();
-  }, [id, json]);
-
-  if (!json) return null;
-
+export default function JsonLd({ data }) {
+  if (!data) return null;
   return (
     <script
       type="application/ld+json"
-      data-jsonld={id}
-      dangerouslySetInnerHTML={{ __html: json }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
   );
 }

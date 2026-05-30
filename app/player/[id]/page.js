@@ -7,6 +7,7 @@ import MatchCountdown from "../../components/MatchCountdown";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
 import JsonLd from "../../components/JsonLd";
+import JsonLdDedupe from "../../components/JsonLdDedupe";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -120,8 +121,9 @@ export default async function PlayerPage({ params }) {
 
   return (
     <>
-      <JsonLd id={`person-${player.id}`} data={buildPersonJsonLd(player)} />
-      {faqJsonLd && <JsonLd id={`faq-${player.id}`} data={faqJsonLd} />}
+      <JsonLd data={buildPersonJsonLd(player)} />
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
+      <JsonLdDedupe />
       <Nav />
 
       <div
