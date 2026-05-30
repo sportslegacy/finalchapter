@@ -281,6 +281,39 @@ The Modrić "Croatia missed 2010" footnote is the trap — easy to assume the sa
 
 **Assist counts are the murkiest stat.** FIFA, Opta, StatsBomb, and Wikipedia frequently differ on what counts as an assist. Don't waste time chasing perfect parity across providers. As long as our per-WC entries sum to the page total, the page is internally consistent — that's the bar.
 
+### JSON-LD must be SERVER-rendered; client components cause React #418 + Google "duplicate field"
+
+Two separate bugs hit us here (May 2026) — both fixed, don't reintroduce.
+
+1. **FAQPage "Duplicate field" in Google Rich Results.** React 19 re-inserts inline `<script type="application/ld+json">` on hydration, so prod DOM ended up with 2 copies of each block. Google read the dupes and flagged "Duplicate field FAQPage."
+2. **Minified React error #418 (hydration mismatch).** First fix attempt rendered the ld+json from a *client* component — that fixed the dupes but threw #418, which surfaced as a scary "Uncaught Error" in the console.
+
+**The working design (keep it):**
+- **`app/components/JsonLd.js` is a plain SERVER component** — just returns `<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />`. Do NOT add `"use client"` to it.
+- **`app/components/JsonLdDedupe.js` is a client component that renders `null`** — in a `useEffect` it walks `document.querySelectorAll('script[type="application/ld+json"]')` and removes textually-duplicate copies left behind by hydration. Mounted once per page (homepage + player page).
+- Net result verified in prod: homepage = 2 ld+json (SportsEvent + ItemList), player page = 2 (Person + FAQPage), no dupes, no #418.
+
+### Countdown timers caused the OTHER #418 — fixed via mounted-gate / suppressHydrationWarning
+
+The countdowns render time-relative text, so the build-time HTML never matches the first client render → hydration mismatch (#418). Two fixes already in place — don't revert:
+- **`Countdown.js`**: the `.countdown-value` div has `suppressHydrationWarning` (its structure is fixed — 4 unit tiles — only the digits differ, so suppressing is safe).
+- **`MatchCountdown.js`**: uses the **mounted-gate** pattern — `useState(null)`, set `now` in `useEffect`, and early-return a stable placeholder (team names only, no ticking value) while `now === null`. Its rendered *structure* varies with the time remaining, so suppressing isn't enough — it must not render any time-relative content until mounted.
+
+**Rule:** any new component that renders a clock, "X days ago", random value, or `Date`-derived text must use one of these two patterns, or it'll throw #418 in prod.
+
+### "A lot of links are broken" was a false-positive — don't chase it
+
+A link-checker browser extension red-boxed many links and the user reported them broken. They were NOT: `curl -w "%{http_code}"` confirmed every URL returned 200, and analytics showed 3.7 pages/visit (real users navigating fine). The extension was reacting to the React #418 console error (now fixed), not to any actual dead link. The prev/next player nav links are valid `<Link>`s — just dim-styled by design. **If links are reported broken again: first `curl` the URLs for status codes and check analytics pages/visit before touching any link markup.**
+
+### SportsEvent JSON-LD enhancement fields (GSC "Improve item appearance")
+
+Google flagged 4 *optional* enhancement suggestions (0 errors) for the SportsEvent schema. Three are now added to BOTH the homepage `eventJsonLd` (`app/page.js`) and the player-page `buildPersonJsonLd` `subjectOf` SportsEvent (`app/player/[id]/page.js`), commit `9e7881b`:
+- `image` (homepage uses `/opengraph-image`; player pages use the portrait)
+- `location` as `Place` + `PostalAddress` with `addressCountry` (US / CA / MX) — not bare `Country`
+- `performer` as `SportsTeam` (homepage = all 5 nations; player page = that player's nation)
+
+**`offers` is intentionally SKIPPED** — that field is for ticketed events; this is an editorial fan site with nothing to sell. It'll stay as a harmless optional suggestion in GSC forever; don't "fix" it.
+
 ## Domain / DNS (GoDaddy)
 
 - Registrar: GoDaddy
@@ -326,6 +359,26 @@ In rough priority if traffic justifies more work:
 - ✅ Animated profile stat numbers (`CountUp`) + "goals by World Cup" bar chart (`GoalChart`)
 - ✅ Per-player FAQ sections + FAQPage JSON-LD (SEO / People-Also-Ask)
 - ✅ Homepage legend cards: portrait banner + national color (was text-only flag + stats)
+- ✅ JSON-LD hardened: server-rendered `JsonLd` + `JsonLdDedupe` (fixes Google "duplicate FAQPage"); see gotcha
+- ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
+- ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
+
+## Session handoff — current state (last updated 2026-05-29)
+
+Quick orientation for a fresh session. Everything below was done/decided in the late-May 2026 work; details live in the gotchas above.
+
+**Recently shipped & verified clean in prod:**
+- FAQPage "duplicate field" fix (server-rendered JSON-LD + dedupe client component).
+- React #418 hydration error fix (both sources: the JSON-LD client component AND the countdown timers).
+- "Broken links" report investigated → **false-positive** from a link-checker extension reacting to the #418 console error. All URLs return 200; nav works. Do not re-chase.
+- SportsEvent JSON-LD enrichment (image / location address / performer) — commit `9e7881b`. `offers` deliberately skipped (no tickets sold).
+
+**Open / next actions (rough priority):**
+1. **Reddit push for the laggard players** — Modrić reply already posted. Neymar (~13 visits) and De Bruyne (~12) still under-served. Use the proven recipe in "Reddit reply tactics that worked": reply to a FRESH (hours-old, rising) thread, sub-reply under a high-upvote comment, validate the parent's framing, add one sharp fact, end with a bare per-player URL for the OG preview. Hooks: Neymar → Brazil chances / Ancelotti selection / Pelé record; KDB → Belgium golden generation / Napoli move.
+2. **GSC request-indexing** for the other 4 player URLs (Messi was done) once they're crawled, to speed first indexing.
+3. **X profile polish** (low ROI at our scale — X is effectively dead for us): upload branding/avatar, rename handle display to "The Final Chapter", URL in bio. Don't invest beyond a pinned tweet.
+
+**Verification etiquette the user asked for:** avoid noisy/repeated permission prompts for headless-Chrome and `npm run build`. Self-test with a single build; only run the browser when a UI render is genuinely needed. After deploys, use Google's Rich Results Test for instant schema validation rather than waiting on GSC's crawl.
 
 ## Distribution playbook
 
