@@ -16,6 +16,7 @@ REPO="${0:A:h:h:h}"
 OUT_DIR="$HOME/finalchapter-digests"
 DATE="$(date +%Y-%m-%d)"
 OUT="$OUT_DIR/digest-$DATE.txt"
+HTML="$OUT_DIR/digest-$DATE.html"
 
 mkdir -p "$OUT_DIR"
 
@@ -38,11 +39,12 @@ fi
 
 # stdout → digest file; node's stderr (ESM reparse notice + any real error)
 # → a dedicated log so failures are diagnosable but the digest stays clean.
-node scripts/distribution/discover.mjs --draft --days=7 >"$OUT" 2>"$OUT_DIR/node.err.log"
+node scripts/distribution/discover.mjs --draft --days=7 --html="$HTML" >"$OUT" 2>"$OUT_DIR/node.err.log"
 rc=$?
 
-# Keep a stable "latest" pointer for quick opening.
+# Keep stable "latest" pointers for quick opening (text + the styled HTML view).
 cp -f "$OUT" "$OUT_DIR/latest.txt" 2>/dev/null
+cp -f "$HTML" "$OUT_DIR/latest.html" 2>/dev/null
 
 # Count drafts produced so the notification is informative.
 drafts=$(grep -c "draft reply" "$OUT" 2>/dev/null || echo 0)
