@@ -20,7 +20,9 @@ export async function generateMetadata({ params }) {
   const player = getPlayerById(id);
   if (!player) return {};
   const ordinal = ORDINALS[player.worldCups.length] || `${player.worldCups.length}th`;
-  const description = `Is 2026 ${player.name}'s last World Cup? At ${player.ageAtTournament}, it's his ${ordinal} and likely final World Cup — Group ${player.wc2026.group} with ${player.wc2026.groupTeams.filter((t) => t !== player.country).join(", ")}, ${player.worldCupGoals} career WC goals. His full journey, records at stake, and 2026 schedule.`;
+  const opponents = player.wc2026.groupTeams.filter((t) => t !== player.country).join(", ");
+  // Kept ≤160 chars so search engines show it un-truncated (Bing flags >160).
+  const description = `Is 2026 ${player.name}'s last World Cup? At ${player.ageAtTournament}, his ${ordinal} and likely final — Group ${player.wc2026.group} vs ${opponents}. Records, milestones, full schedule.`;
   return {
     title: `Is 2026 ${player.name}'s Last World Cup? — The Final Chapter`,
     description,
