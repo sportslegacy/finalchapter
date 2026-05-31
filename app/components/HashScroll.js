@@ -17,10 +17,15 @@ export default function HashScroll() {
 
   useEffect(() => {
     if (pathname !== "/") return;
+    if (!window.location.hash) return;
 
-    scrollToHash();
-    const t = window.setTimeout(scrollToHash, 100);
-    return () => window.clearTimeout(t);
+    // Retry across a longer window: when arriving from a player page the
+    // homepage mounts with a tall hero + still-loading images, so a single
+    // early scroll lands short (or Next's scroll-to-top overrides it). Re-run
+    // as layout settles so we end on the target section, not the page top.
+    const delays = [0, 80, 200, 400, 700, 1000];
+    const timers = delays.map((d) => window.setTimeout(scrollToHash, d));
+    return () => timers.forEach((t) => window.clearTimeout(t));
   }, [pathname]);
 
   useEffect(() => {
