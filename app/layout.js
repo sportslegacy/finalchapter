@@ -31,6 +31,12 @@ export const metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
+  verification: {
+    other: {
+      // Bing Webmaster Tools site verification (covers Bing + DuckDuckGo).
+      "msvalidate.01": "83B7E7C31E7ACE6E1086DAE9197B34D5",
+    },
+  },
 };
 
 export const viewport = {
