@@ -159,16 +159,16 @@ export const players = [
         a: "Yes. Messi has said repeatedly that the 2026 World Cup will be his last. At 39 it is his record sixth tournament — a farewell staged on American soil, where he lives and plays for Inter Miami.",
       },
       {
-        q: "Will Messi play in the 2026 World Cup?",
-        a: "Yes. Argentina qualified as reigning champions and Messi, still their captain and talisman, is set to lead them. At 39 it is his sixth and final World Cup — Argentina open Group J against Algeria in Kansas City on June 16, 2026.",
-      },
-      {
         q: "How many World Cups has Lionel Messi played in?",
         a: "2026 is Messi's sixth World Cup (2006, 2010, 2014, 2018, 2022, 2026). No outfield player in history has ever appeared in six.",
       },
       {
         q: "How many World Cup goals does Messi have?",
         a: "Messi has 13 World Cup goals across five tournaments — three short of Miroslav Klose's all-time record of 16, with up to seven matches to close the gap.",
+      },
+      {
+        q: "Will Messi play in the 2026 World Cup?",
+        a: "Yes. Argentina qualified as reigning champions and Messi, still their captain and talisman, is set to lead them. At 39 it is his sixth and final World Cup — Argentina open Group J against Algeria in Kansas City on June 16, 2026.",
       },
       {
         q: "What group is Argentina in at the 2026 World Cup?",
@@ -335,16 +335,16 @@ export const players = [
         a: "Almost certainly. At 41 Ronaldo will be the oldest outfield player at the 2026 World Cup, his record sixth tournament — widely expected to be his final one.",
       },
       {
-        q: "Will Cristiano Ronaldo play in the 2026 World Cup?",
-        a: "Yes. Portugal have qualified and Ronaldo, at 41 the tournament's oldest outfield player, captains the side into his record-equalling sixth World Cup. Portugal are in Group K with DR Congo, Uzbekistan, and Colombia.",
-      },
-      {
         q: "Has Cristiano Ronaldo ever won the World Cup?",
         a: "No. The World Cup is the one major trophy missing from Ronaldo's cabinet; his best run was the 2006 semi-finals. Portugal arrive in 2026 as reigning Nations League champions.",
       },
       {
         q: "How many World Cup goals does Ronaldo have?",
         a: "Ronaldo has 8 World Cup goals and is the only player to have scored in five different World Cups. A goal in 2026 would stretch that record to six.",
+      },
+      {
+        q: "Will Cristiano Ronaldo play in the 2026 World Cup?",
+        a: "Yes. Portugal have qualified and Ronaldo, at 41 the tournament's oldest outfield player, captains the side into his record-equalling sixth World Cup. Portugal are in Group K with DR Congo, Uzbekistan, and Colombia.",
       },
       {
         q: "What group is Portugal in at the 2026 World Cup?",
@@ -501,16 +501,16 @@ export const players = [
         a: "Yes. At 40 the 2026 World Cup is Modrić's last, and reports indicate he plans to retire from professional football after the tournament.",
       },
       {
-        q: "Will Luka Modrić play in the 2026 World Cup?",
-        a: "Yes. Croatia have qualified and Modrić, their captain, is set for his fifth World Cup at 40 — Croatia missed 2010 qualifying, so it is one fewer than the Messi–Ronaldo cohort. They are in Group L with England, Ghana, and Panama.",
-      },
-      {
         q: "How many World Cups has Luka Modrić played in?",
         a: "2026 is Modrić's fifth World Cup (2006, 2014, 2018, 2022, 2026). Croatia missed 2010 qualifying, so his count is one behind the Messi and Ronaldo cohort.",
       },
       {
         q: "What is Modrić's best World Cup finish?",
         a: "Runner-up in 2018, when he won the Golden Ball as the tournament's best player. Croatia then finished third in 2022.",
+      },
+      {
+        q: "Will Luka Modrić play in the 2026 World Cup?",
+        a: "Yes. Croatia have qualified and Modrić, their captain, is set for his fifth World Cup at 40 — Croatia missed 2010 qualifying, so it is one fewer than the Messi–Ronaldo cohort. They are in Group L with England, Ghana, and Panama.",
       },
       {
         q: "What group is Croatia in at the 2026 World Cup?",
@@ -656,16 +656,16 @@ export const players = [
         a: "At 34 and rebuilt from an ACL injury, the 2026 World Cup is widely expected to be Neymar's last — the goodbye three previous campaigns of injury and heartbreak never gave him.",
       },
       {
-        q: "Will Neymar play in the 2026 World Cup?",
-        a: "Yes, though not from the opening match. Carlo Ancelotti included Neymar in Brazil's squad, but a calf tear sidelines him for the opener against Morocco; Brazil expect him back during the group stage of what is likely his final World Cup at 34.",
-      },
-      {
         q: "Is Neymar in Brazil's 2026 World Cup squad?",
         a: "Yes. Carlo Ancelotti named Neymar in the 26-man squad, though a grade 2 calf tear rules him out of the opener against Morocco. Brazil expect him back for the rest of the group stage.",
       },
       {
         q: "How many World Cup goals does Neymar have?",
         a: "Neymar has 8 World Cup goals across three tournaments — four short of Pelé's Brazil record of 12.",
+      },
+      {
+        q: "Will Neymar play in the 2026 World Cup?",
+        a: "Yes, though not from the opening match. Carlo Ancelotti included Neymar in Brazil's squad, but a calf tear sidelines him for the opener against Morocco; Brazil expect him back during the group stage of what is likely his final World Cup at 34.",
       },
       {
         q: "What group is Brazil in at the 2026 World Cup?",
@@ -811,16 +811,16 @@ export const players = [
         a: "Almost certainly. At 35 De Bruyne is the last torchbearer of Belgium's Golden Generation, and 2026 is widely expected to be his final World Cup.",
       },
       {
-        q: "Will Kevin De Bruyne play in the 2026 World Cup?",
-        a: "Yes. Belgium have qualified — with De Bruyne their top scorer in qualifying, six goals from midfield — and at 35, now with Napoli, he captains them into what is likely his fourth and final World Cup. Belgium are in Group G with Egypt, Iran, and New Zealand.",
-      },
-      {
         q: "How many World Cups has Kevin De Bruyne played in?",
         a: "2026 is De Bruyne's fourth World Cup (2014, 2018, 2022, 2026). Belgium's best finish in that span was third place in 2018.",
       },
       {
         q: "Has Belgium ever won the World Cup?",
         a: "No. Belgium's best-ever finish is third place in 2018. De Bruyne captains a transitional squad in what may be the Golden Generation's last real chance.",
+      },
+      {
+        q: "Will Kevin De Bruyne play in the 2026 World Cup?",
+        a: "Yes. Belgium have qualified — with De Bruyne their top scorer in qualifying, six goals from midfield — and at 35, now with Napoli, he captains them into what is likely his fourth and final World Cup. Belgium are in Group G with Egypt, Iran, and New Zealand.",
       },
       {
         q: "What group is Belgium in at the 2026 World Cup?",
