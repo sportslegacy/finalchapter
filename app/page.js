@@ -72,6 +72,12 @@ const legendsListJsonLd = (playersData) => ({
   })),
 });
 
+// Self-referential canonical so Google consolidates the www and apex
+// copies of the homepage (both serve 200) onto the apex URL.
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default function Home() {
   return (
     <>
