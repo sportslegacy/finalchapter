@@ -35,3 +35,6 @@ yarn-error.log*
 
 # claude code
 .claude/settings.local.json
+
+# social/branding scratch assets (not part of the deployed site)
+/branding/
