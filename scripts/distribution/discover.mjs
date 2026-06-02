@@ -458,7 +458,7 @@ const BRIEF_SYSTEM = `You are the distribution editor for "The Final Chapter", a
 Given today's digest of Reddit threads + news headlines about the five, write a SHORT morning brief telling the operator exactly where to spend limited time. They manually paste ONE reply at a time under a high-upvote comment, and can realistically act on only 2–4 threads a day.
 
 Output GitHub-flavoured markdown, in this order:
-- "## Top moves today" — a numbered list of up to 3 specific threads to reply in. For each: the player, a few quoted words of the thread title, the EXACT comment to reply under (name the commenter as u/<author> and quote a few words of their comment — pick from the "top comments" listed for that thread; if none is listed, say "top comment"), WHY it's the best target right now (freshness, an active debate, a breaking-news hook), and the one-line angle to take.
+- "## Top moves today" — a numbered list of up to 3 specific threads to reply in. For each: the player, a few quoted words of the thread title, the thread's score in brackets exactly as given (e.g. "(score 95)") so the operator can locate it in the per-player section below, then the comment to reply under. You MUST name the commenter marked "REPLY TARGET" for that thread (as u/<author>, quoting a few of their words) — NEVER name an "other comment — CONTEXT ONLY" entry, and never invent a commenter; if a thread has no REPLY TARGET line, just say "top comment". Then WHY it's the best target right now (freshness, an active debate — the context-only comments help you judge that — a breaking-news hook), and the one-line angle to take.
 - "## Skip today" — one or two lines naming players or thread types not worth it today, and why.
 - If and only if a news item is time-sensitive enough to act on immediately, add a final "## Breaking" line.
 
@@ -476,8 +476,18 @@ function digestForBrief({ reddit, news }) {
       }
       for (const h of p.hits.slice(0, SHOW_TOP_N)) {
         s += `  - [score ${h.score}, ${h.ageH}h old, r/${h.subreddit}${h.titleHit ? "" : ", body-only"}] ${h.title}\n`;
-        (h.topComments || []).slice(0, 3).forEach((c, i) => {
-          s += `      ${i === 0 ? "top comment" : "comment"} u/${c.author}: ${c.body.replace(/\s+/g, " ").slice(0, 160)}\n`;
+        // Only topComments[0] is a valid reply target — it's the comment the
+        // per-player section prints AND the one the paste-ready draft is written
+        // against. The remaining comments are shown to the brief purely as
+        // debate-liveliness context; the brief must NOT name them (doing so
+        // points the operator at a comment that has no matching draft). See the
+        // "brief named a non-[0] comment" digest bug.
+        const cs = h.topComments || [];
+        if (cs[0]) {
+          s += `      REPLY TARGET (the ONLY comment you may name to reply under) — u/${cs[0].author}: ${cs[0].body.replace(/\s+/g, " ").slice(0, 160)}\n`;
+        }
+        cs.slice(1, 3).forEach((c) => {
+          s += `      (other comment — CONTEXT ONLY, never name as the reply target) u/${c.author}: ${c.body.replace(/\s+/g, " ").slice(0, 140)}\n`;
         });
       }
     }
