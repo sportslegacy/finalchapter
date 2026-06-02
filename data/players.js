@@ -883,6 +883,124 @@ export const tournament = {
     { date: "2026-07-19", event: "Final — MetLife Stadium, NJ" },
   ],
 
+  // Full 48-team group draw (held Dec 5, 2025, Kennedy Center, Washington DC).
+  // Single source of truth for the group-stage grid on /world-cup-2026-groups.
+  // Teams listed in pot/seeding order. `host: true` marks the three host nations
+  // whose slots were predetermined (Mexico A1, Canada B1, USA D1). The five
+  // legends' groups (C, G, J, K, L) match each player's wc2026.groupTeams — the
+  // grid highlights them by cross-referencing players[].wc2026.group, so do NOT
+  // duplicate a "legend" flag here. Verified June 2026 vs FIFA + Wikipedia.
+  groups: [
+    {
+      id: "A",
+      teams: [
+        { name: "Mexico", flag: "🇲🇽", host: true },
+        { name: "South Africa", flag: "🇿🇦" },
+        { name: "South Korea", flag: "🇰🇷" },
+        { name: "Czechia", flag: "🇨🇿" },
+      ],
+    },
+    {
+      id: "B",
+      teams: [
+        { name: "Canada", flag: "🇨🇦", host: true },
+        { name: "Bosnia & Herzegovina", flag: "🇧🇦" },
+        { name: "Qatar", flag: "🇶🇦" },
+        { name: "Switzerland", flag: "🇨🇭" },
+      ],
+    },
+    {
+      id: "C",
+      teams: [
+        { name: "Brazil", flag: "🇧🇷" },
+        { name: "Morocco", flag: "🇲🇦" },
+        { name: "Haiti", flag: "🇭🇹" },
+        { name: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
+      ],
+    },
+    {
+      id: "D",
+      teams: [
+        { name: "United States", flag: "🇺🇸", host: true },
+        { name: "Paraguay", flag: "🇵🇾" },
+        { name: "Australia", flag: "🇦🇺" },
+        { name: "Türkiye", flag: "🇹🇷" },
+      ],
+    },
+    {
+      id: "E",
+      teams: [
+        { name: "Germany", flag: "🇩🇪" },
+        { name: "Curaçao", flag: "🇨🇼" },
+        { name: "Ivory Coast", flag: "🇨🇮" },
+        { name: "Ecuador", flag: "🇪🇨" },
+      ],
+    },
+    {
+      id: "F",
+      teams: [
+        { name: "Netherlands", flag: "🇳🇱" },
+        { name: "Japan", flag: "🇯🇵" },
+        { name: "Sweden", flag: "🇸🇪" },
+        { name: "Tunisia", flag: "🇹🇳" },
+      ],
+    },
+    {
+      id: "G",
+      teams: [
+        { name: "Belgium", flag: "🇧🇪" },
+        { name: "Egypt", flag: "🇪🇬" },
+        { name: "Iran", flag: "🇮🇷" },
+        { name: "New Zealand", flag: "🇳🇿" },
+      ],
+    },
+    {
+      id: "H",
+      teams: [
+        { name: "Spain", flag: "🇪🇸" },
+        { name: "Cape Verde", flag: "🇨🇻" },
+        { name: "Saudi Arabia", flag: "🇸🇦" },
+        { name: "Uruguay", flag: "🇺🇾" },
+      ],
+    },
+    {
+      id: "I",
+      teams: [
+        { name: "France", flag: "🇫🇷" },
+        { name: "Senegal", flag: "🇸🇳" },
+        { name: "Iraq", flag: "🇮🇶" },
+        { name: "Norway", flag: "🇳🇴" },
+      ],
+    },
+    {
+      id: "J",
+      teams: [
+        { name: "Argentina", flag: "🇦🇷" },
+        { name: "Algeria", flag: "🇩🇿" },
+        { name: "Austria", flag: "🇦🇹" },
+        { name: "Jordan", flag: "🇯🇴" },
+      ],
+    },
+    {
+      id: "K",
+      teams: [
+        { name: "Portugal", flag: "🇵🇹" },
+        { name: "DR Congo", flag: "🇨🇩" },
+        { name: "Uzbekistan", flag: "🇺🇿" },
+        { name: "Colombia", flag: "🇨🇴" },
+      ],
+    },
+    {
+      id: "L",
+      teams: [
+        { name: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+        { name: "Croatia", flag: "🇭🇷" },
+        { name: "Ghana", flag: "🇬🇭" },
+        { name: "Panama", flag: "🇵🇦" },
+      ],
+    },
+  ],
+
   // Tournament-format FAQ — the 2026 edition is the most-changed in World Cup
   // history (48 teams, a new Round of 32, the best-third-place rule), and search
   // demand for "how does it work" is huge. These mirror the on-page Q&A in

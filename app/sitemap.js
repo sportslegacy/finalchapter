@@ -34,5 +34,12 @@ export default function sitemap() {
     priority: 0.8,
   };
 
-  return [home, format, ...players];
+  const groups = {
+    url: `${siteUrl}/world-cup-2026-groups`,
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  };
+
+  return [home, format, groups, ...players];
 }

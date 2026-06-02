@@ -897,6 +897,108 @@ a {
   margin-top: 0.2rem;
 }
 
+/* Group-stage grid (/world-cup-2026-groups) — the full 48-team draw */
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.group-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.1rem 1.2rem;
+  transition: border-color 0.3s;
+}
+
+.group-card:hover {
+  border-color: var(--border-glow);
+}
+
+.group-card-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.group-card-letter {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-gold);
+}
+
+.group-card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.group-team {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.group-team-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.group-team-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.group-team-host {
+  margin-left: auto;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+/* A legend's nation — gold highlight, clickable through to their profile */
+.group-team.is-legend {
+  background: color-mix(in srgb, var(--accent-gold) 12%, transparent);
+  border-color: var(--border-glow);
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.group-team.is-legend:hover {
+  background: color-mix(in srgb, var(--accent-gold) 20%, transparent);
+  border-color: var(--accent-gold-dim);
+}
+
+.group-team.is-legend .group-team-name {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.group-team-legend {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--accent-gold-dim);
+  white-space: nowrap;
+}
+
 /* ========== MATCH SCHEDULE (Profile Page) ========== */
 .schedule-section {
   max-width: 700px;

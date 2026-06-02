@@ -133,6 +133,19 @@ export default function FormatPage() {
             </div>
           </div>
         </div>
+
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>
+          <Link
+            href="/world-cup-2026-groups"
+            style={{
+              color: "var(--accent-gold)",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            See the full draw &mdash; all 48 teams, 12 groups &rarr;
+          </Link>
+        </p>
       </section>
 
       {/* The group stage */}
