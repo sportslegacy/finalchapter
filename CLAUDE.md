@@ -398,6 +398,7 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 ### What works for this site
 
 **X / Twitter:**
+- **HARD 280-CHARACTER LIMIT per post.** Always count before handing the user a draft — a single tweet that runs long can't be posted. Keep standalone tweets well under 280 (aim ≤250 to leave room). If the idea needs more room, split it into a thread (one beat per tweet) rather than one over-length post.
 - Football Twitter is the right audience but new-account reach is ~zero — algorithm de-prioritizes for 1–3 months
 - Use **personal account, not a brand handle.** Existing follower count + posting history > zero followers from `@finalchapterfc`
 - **Tweet the content, not just the link.** A thread that drips one player per tweet, with the URL only in the LAST tweet, outperforms a single "I built this →" tweet by 10×
