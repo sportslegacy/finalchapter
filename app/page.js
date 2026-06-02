@@ -53,6 +53,20 @@ const eventJsonLd = {
   },
 };
 
+// FAQPage schema mirroring the on-page tournament-format Q&A. Targets the very
+// high-volume "how does the 2026 World Cup work / third-place rule / Round of
+// 32" search intent. Rich-result eligibility is limited to a few domains, but
+// the markup stays valid and the copy serves People Also Ask + on-page intent.
+const tournamentFaqJsonLd = (faqs) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+});
+
 const legendsListJsonLd = (playersData) => ({
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -83,6 +97,9 @@ export default function Home() {
     <>
       <JsonLd data={eventJsonLd} />
       <JsonLd data={legendsListJsonLd(players)} />
+      {tournament.faqs?.length > 0 && (
+        <JsonLd data={tournamentFaqJsonLd(tournament.faqs)} />
+      )}
       <JsonLdDedupe />
       <Nav />
 
@@ -172,6 +189,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Tournament FAQ — answers the high-volume "how does the 2026 format
+          work" search intent; one legend-specific Q&A differentiates from the
+          generic ESPN/FIFA explainers. JSON-LD emitted above. */}
+      {tournament.faqs?.length > 0 && (
+        <section className="faq-section" id="faq">
+          <div className="section-header">
+            <div className="section-label">How It Works</div>
+            <h2 className="section-title">The New Format, Explained</h2>
+            <p className="section-desc">
+              The first 48-team World Cup changes more than any edition before
+              it. Here&apos;s what&apos;s new — and what it means for the five
+              legends chasing one last title.
+            </p>
+          </div>
+          <div className="faq-list">
+            {tournament.faqs.map((f, i) => (
+              <div key={i} className="faq-item">
+                <h3 className="faq-q">{f.q}</h3>
+                <p className="faq-a">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Players Grid */}
       <section className="section" id="legends">

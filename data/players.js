@@ -882,6 +882,42 @@ export const tournament = {
     { date: "2026-07-15", event: "Semi-finals (Dallas & Atlanta)" },
     { date: "2026-07-19", event: "Final — MetLife Stadium, NJ" },
   ],
+
+  // Tournament-format FAQ — the 2026 edition is the most-changed in World Cup
+  // history (48 teams, a new Round of 32, the best-third-place rule), and search
+  // demand for "how does it work" is huge. These mirror the on-page Q&A in
+  // app/page.js and feed a FAQPage JSON-LD block. Facts verified June 2026
+  // against FIFA + ESPN; cross-check against keyDates above before editing.
+  faqs: [
+    {
+      q: "How is the 2026 World Cup different from previous tournaments?",
+      a: "It's the first 48-team World Cup, up from 32. The teams are split into 12 groups of four and play 104 matches in total — far more than the 64 of past editions — across 16 cities in three host nations, the USA, Canada and Mexico. It also introduces a Round of 32, a knockout round that has never existed before.",
+    },
+    {
+      q: "How many matches does each team play?",
+      a: "Every team still plays three group-stage games, one against each of the other sides in its group — the same as it has always been. What changes is the run to the trophy: a team that reaches the final now plays eight matches in total rather than the seven needed in 2022, because of the extra knockout round.",
+    },
+    {
+      q: "How do teams qualify for the knockout stage?",
+      a: "The top two teams in each of the 12 groups go through automatically — that's 24 teams. They're joined by the eight best third-placed teams from across all the groups, making 32 in total. The eight are ranked by points, then goal difference, then goals scored, so a strong third-place finish is no longer an automatic exit.",
+    },
+    {
+      q: "What is the new Round of 32?",
+      a: "It's a brand-new opening knockout round — the first time in World Cup history that 32 teams reach the bracket. The knockout path now runs Round of 32, Round of 16, quarter-finals, semi-finals and final, instead of starting at the Round of 16 as it did when only 16 teams advanced.",
+    },
+    {
+      q: "Can a team win its group and still be eliminated?",
+      a: "No. Every group winner and every runner-up is guaranteed a place in the Round of 32. The only teams left sweating the math are those finishing third: just the eight best of the twelve third-placed sides advance, so a third-place team in a tough group can still be sent home.",
+    },
+    {
+      q: "When does the group stage end and the knockouts begin?",
+      a: "The group stage runs from the opening match on June 11 through June 27. The knockout rounds begin on June 28 and build to the final at MetLife Stadium, New Jersey, on July 19, 2026.",
+    },
+    {
+      q: "Could one of the legends' nations finish third and still advance?",
+      a: "Yes — and the new format could be a lifeline for them. With eight of the twelve third-placed teams going through, a side like Modrić's Croatia, De Bruyne's Belgium or Ronaldo's Portugal can drop a group game and still reach the knockouts on points. It's the rule most likely to keep a legend's final chapter alive beyond the group stage.",
+    },
+  ],
 };
 
 export function getPlayerById(id) {
