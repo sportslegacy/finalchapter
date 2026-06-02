@@ -188,6 +188,19 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>
+          <Link
+            href="/world-cup-2026-groups"
+            style={{
+              color: "var(--accent-gold)",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            See all 48 teams &amp; the full group draw &rarr;
+          </Link>
+        </p>
       </section>
 
       {/* Tournament FAQ — answers the high-volume "how does the 2026 format
