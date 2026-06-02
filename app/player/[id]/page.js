@@ -20,11 +20,13 @@ export async function generateMetadata({ params }) {
   const player = getPlayerById(id);
   if (!player) return {};
   const ordinal = ORDINALS[player.worldCups.length] || `${player.worldCups.length}th`;
-  const opponents = player.wc2026.groupTeams.filter((t) => t !== player.country).join(", ");
-  // Kept ≤160 chars so search engines show it un-truncated (Bing flags >160).
-  const description = `Is 2026 ${player.name}'s last World Cup? At ${player.ageAtTournament}, his ${ordinal} and likely final — Group ${player.wc2026.group} vs ${opponents}. Records, milestones, full schedule.`;
+  // Answer-led title + description: GSC shows the page ranks ~7 for high-volume
+  // "is <player> playing / is this <player>'s last World Cup" queries but gets
+  // near-zero CTR. Leading with the explicit "Yes" answer in the SERP wins the
+  // click. Kept ≤160 chars so search engines show the description un-truncated.
+  const description = `Yes — ${player.name} plays for ${player.country} at the 2026 World Cup, his ${ordinal} and likely last at ${player.ageAtTournament}. Group ${player.wc2026.group}. Records, milestones & full schedule.`;
   return {
-    title: `Is 2026 ${player.name}'s Last World Cup? — The Final Chapter`,
+    title: `Is 2026 ${player.name}'s Last World Cup? Yes — The Final Chapter`,
     description,
     alternates: { canonical: `/player/${player.id}` },
     openGraph: {
