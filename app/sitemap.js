@@ -27,5 +27,12 @@ export default function sitemap() {
     priority: 0.9,
   }));
 
-  return [home, ...players];
+  const format = {
+    url: `${siteUrl}/world-cup-2026-format`,
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  };
+
+  return [home, format, ...players];
 }

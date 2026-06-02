@@ -1791,3 +1791,39 @@ body.nav-menu-open {
   line-height: 1.6;
   color: var(--text-secondary);
 }
+
+/* ===== Format-guide prose (/world-cup-2026-format) ===== */
+.format-prose {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.format-prose p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem;
+}
+
+.format-prose strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.format-callout {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-left: 3px solid var(--accent-gold);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.35rem !important;
+  margin-top: 1.5rem !important;
+}
+
+.format-path {
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 2.5vw, 1.4rem) !important;
+  text-align: center;
+  color: var(--accent-gold) !important;
+  letter-spacing: 0.02em;
+  padding: 1rem 0;
+}

@@ -212,6 +212,18 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <p style={{ textAlign: "center", marginTop: "1.75rem" }}>
+            <Link
+              href="/world-cup-2026-format"
+              style={{
+                color: "var(--accent-gold)",
+                fontWeight: 600,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Read the full 2026 format guide &rarr;
+            </Link>
+          </p>
         </section>
       )}
 
