@@ -53,7 +53,9 @@ app/
   opengraph-image.js              # 1200×630 site-level OG card (fallback), generated at build via next/og
   twitter-image.js                # re-exports opengraph-image
   robots.js                       # → /robots.txt, allow-all + sitemap pointer
-  sitemap.js                      # → /sitemap.xml, lists homepage + 5 player URLs
+  sitemap.js                      # → /sitemap.xml: home + format + groups + 5 player URLs
+  world-cup-2026-format/page.js   # SEO explainer for "world cup 2026 format" intent + SportsEvent/FAQPage JSON-LD
+  world-cup-2026-groups/page.js   # SEO visual: full 48-team draw (12 group cards), 5 legend nations highlighted + linked + SportsEvent JSON-LD
   player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema
   player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
@@ -118,6 +120,32 @@ Everything below (after Nav, before footer) is wrapped in a `.player-accent-scop
   faqs: [{ q, a }],                                                // 4 Q&As → "Common Questions" section + FAQPage JSON-LD
 }
 ```
+
+### `tournament` object schema (also in `data/players.js`)
+
+```js
+export const tournament = {
+  name, tagline, hosts[], format,
+  openingMatch: { date, time, timezone, kickoffUtc, teams, venue, city },
+  final: { date, venue, city },
+  hostCities: [{ city, country, venue }],                          // 16 venues → homepage #cities + format page
+  keyDates: [{ date, event }],                                     // → homepage + format page "Key Dates"
+  groups: [{ id, teams: [{ name, flag, host? }] }],                // FULL 48-team draw, 12 groups A–L → /world-cup-2026-groups
+  faqs: [{ q, a }],                                                // 7 Q&As → homepage #faq + format page + FAQPage JSON-LD
+};
+```
+
+**`tournament.groups`** is the single source of truth for the group-stage grid. All 12 groups (A–L) × 4 teams, in pot/seeding order, sourced from the **Dec 5 2025 draw** and verified vs FIFA + Wikipedia (commit `1380e41`). `host: true` marks the three predetermined host slots (Mexico A1, Canada B1, USA D1). The five legends' groups (C, G, J, K, L) **must stay in sync** with each player's `wc2026.groupTeams` — the groups page highlights them by cross-referencing `players[].wc2026.group`, so do NOT add a "legend" flag onto the group data. England/Scotland use the subdivision flag emojis (🏴󠁧󠁢󠁥󠁮󠁧󠁿 / 🏴󠁧󠁢󠁳󠁣󠁴󠁿). After editing groups, re-run the cross-check (see "Group-stage grid" gotcha).
+
+### The three tournament SEO pages + internal linking
+
+The site is really **5 player pages + 3 tournament pages**, internally cross-linked so Google can crawl between intents and visitors can bounce between "who," "how," and "where":
+
+- **`/` (homepage)** — legends-first. `#tournament` section → groups page CTA ("See all 48 teams & the full group draw →"); `#faq` section → format page link ("Read the full 2026 format guide →").
+- **`/world-cup-2026-format`** — prose explainer for "how the 2026 format works" (48 teams / Round of 32 / best-third-place). Links → groups page ("See the full draw →") AND → all 5 player pages (legends cross-link grid). Has the "bracket"/"knockout" keyword surface (the others don't).
+- **`/world-cup-2026-groups`** — visual full draw, 12 group cards. The 5 legend nations are gold-highlighted `<a>` rows linking → their player pages. Links → format page. Scoped to "draw/groups" vocabulary (NOT "bracket").
+
+All three carry SportsEvent JSON-LD; format + homepage also carry FAQPage; homepage also carries ItemList. All in the sitemap.
 
 ## Brand tokens (in `app/globals.css`)
 
@@ -349,8 +377,12 @@ In rough priority if traffic justifies more work:
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
 - **Match-result updates during the tournament** — currently the schedule shows match times but no result field. As matches happen, a tiny `match.result: "W 2-0"` style field + a few lines of JSX in the schedule card would give returning visitors a reason to come back. Update manually after each match (5 min of work per game for a 5-player site).
+- **Knockout bracket page** — DELIBERATELY NOT BUILT (decided 2026-06-01). Two reasons: (1) until the group stage ends **June 27**, every R32 slot is "Winner A / 3rd B-E-F" — only an empty skeleton is possible; (2) external research (2026-06-01) shows "world cup 2026 bracket" demand is HIGH but the space is saturated with purpose-built **interactive predictor** tools (bracket2026.com, cup-predictor.com, worldcuppass.com, CNN, Covers) — an editorial static site can't out-execute them, and the only versions that rank (live predictor / fillable bracket) are the 104-match maintenance trap. **Trigger to revisit:** if GSC Performance shows the `/world-cup-2026-format` page (the only one with "bracket"/"knockout" keyword surface) pulling steady, growing *bracket/knockout* impressions over the next 2–3 weeks, build a **legends-lens** bracket post-June-27 ("how far can each legend's nation realistically go") — editorial + on-brand, not a generic predictor. Until the data says so, skip it.
+- **"Groups" nav entry** — NOT added (decided 2026-06-01). The groups page is discoverable via the homepage `#tournament` CTA + format-page cross-link + sitemap, and the nav is already crowded on narrow phones (Tournament/Cities hidden inline <430px) + guarded by a Playwright width test. If ever wanted, the clean version is folding Format + Groups *into* the existing LEGENDS dropdown (rename to a "Tournament" menu) — a nav refactor, not a quick add.
 
 ### Shipped — was on this list previously
+- ✅ **Tournament SEO pages:** `/world-cup-2026-format` (prose explainer) + `/world-cup-2026-groups` (full 48-team draw visual, 5 legend nations highlighted + linked). Bi-directionally cross-linked with homepage + each other + player pages. See "The three tournament SEO pages" above. (commits `abcd4c1`, `1380e41`, `07f0ac6`)
+- ✅ Homepage + format-page **tournament-format FAQ** (7 Q&As from `tournament.faqs`) + FAQPage JSON-LD — validated real format-confusion demand via keyword research.
 - ✅ Editorial photo per player (5 CC-licensed Wikipedia photos in `public/players/`)
 - ✅ `robots.txt` + `sitemap.xml` (auto-generated via `app/robots.js` + `app/sitemap.js`)
 - ✅ Per-player OG images (`app/player/[id]/opengraph-image.js`, photo + name + first milestone hook)
@@ -363,33 +395,33 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-05-30)
+## Session handoff — current state (last updated 2026-06-01)
 
-Quick orientation for a fresh session. Everything below was done/decided in the late-May 2026 work; details live in the gotchas above.
+Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
 
-**Recently shipped & verified clean in prod:**
-- FAQPage "duplicate field" fix (server-rendered JSON-LD + dedupe client component).
-- React #418 hydration error fix (both sources: the JSON-LD client component AND the countdown timers).
-- "Broken links" report investigated → **false-positive** from a link-checker extension reacting to the #418 console error. All URLs return 200; nav works. Do not re-chase.
-- SportsEvent JSON-LD enrichment (image / location address / performer) on BOTH homepage `eventJsonLd` and player-page `buildPersonJsonLd` subjectOf — commit `9e7881b`. `offers` deliberately skipped (no tickets sold). All 5 player SportsEvents + homepage now use Place + PostalAddress (addressCountry US/CA/MX) and declare a `performer` SportsTeam.
-- Reddit-playbook correction (commit on `main`, CLAUDE.md only): **comment links never show an OG card** (cards are link-POSTS only) and **a bare domain without `https://` renders as dead gray text** in Reddit's mobile app. Week-1 traffic came from clickable taps, not card previews. See the "Reddit comment links" gotcha in the playbook.
+**2026-06-01 session — tournament SEO build-out (all shipped & verified live in prod):**
+- **`/world-cup-2026-format`** — prose explainer page for the "how does the 2026 format work" intent (48 teams, Round of 32, best-third-place rule). SportsEvent + FAQPage JSON-LD. Validated demand first via keyword research (every major publisher has a format explainer). Commit `abcd4c1`. Footer link fixed to `/#legends` (was `/`, label said "legends" but landed on hero) — commit `da44ee8`.
+- **`/world-cup-2026-groups`** — NEW: visual full 48-team draw, 12 group cards (A–L). Sourced from the Dec 5 2025 draw, **verified vs FIFA + Wikipedia** (our 5 legend groups already matched player data). The 5 legend nations are gold-highlighted `<a>` rows → player pages; 3 hosts badged. `tournament.groups` added to `data/players.js` as single source of truth. Commit `1380e41`.
+- **Homepage `#tournament`** → groups CTA added ("See all 48 teams & the full group draw →"), commit `07f0ac6`. Internal linking across the legends/format/groups trio is now complete + bi-directional.
+- **GSC:** both new pages submitted via URL Inspection → Request Indexing (format indexed within ~1 day — confirmed "URL is on Google," Events + FAQ valid, the Events "non-critical" issue is the intentionally-skipped `offers`).
+- **Distribution digest:** Anthropic **Console credits topped up** — digest drafts working again (the digest's `ANTHROPIC_API_KEY` bills the Console, NOT the Claude.ai Pro subscription; that's why drafts failed at $0 earlier). 2026-06-01 digest top moves were Neymar (injury-cloud goal thread), Ronaldo (curse-debate), KDB (Stellini spat) — i.e. the laggard players are currently the hottest threads.
 
-**2026-05-30 Champions League final marketing push (in progress):**
-- Context: PSG beat Arsenal on penalties (4–3) in the 2025/26 UCL final in Budapest; Luis Enrique back-to-back (Munich 2025, Budapest 2026). User posted an X tweet + an r/soccer post-match top-level comment right after.
-- **Best Reddit landing found & used:** the `[Official] PSG wins the 2025/26 UCL` megathread (~2.1k upvotes). User sub-replied (as `Ok-Departure6297`) under `rocknroll-refugee`'s "back-to-back after Mbappe leaves… certified UCL kryptonite" comment with the **Neymar/galáctico angle** (PSG paid world-record €222m for Neymar to win this, never did, win it once he's gone → his last stage is the WC). **ACTION STILL PENDING: that comment's URL was posted without `https://` → dead gray text. User needs to EDIT it to `https://finalchapterfc.com/player/neymar` to make it tappable.**
-- A **link-free second comment** (the ">€1bn galáctico project, missing ingredient was not having the superstars" line) was drafted for the same/another sub-thread to build participation without tripping self-promo.
-- **X play:** replying under Fabrizio Romano's back-to-back PSG tweet (huge reach) is the one worthwhile X move. Draft given: link-free (links suppress reach + barely convert on X), names all 5 legends + "11 days till the script flips" hook. Treat as impressions/brand, not traffic. **Make sure the X bio has the site URL first** — that's the only conversion path there.
+**Decisions made this session (don't re-litigate without new data):**
+- **No bracket page** — demand is high but the space is saturated with interactive predictors; revisit only if GSC shows the format page pulling bracket/knockout impressions, and then only a post-June-27 legends-lens version. See backlog.
+- **No "Groups" nav entry** — discoverable via cross-links; nav is crowded + test-guarded. See backlog.
+- **User is holding social posting** (as of 2026-06-01) to let the format/groups SEO work breathe before the next Reddit wave.
+
+**Carried over from 2026-05-30 (CL-final wave — verify if still relevant):**
+- PSG won the 2025/26 UCL (back-to-back under Luis Enrique). Neymar/galáctico Reddit angle was used on the `[Official] PSG wins` megathread. **Possible pending:** a Neymar comment URL may have been posted without `https://` (dead gray text) needing an edit — confirm with user if still open.
 
 **Open / next actions (rough priority):**
-1. **Finish the CL-final wave TODAY** — (a) edit the Neymar Reddit comment to add `https://`; (b) post the link-free second Reddit comment; (c) post the link-free Fabrizio Romano X reply (after confirming bio URL is set). The megathread peaks within ~24h.
-2. **Reddit push for the laggard players** — Modrić reply already posted earlier. Neymar (~13 visits) and De Bruyne (~12) still under-served — the CL-final Neymar angle above directly serves Neymar. KDB hooks: Belgium golden generation / Napoli move / club-football-peak nights.
-3. **Bing Webmaster Tools** (covers DuckDuckGo too — DDG has no own tools, sources from Bing). Fastest path: bing.com/webmasters → "Import from Google Search Console" (skips verification). Then submit `https://finalchapterfc.com/sitemap.xml` + Submit-URL the 6 pages. Sitemap + robots confirmed live & 200. Set-and-forget, ~4–8% of search, low payoff but free. Not yet done — needs user's Microsoft/Google login.
-4. **GSC request-indexing** for the other player URLs (Messi was done) once crawled.
-5. **Email capture** — flagged as the biggest structural gap (the only audience they'd OWN). Minimal play: one-field "reminder before each legend's first match" form → one broadcast email on June 11 kickoff. Needs user to create a free Buttondown/ConvertKit account (I can't create accounts); then I wire a static form (no backend) matching the gold/dark brand. Not started.
-6. **Internal cross-linking** — bios could cross-link players where natural (Real Madrid: Modrić↔Ronaldo; Barça/PSG: Messi↔Neymar). Real, free, in-our-control SEO. Offered, not yet done. (Outbound external links give ~no ranking benefit — only do 1–2 for reader credibility. Inbound/backlinks are the real lever, earned via distribution.)
-7. **X profile polish** (low ROI — X is effectively dead for us): upload branding/avatar (`avatar-globe-400.png`), rename display to "The Final Chapter", URL in bio. Don't invest beyond a pinned tweet + the bio link.
+1. **Watch GSC Performance** over the next 1–3 weeks for the new pages: impressions first (page 3–5), then position climbing. For the bracket question specifically, filter Query contains "bracket"/"knockout" on the `/world-cup-2026-format` page (it's the only one with that keyword surface).
+2. **Resume Reddit** when ready — laggards Neymar + De Bruyne are currently the top digest threads. Run `zsh scripts/distribution/daily.sh` for a fresh queue.
+3. **Bing Webmaster Tools** — import from GSC, submit sitemap (now includes format + groups URLs). Not done; needs user's login.
+4. **Email capture** — biggest structural gap (the only owned audience). One-field "reminder before each legend's first match" form → one broadcast on June 11. Needs user to create a free Buttondown/ConvertKit account first.
+5. **Player-bio cross-linking** — Real Madrid (Modrić↔Ronaldo), Barça/PSG (Messi↔Neymar). Free internal-SEO, not yet done.
 
-**Verification etiquette the user asked for:** avoid noisy/repeated permission prompts for headless-Chrome and `npm run build`. Self-test with a single build; only run the browser when a UI render is genuinely needed. After deploys, use Google's Rich Results Test for instant schema validation rather than waiting on GSC's crawl.
+**Verification etiquette the user asked for:** avoid noisy/repeated permission prompts for headless-Chrome and `npm run build`. Self-test with a single build; only run the browser when a UI render is genuinely needed. After deploys, use Google's Rich Results Test for instant schema validation rather than waiting on GSC's crawl. NOTE: Claude Preview's scroll resets to top on these content pages (known quirk) — verify mid-page content via DOM queries / `getComputedStyle` rather than mid-scroll screenshots.
 
 ## Distribution playbook
 
