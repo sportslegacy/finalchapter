@@ -90,6 +90,33 @@ const hoursAgo = (ts) => Math.round((Date.now() - ts) / 3600_000);
 const redditWindow = () =>
   DAYS <= 1 ? "day" : DAYS <= 7 ? "week" : DAYS <= 31 ? "month" : "year";
 
+// Reddit's RSS sometimes returns links whose slug carries raw non-ASCII
+// characters (e.g. a Vietnamese or Arabic post title). Those URLs don't paste
+// or click reliably — they get mangled in chat apps and Reddit's own app — so
+// the operator can't open the thread. The slug is purely decorative: only the
+// post id (and, for comment permalinks, the comment id) actually resolves. This
+// rebuilds a clean, ASCII-only canonical URL. Handles /r/<sub>/, /user/<name>/,
+// and bare /comments/ forms, and both submission and comment permalinks.
+function canonicalRedditUrl(url) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    if (!/reddit\.com$/i.test(u.hostname)) return url;
+    const seg = u.pathname.split("/").filter(Boolean);
+    const ci = seg.indexOf("comments");
+    if (ci === -1) return url; // not a thread/comment URL — leave it untouched
+    const postId = seg[ci + 1];
+    if (!postId) return url;
+    const commentId = seg[ci + 3]; // present only on comment permalinks (.../slug/<id>)
+    const tail = commentId ? `comments/${postId}/comment/${commentId}/` : `comments/${postId}/`;
+    // Keep the /r/<sub>/ or /user/<name>/ prefix when present; else bare /comments/.
+    const prefix = ci >= 2 ? `${seg[ci - 2]}/${seg[ci - 1]}/` : "";
+    return `https://www.reddit.com/${prefix}${tail}`;
+  } catch {
+    return url; // malformed URL — don't break the digest over it
+  }
+}
+
 function parseAtomEntries(xml) {
   const entries = [];
   const blocks = xml.split(/<entry>/).slice(1);
@@ -101,7 +128,7 @@ function parseAtomEntries(xml) {
     const linkM = b.match(/<link[^>]*href="([^"]+)"/);
     const catM = b.match(/<category[^>]*label="r\/([^"]+)"/);
     const title = tag("title");
-    const link = linkM ? decodeEntities(linkM[1]) : null;
+    const link = linkM ? canonicalRedditUrl(decodeEntities(linkM[1])) : null;
     const published = tag("published") || tag("updated");
     if (title && link) {
       // Prefer the subreddit from the URL (/r/<sub>/ or /u_<user>/); the
@@ -180,7 +207,7 @@ async function fetchTopComments(permalink, n = 3) {
     if (!author || /^automoderator$/i.test(author)) continue;
     const body = cleanCommentHtml((block.match(/<content[^>]*>([\s\S]*?)<\/content>/) || [])[1] || "");
     if (!body || body === "[deleted]" || body === "[removed]") continue;
-    out.push({ author, body, permalink: link });
+    out.push({ author, body, permalink: canonicalRedditUrl(link) });
     if (out.length >= n) break;
   }
   return out;
