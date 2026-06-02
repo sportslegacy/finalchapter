@@ -300,7 +300,7 @@ export default function FormatPage() {
           June 11 &ndash; July 19, 2026 &middot; USA &middot; Canada &middot;
           Mexico
           <br />
-          <Link href="/" style={{ color: "var(--accent-gold)" }}>
+          <Link href="/#legends" style={{ color: "var(--accent-gold)" }}>
             Back to the legends &rarr;
           </Link>
         </p>
