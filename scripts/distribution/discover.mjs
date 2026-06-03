@@ -59,6 +59,12 @@ const NOISE_TITLE = /(match thread|post-?match|pre-?match|free agents|daily disc
 // discussion, so they're not worth replying in.
 const JUNK_SUB = /(auto|newspaper|^u_|_news$|memes?$|bot$|trials$|goalupon|getnoted|starcutouts|cults3d|^fut$|futmobile)/i;
 
+// Shopping / merch / commerce subs: people there want a BUY link, not editorial
+// analysis, so an on-brand reply gets downvoted (learned the hard way —
+// r/SoccerJerseys reply pulled 450 views but -2 karma). Penalize hard so the
+// digest stops queuing them as reply targets.
+const COMMERCE_SUB = /(jerseys?$|kits?$|merch|forsale|swap|deals?$|shopping|sneakers|fashionreps|reps?$)/i;
+
 // Keywords that signal a thread is on-topic for us (World Cup / final-chapter angle).
 const WC_TERMS = ["world cup", "wc2026", "wc26", "2026", "retire", "retirement", "last dance", "final", "swan song", "international"];
 
@@ -243,6 +249,7 @@ function scoreReddit(entry, player) {
   let score = 100 * (0.45 * recency + (titleHit ? 0.4 : 0.1) + (topical ? 0.15 : 0));
   if (NOISE_TITLE.test(entry.title)) score *= 0.25;
   if (JUNK_SUB.test(entry.subreddit)) score *= 0.15;
+  if (COMMERCE_SUB.test(entry.subreddit)) score *= 0.05; // merch subs downvote editorial replies
   if (curated) score = Math.min(100, score + 8); // hand-picked quality subs
   return { score: Math.round(score), ageH, titleHit, topical };
 }

@@ -457,6 +457,7 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 - **TikTok / YouTube Shorts:** wrong format unless committing to video content
 - **Facebook:** declining organic reach, older demographic, not where football discussion lives
 - **Instagram feed posts:** zero off-platform click conversion — IG actively suppresses outbound links
+- **Shopping / merch / jersey subs (r/SoccerJerseys, r/FashionReps, kit/swap/deals subs):** people there want a BUY link, not editorial analysis — an on-brand reply gets **downvoted**. Learned 2026-06-02: an r/SoccerJerseys Neymar-kit reply pulled 450 views but **−2 karma**. `discover.mjs` now hard-penalizes these via the `COMMERCE_SUB` regex (score × 0.05) so the digest stops queuing them.
 
 ### Timing for the tournament window
 
@@ -476,6 +477,21 @@ Analytics after 7 days live (May 24 → May 27, 2026):
 - **Geographic concentration:** 71% US, then India 5%, Canada 3%, Germany 3%, France 3%. Country-specific subreddits (Croatia, Belgium, Brazil) would diversify the geo mix.
 - **Devices:** 64% desktop, 36% mobile (more desktop than expected for a fan site — possible Reddit-from-desktop bias)
 - **Under-served players:** Modrić, Neymar, De Bruyne each got only 4–5 visits. Same Reddit-reply playbook should pull them up. The proven recipe is below.
+
+### What's actually working (data from week 2 — 2026-06-02)
+
+Vercel (30-day): **164 visitors, 651 page views, ~4 pages/visit.** Reddit still dominant referrer (reddit.com 26 + com.reddit.frontpage 7 = 33 vs google 6, t.co 5). `/player/neymar` (50) overtook Ronaldo (49) and Messi (41) as the top player page — the laggard-player Reddit focus worked.
+
+**Reddit comment views (from the posting account's Comments tab) — views ≫ X by ~100×:**
+- **Ronaldo "scored in 5 different World Cups" (22/8 stat) on r/SoccerCentral → 2,173 views, +2.** Biggest single piece the digest has produced. **The Ronaldo stat hook (scored in 5 WCs / 26 WC appearances / past Matthäus) is the strongest content we have — lean into it.**
+- r/Canarinho Neymar arrival replies → 524 + 160 views (on-target Brazil NT sub).
+- r/soccer KDB/Stellini reply → **1 view** (buried — was top-level on a busy thread; per the playbook, sub-reply under a high-upvote comment instead).
+- r/SoccerJerseys Neymar-kit reply → 450 views but **−2** (wrong sub — see "Subs to avoid"; now blocked in discover.mjs).
+- **X (@finalchapter): 19–24 views per post.** Reconfirms "X is dead at our scale" — ~100× below Reddit. Brand shelf only; don't draft standalone X content for reach.
+
+**Caveat:** views ≠ site visits. A comment gets no OG card, so conversion depends on a clickable full-`https://` link IN the comment. A high-view comment with no clickable link is a pure leak — always verify the link rendered blue/tappable (bare domain = dead gray text on mobile).
+
+**SEO (GSC, first ~4 days of data, May 28–31):** impressions ramping 2 → 24 → 263 → 294/day; first clicks (5) on May 31. **De Bruyne is the surprise search magnet** — `/player/debruyne` has 417 impressions (more than all other pages combined) at position ~7 but only 0.48% CTR. Dominant intent is the **question** cluster: "is/will Kevin De Bruyne play(ing) (in the) World Cup 2026" (54+19+17+15... impressions) and "is this <player>'s last World Cup" (Messi/Modrić too). Fixed 2026-06-02 (commit `b39b243`) by making player-page titles/descriptions **answer-led** ("...Last World Cup? **Yes** — ..." / "**Yes** — <player> plays for <country>...") to convert page-1 impressions into clicks. Geo in search skews US 202 / **India 112** — a latent audience Reddit isn't reaching.
 
 ### Reddit reply tactics that worked (3 successful examples)
 
