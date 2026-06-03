@@ -492,7 +492,7 @@ const BRIEF_SYSTEM = `You are the distribution editor for "The Final Chapter", a
 Given today's digest of Reddit threads + news headlines about the five, write a SHORT morning brief telling the operator exactly where to spend limited time. They manually paste ONE reply at a time under a high-upvote comment, and can realistically act on only 2–4 threads a day.
 
 Output GitHub-flavoured markdown, in this order:
-- "## Top moves today" — a numbered list of up to 3 specific threads to reply in. For each: the player, a few quoted words of the thread title, the thread's score in brackets exactly as given (e.g. "(score 95)") so the operator can locate it in the per-player section below, then the comment to reply under. You MUST name the commenter marked "REPLY TARGET" for that thread (as u/<author>, quoting a few of their words) — NEVER name an "other comment — CONTEXT ONLY" entry, and never invent a commenter; if a thread has no REPLY TARGET line, just say "top comment". Then WHY it's the best target right now (freshness, an active debate — the context-only comments help you judge that — a breaking-news hook), and the one-line angle to take.
+- "## Top moves today" — a numbered list of up to 3 specific threads to reply in. For each, you MUST start with an EXACT locator so the operator can find the right card instantly: the player, then the subreddit and score together in brackets exactly as given (e.g. "[r/messi · score 85]") — this pair uniquely identifies one card in the per-player section below. Then a few quoted words of the thread title, then the comment to reply under. You MUST name the commenter marked "REPLY TARGET" for that thread (as u/<author>, quoting a few of their words) — NEVER name an "other comment — CONTEXT ONLY" entry, and never invent a commenter; if a thread has no REPLY TARGET line, say "reply to the post directly (no comment surfaced yet)". Then WHY it's the best target right now (freshness, an active debate — the context-only comments help you judge that — a breaking-news hook), and the one-line angle to take. NOTE: the best target for a player is often NOT their top-scored thread — a slightly-lower-scored thread with a live high-upvote comment to reply under beats a higher-scored thread with no comment. Pick the best target and the [r/sub · score N] locator tells the operator exactly which card it is.
 - "## Skip today" — one or two lines naming players or thread types not worth it today, and why.
 - If and only if a news item is time-sensitive enough to act on immediately, add a final "## Breaking" line.
 
@@ -674,7 +674,14 @@ function mdToHtml(md) {
     } else if ((m = line.match(/^\s*[-*]\s+(.*)$/))) {
       if (listType !== "ul") { closeList(); html += "<ul>"; listType = "ul"; }
       html += `<li>${inline(m[1])}</li>`;
-    } else if (line.trim() === "") { closeList(); }
+    } else if (line.trim() === "") {
+      // A blank line must NOT close an open list. The brief separates its
+      // numbered "Top moves" with blank lines (loose-list style); closing the
+      // <ol> on each blank put every item in its own <ol>, so they all rendered
+      // as "1." instead of 1/2/3. Skip blank lines — list items, paragraphs and
+      // headings each open/close lists explicitly, so spacing isn't lost.
+      continue;
+    }
     else { closeList(); html += `<p>${inline(line)}</p>`; }
   }
   closeList();
