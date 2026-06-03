@@ -65,6 +65,28 @@ const JUNK_SUB = /(auto|newspaper|^u_|_news$|memes?$|bot$|trials$|goalupon|getno
 // digest stops queuing them as reply targets.
 const COMMERCE_SUB = /(jerseys?$|kits?$|merch|forsale|swap|deals?$|shopping|sneakers|fashionreps|reps?$)/i;
 
+// APPROXIMATE subscriber counts per subreddit — a reach TIEBREAKER for the
+// editor's brief only (NOT used in scoring). Reddit RSS gives us no engagement
+// data, and the brief otherwise had no notion of audience size, so it once
+// called a ~50K sub a "high-visibility piggyback". These are rough, drift
+// slowly (months), and are deliberately labelled "approx" in the prompt so the
+// brief treats reach as a tiebreaker, not gospel — a fresh thread with a live
+// comment on a small sub still beats a stale/comment-less one on a huge sub.
+// Keys are lowercased sub names. Unknown subs → null → "size unknown".
+const SUB_REACH = {
+  soccer: 6_500_000, worldcup: 350_000, argentina: 1_200_000, brasil: 1_100_000,
+  realmadrid: 900_000, barca: 700_000, mcfc: 550_000, fcbarcelona: 700_000,
+  acmilan: 250_000, belgium: 250_000, portugal: 250_000, fulbo: 250_000,
+  croatia: 200_000, napoli: 120_000, intermiamicf: 60_000, canarinho: 60_000,
+  messi: 55_000, soccercentral: 40_000, thetouchline: 30_000,
+};
+function formatReach(sub) {
+  const n = SUB_REACH[String(sub || "").toLowerCase()];
+  if (!n) return "size unknown";
+  return n >= 1_000_000 ? `~${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M subs`
+       : `~${Math.round(n / 1000)}K subs`;
+}
+
 // Keywords that signal a thread is on-topic for us (World Cup / final-chapter angle).
 const WC_TERMS = ["world cup", "wc2026", "wc26", "2026", "retire", "retirement", "last dance", "final", "swan song", "international"];
 
@@ -496,7 +518,7 @@ Output GitHub-flavoured markdown, in this order:
 - "## Skip today" — one or two lines naming players or thread types not worth it today, and why.
 - If and only if a news item is time-sensitive enough to act on immediately, add a final "## Breaking" line.
 
-Rules: Reference ONLY threads/news/commenters that appear in the digest below — never invent a thread, stat, quote, or username. Be decisive and specific; no generic marketing advice. A 4h-old thread with an active debate beats a 60h-old one; body-only mentions are weak targets. Keep the whole brief under ~200 words.`;
+Rules: Reference ONLY threads/news/commenters that appear in the digest below — never invent a thread, stat, quote, or username. Be decisive and specific; no generic marketing advice. A 4h-old thread with an active debate beats a 60h-old one; body-only mentions are weak targets. Each thread shows its subreddit's APPROXIMATE subscriber count (e.g. "r/soccer (~6.5M subs)" vs "r/messi (~55K subs)") — use it as a reach TIEBREAKER: a reply on a huge sub is seen by far more people, so NEVER call a small/niche sub "high-visibility". But reach is only a tiebreaker, not the deciding factor — a fresh thread with a live high-upvote comment to reply under (even on a small sub) usually beats a bigger sub's thread that has no comment surfaced or is stale. When you pick a smaller-sub thread over a bigger-sub one, say why in one clause (e.g. "over the bigger r/soccer post, which has no comment to reply under"). Keep the whole brief under ~200 words.`;
 
 function digestForBrief({ reddit, news }) {
   let s = "";
@@ -509,7 +531,7 @@ function digestForBrief({ reddit, news }) {
         continue;
       }
       for (const h of p.hits.slice(0, SHOW_TOP_N)) {
-        s += `  - [score ${h.score}, ${h.ageH}h old, r/${h.subreddit}${h.titleHit ? "" : ", body-only"}] ${h.title}\n`;
+        s += `  - [score ${h.score}, ${h.ageH}h old, r/${h.subreddit} (${formatReach(h.subreddit)})${h.titleHit ? "" : ", body-only"}] ${h.title}\n`;
         // Only topComments[0] is a valid reply target — it's the comment the
         // per-player section prints AND the one the paste-ready draft is written
         // against. The remaining comments are shown to the brief purely as
