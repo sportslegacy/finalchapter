@@ -540,23 +540,6 @@ a {
   margin: 0 0 1rem;
 }
 
-.status-share-btn {
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--player-accent, var(--accent-gold));
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--player-accent, var(--accent-gold)) 45%, transparent);
-  border-radius: 999px;
-  padding: 0.55rem 1.2rem;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.status-share-btn:hover {
-  background: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 14%, transparent);
-}
-
 /* --- /status hub: "Who's Still Standing" grid ---------------------------- */
 .status-grid {
   display: grid;

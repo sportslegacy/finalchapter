@@ -11,7 +11,6 @@ import {
   STAGE_SHORT,
 } from "../../data/players";
 import Nav from "../components/Nav";
-import ShareButton from "../components/ShareButton";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
 
@@ -125,13 +124,6 @@ export default function StatusPage() {
             stands right now &mdash; {aliveCount} of {players.length}{" "}
             still in it &mdash; tracked from the group stage to the final.
             Bookmark this page; it updates as the tournament unfolds.
-          </p>
-          <p style={{ marginTop: "1.25rem" }}>
-            <ShareButton
-              url={`${SITE_URL}/status`}
-              title="Who's Still Standing — Legends at the 2026 World Cup"
-              text={`${aliveCount} of ${players.length} legends are still in the 2026 World Cup.`}
-            />
           </p>
         </div>
 
