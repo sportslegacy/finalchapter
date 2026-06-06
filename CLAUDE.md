@@ -68,6 +68,7 @@ app/
     HashScroll.js                 # smooth-scroll for /#section links
     CountUp.js                    # animates profile stat numbers 0→value on scroll-in (IO + reduced-motion aware)
     GoalChart.js                  # "goals by World Cup" bar chart on the player timeline (bars grow on scroll-in)
+    ShopLinks.js                  # "Fan Shop" affiliate block on player pages — Amazon Associates (server component, no JS); links from playerShopLinks(player), rel="sponsored" + disclosure
   lib/navigate-to-section.js
 data/players.js                   # all content
 public/players/                   # editorial portraits per player (CC-licensed from Wikimedia)
@@ -95,9 +96,10 @@ Everything below (after Nav, before footer) is wrapped in a `.player-accent-scop
 6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card; includes the `GoalChart` "goals by World Cup" bar chart
 7. Bio + career honors tags + **"Also in The Final Chapter"** cross-link block (`relatedPlayers` → other legends with a shared-club/era relation; internal-SEO + bounce)
 8. **Common Questions** — FAQ section (4 Q&As from `faqs[]`); also emits a second JSON-LD `<script>` with FAQPage schema (`buildFaqJsonLd`)
-9. Prev/next player nav
-10. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
-11. Site footer
+9. **Fan Shop** (`<ShopLinks player={player} />`, `.shop-section`) — Amazon Associates affiliate block: "Wear the Colors" header + 2 cards (national-team kit + player books) → tagged Amazon search URLs, with the required disclosure line. Inside `.player-accent-scope`, so cards pick up the national accent. See "Affiliate monetization" gotcha.
+10. Prev/next player nav
+11. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
+12. Site footer
 
 ### `data/players.js` schema per player
 
@@ -127,6 +129,8 @@ Everything below (after Nav, before footer) is wrapped in a `.player-accent-scop
   faqs: [{ q, a }],                                                // 4 Q&As → "Common Questions" section + FAQPage JSON-LD
 }
 ```
+
+**Affiliate links (derived, not stored):** `data/players.js` also exports `AFFILIATE_TAG = "finalchapterf-20"` (Amazon Associates), `amazonSearchUrl(query)` (builds a tagged `/s?k=…&tag=…` search URL), and `playerShopLinks(player)` → `[{ label, sublabel, href }]` for the Fan Shop block. The two links per player (national-team kit + player books) are **derived from existing fields** (`player.country`, `player.name`) — no per-player shop content to maintain. We point at tagged *search* pages, not specific ASINs, so nothing breaks when an item goes out of stock; Amazon's 24-hour cookie credits any tagged link.
 
 ### `tournament` object schema (also in `data/players.js`)
 
@@ -191,6 +195,18 @@ The player-page status strip first shipped (2026-06-05) literally rendering `sta
 ### No share buttons — they don't fit our distribution (removed 2026-06-05)
 
 A `ShareButton` component (Web Share API + clipboard fallback) was built for `/status` and reused on player pages, then **removed entirely** (component deleted, `.status-share-btn` CSS gone). Rationale grounded in real data: Reddit (our only working channel, ~80% of referrals) does NOT render OG cards in comments — only link-posts do — and X is dead at our scale (~20 views/post). An on-page share button is decorative. If sharing ever matters again, the right move is a single `navigator.share({ url, title, text })` call (see Parked Ideas), not a styled button — but default is no share UI.
+
+### Affiliate monetization — Amazon Associates "Fan Shop" (first revenue, 2026-06-06)
+
+The site's first monetization: a per-player **Fan Shop** block (`app/components/ShopLinks.js`, rendered as section 9 on each player page) linking to Amazon via the Associates tag **`finalchapterf-20`**. Links come from `playerShopLinks(player)` in `data/players.js` (national-team kit + player books, derived from `player.country`/`player.name` — no per-player shop content to maintain) and use tagged *search* URLs (`amazonSearchUrl`) rather than specific ASINs, so nothing breaks when products go out of stock.
+
+**Two Associates program rules are MANDATORY — don't remove them:**
+1. Every affiliate link must carry **`rel="sponsored"`** (ShopLinks uses `rel="sponsored noopener noreferrer"`). Stripping `sponsored` is a program violation.
+2. The affiliate relationship must be **disclosed near the links** — ShopLinks renders "As an Amazon Associate, The Final Chapter earns from qualifying purchases." Keep it.
+
+`AFFILIATE_TAG` in `data/players.js` is the single source of truth for the tag — change it there, not in markup. ShopLinks is a **server component (no client JS)** and renders inside `.player-accent-scope`, so cards pick up the national accent on hover. `.shop-*` styles live in `app/globals.css`. Commit `9e5b486`.
+
+**Hobby-plan ToS caveat now live:** the top-of-file note says Vercel Hobby forbids commercial use — with affiliate revenue now wired in, the site is technically in violation. If this earns meaningfully, upgrade to **Vercel Pro ($20/mo)**. Until then it's a known, accepted risk for a tiny-traffic fan site.
 
 ### Per-player accent colors — `.player-accent-scope`
 
@@ -405,6 +421,7 @@ In rough priority if traffic justifies more work:
 - **"Groups" nav entry** — NOT added (decided 2026-06-01). The groups page is discoverable via the homepage `#tournament` CTA + format-page cross-link + sitemap, and the nav is already crowded on narrow phones (Tournament/Cities hidden inline <430px) + guarded by a Playwright width test. If ever wanted, the clean version is folding Format + Groups *into* the existing LEGENDS dropdown (rename to a "Tournament" menu) — a nav refactor, not a quick add.
 
 ### Shipped — was on this list previously
+- ✅ **Affiliate monetization (Fan Shop)** — Amazon Associates per-player block (tag `finalchapterf-20`), first revenue mechanism. See "Affiliate monetization" gotcha. (commit `9e5b486`, 2026-06-06)
 - ✅ **Tournament SEO pages:** `/world-cup-2026-format` (prose explainer) + `/world-cup-2026-groups` (full 48-team draw visual, 5 legend nations highlighted + linked). Bi-directionally cross-linked with homepage + each other + player pages. See "The three tournament SEO pages" above. (commits `abcd4c1`, `1380e41`, `07f0ac6`)
 - ✅ Homepage + format-page **tournament-format FAQ** (7 Q&As from `tournament.faqs`) + FAQPage JSON-LD — validated real format-confusion demand via keyword research.
 - ✅ Editorial photo per player (5 CC-licensed Wikipedia photos in `public/players/`)
@@ -419,9 +436,15 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-05)
+## Session handoff — current state (last updated 2026-06-06)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-06 session — first monetization + status-strip polish:**
+- **Amazon Associates "Fan Shop"** — first revenue mechanism. Per-player block (`app/components/ShopLinks.js`) links to national-team kit + player books via tagged Amazon search URLs (tag `finalchapterf-20`, single source of truth: `AFFILIATE_TAG` in `data/players.js`). Server component, `rel="sponsored"` + Associates disclosure, picks up national accent inside `.player-accent-scope`. Commit `9e5b486`. **Hobby-plan commercial-use ToS now technically violated** — upgrade to Vercel Pro if revenue becomes meaningful. See "Affiliate monetization" gotcha.
+- **Status strip reshaped to editorial** — the player-page status banner shipped first as a literal SEO Q&A box ("Is X playing…? / Yes — …") and read off-brand ("weird and not cohesive"); reshaped to gold `WORLD CUP 2026` label + serif-italic `statusStatement()` line + stage track. SEO Q&A phrasing now lives ONLY in title/meta/FAQ JSON-LD. See the two "Status strip" / "Live status system" gotchas. Top-padded to clear the fixed 53px nav.
+- **Share buttons removed site-wide** — `ShareButton` deleted (player strip + `/status`), grounded in distribution data. See "No share buttons" gotcha.
+- **Digest run** — discovery-only Reddit/news scan; top opportunities are the three laggard players (KDB Belgium 5-0 Tunisia live thread, Ronaldo hattrick-anniversary thread, Neymar joke thread). No posting done.
 
 **2026-06-05 session — live status system + match results + cross-linking (all shipped & live in prod):**
 - **`/status` "Who's Still Standing" hub** — NEW page tracking all 5 legends through the tournament; sorts alive-first/deepest-stage, eliminated to the bottom; each card links to the player. SportsEvent + FAQPage JSON-LD, OG + twitter image, in sitemap (priority 0.9, daily), linked from homepage (after legends grid) + Nav hamburger drawer (NOT the inline row — width-test guard) + `/world-cup-2026-groups` cross-link. Commit `889505f`.
