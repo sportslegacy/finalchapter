@@ -16,7 +16,6 @@ import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
-import ShareButton from "../../components/ShareButton";
 import JsonLd from "../../components/JsonLd";
 import JsonLdDedupe from "../../components/JsonLdDedupe";
 
@@ -227,12 +226,6 @@ export default async function PlayerPage({ params }) {
           {status.note ? (
             <p className="status-banner-note">{status.note}</p>
           ) : null}
-          <ShareButton
-            url={`${SITE_URL}/player/${player.id}`}
-            title={`${player.name} — The Final Chapter`}
-            text={head.a}
-            label={`Share ${firstName}'s final chapter →`}
-          />
         </div>
       </section>
 
