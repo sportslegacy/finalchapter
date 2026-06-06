@@ -53,10 +53,13 @@ app/
   opengraph-image.js              # 1200×630 site-level OG card (fallback), generated at build via next/og
   twitter-image.js                # re-exports opengraph-image
   robots.js                       # → /robots.txt, allow-all + sitemap pointer
-  sitemap.js                      # → /sitemap.xml: home + format + groups + 5 player URLs
+  sitemap.js                      # → /sitemap.xml: home + status + format + groups + 5 player URLs
   world-cup-2026-format/page.js   # SEO explainer for "world cup 2026 format" intent + SportsEvent/FAQPage JSON-LD
   world-cup-2026-groups/page.js   # SEO visual: full 48-team draw (12 group cards), 5 legend nations highlighted + linked + SportsEvent JSON-LD
-  player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema
+  status/page.js                  # "Who's Still Standing" hub — live status of all 5 legends, sorted alive-first/deepest-stage; SportsEvent + FAQPage JSON-LD
+  status/opengraph-image.js       # 1200×630 OG card: "{aliveCount} of 5 legends still in it" + 5 legend rows w/ stage label
+  status/twitter-image.js         # re-exports status/opengraph-image
+  player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema; opens with the live status strip
   player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
     Nav.js                        # header w/ hamburger drawer + LEGENDS dropdown; logo scrolls-to-top when already on "/"
@@ -83,13 +86,14 @@ scripts/test-nav.mjs              # playwright test for nav dropdown widths
 
 Everything below (after Nav, before footer) is wrapped in a `.player-accent-scope` div that sets inline CSS vars `--player-accent` / `--player-accent-2` from `colors.primary/secondary` — see "Per-player accent colors" gotcha.
 
+0. **Live status strip** (`.status-banner`) — the page's cold-open above the hero. An editorial standing, NOT a search Q&A: gold `WORLD CUP 2026` label (section-label style) → serif-italic statement line from `statusStatement(player)` ("In the hunt." / "Into the Round of 16." / "Out — …" / "Champions. 🏆") → compact stage track (`STAGE_ORDER` pills, current highlighted) → `status.note` (opener/next-match line). Top padding clears the fixed 53px nav. See "Status strip is editorial, not a Q&A box" gotcha.
 1. Profile hero — **editorial portrait** (4:5, accent-glow border, country flag emoji as small corner badge) → name (accent gradient) → country/position/age → quote → stats (stat numbers animate via `CountUp`)
 2. **Final Chapter pull-quote** — accent pill + serif italic, sets thematic anchor
 3. **Match Countdown** — "Next up · Country vs Opponent · in X days Y hours"
-4. Group Stage Schedule — group badge, storyline, 3 match cards
+4. Group Stage Schedule — group badge, storyline, 3 match cards. A played match (one with a `result`) renders a W/D/L badge + score + scorers (`.match-result`, `outcome-w/d/l` colors); unplayed matches fall back to date/venue.
 5. **Records in Play** — 3-card milestone grid ("3 from Klose", "Sixth WC", etc.)
 6. Career Timeline ("Every Chapter") — one card per past World Cup + a 2026 "future" card; includes the `GoalChart` "goals by World Cup" bar chart
-7. Bio + career honors tags
+7. Bio + career honors tags + **"Also in The Final Chapter"** cross-link block (`relatedPlayers` → other legends with a shared-club/era relation; internal-SEO + bounce)
 8. **Common Questions** — FAQ section (4 Q&As from `faqs[]`); also emits a second JSON-LD `<script>` with FAQPage schema (`buildFaqJsonLd`)
 9. Prev/next player nav
 10. Photo credit (CC attribution: author · license · Wikimedia source · "resized")
@@ -105,8 +109,11 @@ Everything below (after Nav, before footer) is wrapped in a `.player-accent-scop
   quote, worldCupGoals, worldCupAssists, worldCupApps,
   wc2026: {
     group, groupTeams[], storyline,
-    matches: [{ opponent, date, time, kickoffUtc, venue, city }]   // first match's kickoffUtc drives the countdown; null when TBD
+    status: { stage, alive, note },                                // LIVE status — single source of truth. stage ∈ STAGE_ORDER (group→…→champion) or "eliminated"; alive=false ⇒ out. Drives the player status strip, the /status hub, the dynamic <title>, and FAQ JSON-LD. note = short opener/next-match line.
+    matches: [{ opponent, date, time, kickoffUtc, venue, city,
+                result: { outcome, score, scorers } }]             // first match's kickoffUtc drives the countdown; null when TBD. result OPTIONAL — add per played game: outcome "W"|"D"|"L" (legend's nation POV), score "own-opp", scorers (legend first, optional). Absent ⇒ card shows date/venue.
   },
+  relatedPlayers: [{ id, relation }],                              // OPTIONAL — other legends to cross-link ("Barcelona & PSG teammate"); renders "Also in The Final Chapter" block
   worldCups: [{ year, host, age, result, goals, assists, apps, highlight, emoji }],
   careerHonors[],
   photo: {                                                         // editorial portrait (CC-licensed from Wikimedia Commons)
@@ -167,6 +174,23 @@ All three carry SportsEvent JSON-LD; format + homepage also carry FAQPage; homep
 | `--font-sans` | Inter | body, UI |
 
 ## Gotchas / lessons learned
+
+### Live status system — single source of truth + two phrasings (SEO vs on-page)
+
+`wc2026.status = { stage, alive, note }` in `data/players.js` is the ONE place to edit a player's tournament state. Editing it ripples to: the player-page status strip, the `/status` hub (sort + card), the dynamic player `<title>`, and the FAQ JSON-LD. Helpers live in `data/players.js`:
+- `STAGE_ORDER` / `STAGE_LABELS` / `STAGE_SHORT`, `stageLabel(stage)`, `stageIndex(stage)`.
+- `statusHeadline(player)` → `{ q, a, alive }` — the **search-style Q&A** ("Is X still in…? Yes — …"). Used ONLY where answer-led phrasing wins clicks: the `<title>`, meta description, and FAQ JSON-LD (`buildFaqJsonLd` prepends it). GSC showed player pages ranking ~7 for the "is X playing/out" question cluster with near-zero CTR → leading the title with "Yes" converts.
+- `statusStatement(player)` → a short **editorial serif line** ("In the hunt." / "Into the Round of 16." / "Out — …" / "Champions. 🏆"). Used for the on-page status strip only.
+
+During the tournament: flip `status.stage`/`alive` (and update `note`) as each legend advances or goes out; add a `result` to the played match in `wc2026.matches[]` (see schema). That's the whole "reason to come back" loop.
+
+### Status strip is EDITORIAL, not a Q&A snippet box (don't revert)
+
+The player-page status strip first shipped (2026-06-05) literally rendering `statusHeadline`'s `q`+`a` — "Is Cristiano Ronaldo playing in the 2026 World Cup? / Yes — Portugal are in Group K." It read like a Google featured-snippet widget grafted onto the tribute page → off-brand against the serif/editorial tone (user flagged it "weird and not cohesive"). Reshaped into: gold `WORLD CUP 2026` label (section-label vocabulary) + serif-italic `statusStatement()` line + stage track + note. **Keep the on-page strip editorial; keep the Q&A phrasing in title/meta/JSON-LD where it earns clicks.** Don't merge the two back together. Also: the strip is the first element on the page, so `.status-banner-inner` carries top padding to clear the fixed 53px nav (without it the label hides under the nav and the statement reads orphaned).
+
+### No share buttons — they don't fit our distribution (removed 2026-06-05)
+
+A `ShareButton` component (Web Share API + clipboard fallback) was built for `/status` and reused on player pages, then **removed entirely** (component deleted, `.status-share-btn` CSS gone). Rationale grounded in real data: Reddit (our only working channel, ~80% of referrals) does NOT render OG cards in comments — only link-posts do — and X is dead at our scale (~20 views/post). An on-page share button is decorative. If sharing ever matters again, the right move is a single `navigator.share({ url, title, text })` call (see Parked Ideas), not a styled button — but default is no share UI.
 
 ### Per-player accent colors — `.player-accent-scope`
 
@@ -376,7 +400,7 @@ In rough priority if traffic justifies more work:
 - **`error.js` boundary** — pure static + no API means basically nothing to crash, but it's polite.
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
-- **Match-result updates during the tournament** — currently the schedule shows match times but no result field. As matches happen, a tiny `match.result: "W 2-0"` style field + a few lines of JSX in the schedule card would give returning visitors a reason to come back. Update manually after each match (5 min of work per game for a 5-player site).
+- ✅ **Match-result updates during the tournament** — ENGINE BUILT 2026-06-05. Add a `result: { outcome, score, scorers }` to the played match in `wc2026.matches[]` (schema above) — it renders on the schedule card + `/status`. Also flip `wc2026.status` as legends advance/exit. This is the manual returning-visitor loop (~5 min/game); no active results in prod yet.
 - **Knockout bracket page** — DELIBERATELY NOT BUILT (decided 2026-06-01). Two reasons: (1) until the group stage ends **June 27**, every R32 slot is "Winner A / 3rd B-E-F" — only an empty skeleton is possible; (2) external research (2026-06-01) shows "world cup 2026 bracket" demand is HIGH but the space is saturated with purpose-built **interactive predictor** tools (bracket2026.com, cup-predictor.com, worldcuppass.com, CNN, Covers) — an editorial static site can't out-execute them, and the only versions that rank (live predictor / fillable bracket) are the 104-match maintenance trap. **Trigger to revisit:** if GSC Performance shows the `/world-cup-2026-format` page (the only one with "bracket"/"knockout" keyword surface) pulling steady, growing *bracket/knockout* impressions over the next 2–3 weeks, build a **legends-lens** bracket post-June-27 ("how far can each legend's nation realistically go") — editorial + on-brand, not a generic predictor. Until the data says so, skip it.
 - **"Groups" nav entry** — NOT added (decided 2026-06-01). The groups page is discoverable via the homepage `#tournament` CTA + format-page cross-link + sitemap, and the nav is already crowded on narrow phones (Tournament/Cities hidden inline <430px) + guarded by a Playwright width test. If ever wanted, the clean version is folding Format + Groups *into* the existing LEGENDS dropdown (rename to a "Tournament" menu) — a nav refactor, not a quick add.
 
@@ -395,9 +419,21 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-01)
+## Session handoff — current state (last updated 2026-06-05)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-05 session — live status system + match results + cross-linking (all shipped & live in prod):**
+- **`/status` "Who's Still Standing" hub** — NEW page tracking all 5 legends through the tournament; sorts alive-first/deepest-stage, eliminated to the bottom; each card links to the player. SportsEvent + FAQPage JSON-LD, OG + twitter image, in sitemap (priority 0.9, daily), linked from homepage (after legends grid) + Nav hamburger drawer (NOT the inline row — width-test guard) + `/world-cup-2026-groups` cross-link. Commit `889505f`.
+- **Live status system** — added `wc2026.status = { stage, alive, note }` to every player as the single source of truth + helpers (`statusHeadline` for SEO Q&A, `statusStatement` for the editorial on-page line, `STAGE_ORDER`/`stageLabel`/`stageIndex`). Player `<title>` is now answer-led ("Yes — …") to convert the question-cluster impressions GSC flagged. See "Live status system" + "Status strip is editorial" gotchas.
+- **Player status strip** — opens each player page (above the hero). Shipped first as a literal SEO Q&A box, then **reshaped to editorial** (gold `WORLD CUP 2026` label + serif-italic statement + stage track + opener note) after the Q&A read off-brand. Top-padded to clear the fixed nav. Commits `08aed1d` (reshape), `d8c6020` (nav-clearance fix).
+- **Match-result engine** — optional `result: { outcome, score, scorers }` on `wc2026.matches[]`; renders W/D/L badge + score + scorers on the schedule card and "Last: …" on the `/status` cards. Currently NO active results in prod (verified end-to-end with a temp Messi result, then reverted). Commit `054f72d`.
+- **Bio cross-linking** — `relatedPlayers` on 4 players (Messi↔Neymar "Barcelona & PSG"; Ronaldo↔Modrić "Real Madrid") → "Also in The Final Chapter" block. KDB has none. Commit `054f72d`.
+- **Share buttons REMOVED site-wide** — `ShareButton` was built for `/status` + player strip, then deleted entirely (component + CSS) per "not our direction"; grounded in distribution data (Reddit comments render no OG card, X dead). Commits `794435e` (player), `a7f8f41` (status + component delete). See "No share buttons" gotcha.
+- **GSC:** `/status` submitted via URL Inspection → Request Indexing (user did this).
+- Stat-integrity check OK for all 5 after the `data/players.js` edits; every build compiled clean (24 routes).
+
+**Open / next for the status system:** during the tournament, edit each player's `wc2026.status` (and add match `result`s) as games happen — that's the whole returning-visitor loop. Pre-tournament all 5 read `stage:"group", alive:true` with opener notes.
 
 **2026-06-01 session — tournament SEO build-out (all shipped & verified live in prod):**
 - **`/world-cup-2026-format`** — prose explainer page for the "how does the 2026 format work" intent (48 teams, Round of 32, best-third-place rule). SportsEvent + FAQPage JSON-LD. Validated demand first via keyword research (every major publisher has a format explainer). Commit `abcd4c1`. Footer link fixed to `/#legends` (was `/`, label said "legends" but landed on hero) — commit `da44ee8`.
@@ -419,7 +455,7 @@ Quick orientation for a fresh session. Details live in the gotchas + "three tour
 2. **Resume Reddit** when ready — laggards Neymar + De Bruyne are currently the top digest threads. Run `zsh scripts/distribution/daily.sh` for a fresh queue.
 3. **Bing Webmaster Tools** — import from GSC, submit sitemap (now includes format + groups URLs). Not done; needs user's login.
 4. **Email capture** — biggest structural gap (the only owned audience). One-field "reminder before each legend's first match" form → one broadcast on June 11. Needs user to create a free Buttondown/ConvertKit account first.
-5. **Player-bio cross-linking** — Real Madrid (Modrić↔Ronaldo), Barça/PSG (Messi↔Neymar). Free internal-SEO, not yet done.
+5. ✅ **Player-bio cross-linking** — DONE 2026-06-05 (`relatedPlayers` → "Also in The Final Chapter" block: Messi↔Neymar, Ronaldo↔Modrić).
 
 **Verification etiquette the user asked for:** avoid noisy/repeated permission prompts for headless-Chrome and `npm run build`. Self-test with a single build; only run the browser when a UI render is genuinely needed. After deploys, use Google's Rich Results Test for instant schema validation rather than waiting on GSC's crawl. NOTE: Claude Preview's scroll resets to top on these content pages (known quirk) — verify mid-page content via DOM queries / `getComputedStyle` rather than mid-scroll screenshots.
 
@@ -569,6 +605,7 @@ Opening that URL in any browser shows the actual generated PNG — what crawlers
 2. **Countdown** is ticking and the day count matches `(2026-06-11T19:00:00Z − Now())`
 3. **Per-player MatchCountdown** renders "Next up · …" above each schedule
 4. **Records in Play** cards show with the gold top stripe
+4b. **Status strip** opens each player page with `WORLD CUP 2026` + the editorial line (e.g. "In the hunt.") + stage track, NOT a Q&A box; `/status` lists all 5 with the correct alive/out sort
 5. **OG preview (site-level):** paste `finalchapterfc.com` into iMessage → gold "The Final Chapter" 1200×630 card shows
 6. **OG preview (per-player):** paste `finalchapterfc.com/player/messi` into iMessage → personalized Messi card with "3 from Klose" hook shows
 7. **`Add to Home Screen`** on iOS → gold "F" icon, not a screenshot thumbnail
