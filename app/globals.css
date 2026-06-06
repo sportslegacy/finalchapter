@@ -455,16 +455,23 @@ a {
 .status-banner-inner {
   max-width: 720px;
   margin: 0 auto;
-  padding: 1.75rem 2rem 2rem;
+  /* Top padding clears the fixed 53px nav so the question isn't hidden
+     beneath it (the banner is the first element on the player page). */
+  padding: 5.25rem 2rem 2rem;
   text-align: center;
+}
+
+/* The banner now provides the nav gap, so the hero below it doesn't need its
+   usual large top padding. */
+.status-banner + .profile-hero {
+  padding-top: 2rem;
 }
 
 .status-banner-q {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
   margin: 0 0 0.5rem;
 }
 

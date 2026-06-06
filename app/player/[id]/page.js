@@ -228,6 +228,7 @@ export default async function PlayerPage({ params }) {
             url={`${SITE_URL}/player/${player.id}`}
             title={`${player.name} — The Final Chapter`}
             text={head.a}
+            label={`Share ${firstName}'s final chapter →`}
           />
         </div>
       </section>

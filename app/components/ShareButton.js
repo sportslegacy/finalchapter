@@ -6,7 +6,12 @@ import { useState } from "react";
 // (native share sheet → the OG card does the selling) and falls back to
 // copy-to-clipboard on desktop. Renders a stable label until interaction, so
 // it's hydration-safe.
-export default function ShareButton({ url, title, text }) {
+export default function ShareButton({
+  url,
+  title,
+  text,
+  label = "Share who's still standing →",
+}) {
   const [copied, setCopied] = useState(false);
 
   async function onShare() {
@@ -30,7 +35,7 @@ export default function ShareButton({ url, title, text }) {
 
   return (
     <button type="button" className="status-share-btn" onClick={onShare}>
-      {copied ? "Link copied ✓" : "Share who's still standing →"}
+      {copied ? "Link copied ✓" : label}
     </button>
   );
 }
