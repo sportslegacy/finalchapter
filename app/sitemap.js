@@ -41,5 +41,13 @@ export default function sitemap() {
     priority: 0.8,
   };
 
-  return [home, format, groups, ...players];
+  // Live "who's still standing" hub — recrawl often during the tournament.
+  const status = {
+    url: `${siteUrl}/status`,
+    lastModified,
+    changeFrequency: "daily",
+    priority: 0.9,
+  };
+
+  return [home, status, format, groups, ...players];
 }

@@ -17,6 +17,10 @@ export const players = [
     worldCupApps: 26,
     wc2026: {
       group: "J",
+      // Live tournament status — update one line per player after each match,
+      // then push. The /status hub + its OG card regenerate from this.
+      // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
+      status: { stage: "group", alive: true, note: "Opener vs Algeria · Jun 16" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       matches: [
         {
@@ -194,6 +198,7 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
+      status: { stage: "group", alive: true, note: "Opener vs DR Congo · Jun 17" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       matches: [
         {
@@ -370,6 +375,7 @@ export const players = [
     worldCupApps: 19,
     wc2026: {
       group: "L",
+      status: { stage: "group", alive: true, note: "Opener vs England · Jun 17" },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
       matches: [
         {
@@ -536,6 +542,7 @@ export const players = [
     worldCupApps: 13,
     wc2026: {
       group: "C",
+      status: { stage: "group", alive: true, note: "Opener vs Morocco · Jun 13" },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
       matches: [
         {
@@ -691,6 +698,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
+      status: { stage: "group", alive: true, note: "Opener vs Egypt · Jun 16" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       matches: [
         {
@@ -1044,4 +1052,86 @@ export function getPlayerById(id) {
 
 export function getPlayerSlugs() {
   return players.map((p) => p.id);
+}
+
+// --- Tournament-status helpers (drive the /status "Who's Still Standing" hub) ---
+
+// The knockout ladder, in order. Index = how far a player has progressed.
+// "champion" sits one past "final"; "eliminated" is terminal and off-ladder.
+export const STAGE_ORDER = ["group", "r32", "r16", "qf", "sf", "final", "champion"];
+
+const STAGE_LABELS = {
+  group: "Group Stage",
+  r32: "Round of 32",
+  r16: "Round of 16",
+  qf: "Quarter-final",
+  sf: "Semi-final",
+  final: "Final",
+  champion: "Champion",
+  eliminated: "Eliminated",
+};
+
+// Short labels for the compact progress track on the card.
+export const STAGE_SHORT = {
+  group: "Grp",
+  r32: "R32",
+  r16: "R16",
+  qf: "QF",
+  sf: "SF",
+  final: "F",
+  champion: "🏆",
+};
+
+export function stageLabel(stage) {
+  return STAGE_LABELS[stage] || "Group Stage";
+}
+
+// Index of a player's furthest stage on STAGE_ORDER (eliminated players still
+// report the stage they reached). Defaults to 0 (group) when unknown.
+export function stageIndex(stage) {
+  const i = STAGE_ORDER.indexOf(stage);
+  return i === -1 ? 0 : i;
+}
+
+// The single answer-led Q&A that drives the player page's status banner, the
+// dynamic <title>, and the per-player FAQ/JSON-LD status entry. The shape is
+// always { q, a, alive } so callers can render one consistent block whatever
+// phase the tournament is in.
+//
+//   pre-tournament / group  → "Is X playing in the 2026 World Cup?" · Yes, Group G
+//   advanced (alive, > group) → "Is X still in the 2026 World Cup?" · Yes, reached the QF
+//   eliminated              → "Is X out of the 2026 World Cup?" · Yes, knocked out at the R16
+//   champion                → "Did X win the 2026 World Cup?" · Yes, champions
+export function statusHeadline(player) {
+  const st = player.wc2026?.status || { stage: "group", alive: true };
+  const country = player.country;
+  const name = player.name;
+
+  if (st.stage === "champion") {
+    return {
+      q: `Did ${name} win the 2026 World Cup?`,
+      a: `Yes — ${country} are 2026 World Cup champions.`,
+      alive: true,
+    };
+  }
+  if (st.alive === false || st.stage === "eliminated") {
+    return {
+      q: `Is ${name} out of the 2026 World Cup?`,
+      a: `Yes — ${country} were knocked out at the ${stageLabel(st.stage)}.`,
+      alive: false,
+    };
+  }
+  if (stageIndex(st.stage) > 0) {
+    return {
+      q: `Is ${name} still in the 2026 World Cup?`,
+      a: `Yes — ${country} have reached the ${stageLabel(st.stage)}.`,
+      alive: true,
+    };
+  }
+  // group / pre-tournament
+  return {
+    q: `Is ${name} playing in the 2026 World Cup?`,
+    a: `Yes — ${country} are in Group ${player.wc2026.group}.`,
+    alive: true,
+  };
 }

@@ -1,11 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { players, getPlayerById, getPlayerSlugs } from "../../../data/players";
+import {
+  players,
+  getPlayerById,
+  getPlayerSlugs,
+  statusHeadline,
+  stageLabel,
+  stageIndex,
+  STAGE_ORDER,
+  STAGE_SHORT,
+} from "../../../data/players";
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
+import ShareButton from "../../components/ShareButton";
 import JsonLd from "../../components/JsonLd";
 import JsonLdDedupe from "../../components/JsonLdDedupe";
 
@@ -20,13 +30,28 @@ export async function generateMetadata({ params }) {
   const player = getPlayerById(id);
   if (!player) return {};
   const ordinal = ORDINALS[player.worldCups.length] || `${player.worldCups.length}th`;
+  const status = player.wc2026?.status || { stage: "group", alive: true };
+  const live = status.stage !== "group" || status.alive === false;
+  const head = statusHeadline(player);
+
   // Answer-led title + description: GSC shows the page ranks ~7 for high-volume
   // "is <player> playing / is this <player>'s last World Cup" queries but gets
   // near-zero CTR. Leading with the explicit "Yes" answer in the SERP wins the
   // click. Kept ≤160 chars so search engines show the description un-truncated.
-  const description = `Yes — ${player.name} plays for ${player.country} at the 2026 World Cup, his ${ordinal} and likely last at ${player.ageAtTournament}. Group ${player.wc2026.group}. Records, milestones & full schedule.`;
+  //
+  // Once the tournament is underway, the live "still in / out / champion"
+  // question becomes the higher-volume query — so the title flips to follow
+  // demand ("Is X still in the 2026 World Cup?") and the description leads with
+  // the current standing. Pre-tournament it stays on the evergreen "last World
+  // Cup?" framing that's been pulling the impressions.
+  const description = live
+    ? `${head.a} ${player.name}'s ${ordinal} and likely last World Cup at ${player.ageAtTournament}. Records, milestones & full schedule.`
+    : `Yes — ${player.name} plays for ${player.country} at the 2026 World Cup, his ${ordinal} and likely last at ${player.ageAtTournament}. Group ${player.wc2026.group}. Records, milestones & full schedule.`;
+  const title = live
+    ? `${head.q} ${head.a.split("—")[0].trim()} — The Final Chapter`
+    : `Is 2026 ${player.name}'s Last World Cup? Yes — The Final Chapter`;
   return {
-    title: `Is 2026 ${player.name}'s Last World Cup? Yes — The Final Chapter`,
+    title,
     description,
     alternates: { canonical: `/player/${player.id}` },
     openGraph: {
@@ -117,10 +142,16 @@ function buildPersonJsonLd(player) {
 // still serves the search intent + People Also Ask.
 function buildFaqJsonLd(player) {
   if (!player.faqs?.length) return null;
+  // Lead the FAQ markup with the live status Q&A so the "is X still in / out of
+  // the World Cup" intent is the first question search engines associate with
+  // the page once the tournament is underway.
+  const head = statusHeadline(player);
+  const statusQ = { q: head.q, a: head.a };
+  const entries = [statusQ, ...player.faqs];
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: player.faqs.map((f) => ({
+    mainEntity: entries.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -139,6 +170,13 @@ export default async function PlayerPage({ params }) {
   const faqJsonLd = buildFaqJsonLd(player);
   const firstName = player.name.split(" ")[0];
 
+  // Live tournament status → answer banner + compact progress track.
+  const status = player.wc2026?.status || { stage: "group", alive: true };
+  const head = statusHeadline(player);
+  const curIdx = stageIndex(status.stage);
+  const eliminated = status.alive === false || status.stage === "eliminated";
+  const isChampion = status.stage === "champion";
+
   return (
     <>
       <JsonLd data={buildPersonJsonLd(player)} />
@@ -154,6 +192,45 @@ export default async function PlayerPage({ params }) {
             player.colors?.secondary || "var(--accent-gold-dim)",
         }}
       >
+
+      {/* Live status banner — answer-led, rides the "is X still in the World
+          Cup" search intent and gives returning visitors a reason to come back
+          as the tournament progresses. */}
+      <section
+        className={`status-banner${eliminated ? " is-out" : ""}${
+          isChampion ? " is-champion" : ""
+        }`}
+        aria-label={`${player.name} 2026 World Cup status`}
+      >
+        <div className="status-banner-inner">
+          <p className="status-banner-q">{head.q}</p>
+          <p className="status-banner-a">{head.a}</p>
+          <ol className="status-track" aria-hidden="true">
+            {STAGE_ORDER.map((stage, i) => {
+              const reached = !eliminated && i <= curIdx;
+              const here = i === curIdx;
+              return (
+                <li
+                  key={stage}
+                  className={`status-step${reached ? " reached" : ""}${
+                    here ? " current" : ""
+                  }${here && eliminated ? " out" : ""}`}
+                >
+                  {STAGE_SHORT[stage]}
+                </li>
+              );
+            })}
+          </ol>
+          {status.note ? (
+            <p className="status-banner-note">{status.note}</p>
+          ) : null}
+          <ShareButton
+            url={`${SITE_URL}/player/${player.id}`}
+            title={`${player.name} — The Final Chapter`}
+            text={head.a}
+          />
+        </div>
+      </section>
 
       {/* Profile Hero */}
       <section className="profile-hero">

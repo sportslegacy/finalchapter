@@ -186,6 +186,11 @@ export default function Nav() {
               Home
             </Link>
           </li>
+          <li>
+            <Link href="/status" className="nav-drawer-link" onClick={closeAll}>
+              Who&apos;s Still Standing
+            </Link>
+          </li>
           {SECTIONS.map(({ id, label }) => (
             <li key={id}>
               <a

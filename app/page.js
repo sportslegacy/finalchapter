@@ -310,6 +310,19 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        <p style={{ textAlign: "center", marginTop: "1.75rem" }}>
+          <Link
+            href="/status"
+            style={{
+              color: "var(--accent-gold)",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Who&apos;s still standing? Track all five through the tournament
+            &rarr;
+          </Link>
+        </p>
       </section>
 
       {/* Host Cities */}
