@@ -157,6 +157,9 @@ export const players = [
       },
     ],
     bio: "The greatest player of all time returns for a record sixth World Cup. At 39, Messi has nothing left to prove — he won it all in Qatar. But the magic of a home-continent tournament, on American soil where he now lives and plays for Inter Miami, is too poetic to resist. Argentina open their title defense in Kansas City before heading to Dallas. This is his farewell.",
+    relatedPlayers: [
+      { id: "neymar", relation: "Barcelona & PSG teammate" },
+    ],
     faqs: [
       {
         q: "Is 2026 Lionel Messi's last World Cup?",
@@ -334,6 +337,9 @@ export const players = [
       },
     ],
     bio: "At 41, Cristiano Ronaldo will be the oldest outfield player at the 2026 World Cup — and he's heading into his sixth tournament. The all-time international goalscorer has defied every prediction about his decline. His tears in Qatar told the story — this World Cup dream remains unfinished. Portugal start in Houston before a crucial Colombia test in Miami.",
+    relatedPlayers: [
+      { id: "modric", relation: "Real Madrid teammate" },
+    ],
     faqs: [
       {
         q: "Is 2026 Cristiano Ronaldo's last World Cup?",
@@ -501,6 +507,9 @@ export const players = [
       },
     ],
     bio: "The boy who grew up in a war-torn village, who was told he was too small and too frail, became the most elegant midfielder of his generation. At 40, Modrić is now at AC Milan — still dictating games with his vision and touch. Croatia open against England in Dallas in a Group L blockbuster. This will be the last time.",
+    relatedPlayers: [
+      { id: "ronaldo", relation: "Real Madrid teammate" },
+    ],
     faqs: [
       {
         q: "Is 2026 Luka Modrić's last World Cup?",
@@ -657,6 +666,9 @@ export const players = [
       },
     ],
     bio: "Three World Cups. Three heartbreaks. A broken back in 2014, Belgium in 2018, penalties against Croatia in 2022 (despite a stunner of his own in extra time). Now 34 and back at Santos after a grueling ACL recovery, Neymar was a surprise inclusion in Carlo Ancelotti's Brazil squad — then ruled out of the Morocco opener two weeks before kickoff with a grade 2 calf tear. Brazil should have him back for the knockouts if they advance. The body has fought him at every World Cup. Brazil's all-time leading scorer is fighting it one more time for the goodbye three campaigns of heartbreak never let him have.",
+    relatedPlayers: [
+      { id: "messi", relation: "Barcelona & PSG teammate" },
+    ],
     faqs: [
       {
         q: "Is 2026 Neymar's last World Cup?",
@@ -1134,4 +1146,36 @@ export function statusHeadline(player) {
     a: `Yes — ${country} are in Group ${player.wc2026.group}.`,
     alive: true,
   };
+}
+
+// --- Match results (in-tournament updates) -------------------------------
+//
+// During the tournament, add a `result` object to a played match in
+// wc2026.matches[] — one line per game — and it renders on the player's
+// schedule card and as a "Last:" line on the /status hub. Shape:
+//
+//   result: {
+//     outcome: "W",   // "W" | "D" | "L" — from the legend's nation's view
+//     score: "2-1",   // own team first: <country>-<opponent>
+//     scorers: "Messi 34' (pen), Álvarez 78'", // optional, the legend first
+//   }
+//
+// Leave `result` absent for matches that haven't kicked off — the card falls
+// back to the date/venue preview automatically.
+
+// The most-recently-played match for a player, or null if none played yet.
+// Matches are listed chronologically, so the last one carrying a result wins.
+export function latestPlayedMatch(player) {
+  const matches = player.wc2026?.matches || [];
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (matches[i].result) return matches[i];
+  }
+  return null;
+}
+
+// Compact "W 2-1 v Algeria" label for the most recent result, or null.
+export function latestResultLabel(player) {
+  const m = latestPlayedMatch(player);
+  if (!m) return null;
+  return `${m.result.outcome} ${m.result.score} v ${m.opponent}`;
 }

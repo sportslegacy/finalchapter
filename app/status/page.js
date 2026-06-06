@@ -6,6 +6,7 @@ import {
   statusHeadline,
   stageLabel,
   stageIndex,
+  latestResultLabel,
   STAGE_ORDER,
   STAGE_SHORT,
 } from "../../data/players";
@@ -142,6 +143,7 @@ export default function StatusPage() {
             const curIdx = stageIndex(st.stage);
             const out = st.alive === false || st.stage === "eliminated";
             const champ = st.stage === "champion";
+            const lastResult = latestResultLabel(p);
             return (
               <Link
                 key={p.id}
@@ -196,7 +198,13 @@ export default function StatusPage() {
                       );
                     })}
                   </ol>
-                  {st.note ? (
+                  {lastResult ? (
+                    <div
+                      className={`status-card-result outcome-${lastResult[0].toLowerCase()}`}
+                    >
+                      Last: {lastResult}
+                    </div>
+                  ) : st.note ? (
                     <div className="status-card-note">{st.note}</div>
                   ) : null}
                 </div>

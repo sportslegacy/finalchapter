@@ -978,6 +978,59 @@ a {
   font-weight: 500;
 }
 
+/* Internal cross-links to the other legends (e.g. Real Madrid / Barça ties) —
+   free internal SEO + lets visitors hop between related player pages. */
+.related-players {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.related-players-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+
+.related-players-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.related-player {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.related-player:hover {
+  border-color: var(--player-accent, var(--accent-gold));
+  color: var(--text-primary);
+}
+
+.related-player-name {
+  font-weight: 700;
+  color: var(--player-accent, var(--accent-gold));
+}
+
+.related-player-rel {
+  color: var(--text-muted);
+}
+
 /* ========== TOURNAMENT SECTION ========== */
 .tournament-grid {
   display: grid;
@@ -1304,6 +1357,68 @@ a {
   color: var(--text-muted);
   margin-top: 0.2rem;
 }
+
+/* Played matches — result badge + score replace the date/venue preview. */
+.match-item.is-played {
+  border-color: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 35%, var(--border-subtle));
+}
+
+.match-scorers {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+
+.match-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.match-result-badge {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #0a0a0c;
+  background: var(--text-muted);
+}
+
+.match-result-score {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.match-result-ft {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Outcome colors (shared by schedule cards + /status "Last:" line). */
+.outcome-w .match-result-badge { background: #3fae6b; }
+.outcome-d .match-result-badge { background: #c8a24a; }
+.outcome-l .match-result-badge { background: #c2503f; color: #fff; }
+
+.status-card-result {
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.status-card-result.outcome-w { color: #5fcf8b; }
+.status-card-result.outcome-d { color: #d9b65f; }
+.status-card-result.outcome-l { color: #d96a59; }
 
 /* ========== FOOTER ========== */
 .site-footer {

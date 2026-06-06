@@ -317,24 +317,46 @@ export default async function PlayerPage({ params }) {
 
         <div className="match-list">
           {player.wc2026.matches.map((match, i) => (
-            <div key={i} className="match-item">
+            <div
+              key={i}
+              className={`match-item${match.result ? " is-played" : ""}`}
+            >
               <div>
                 <div className="match-teams">
                   {player.country}
                   <span className="match-vs"> vs </span>
                   {match.opponent}
                 </div>
+                {match.result?.scorers ? (
+                  <div className="match-scorers">{match.result.scorers}</div>
+                ) : null}
               </div>
               <div className="match-details">
-                <div className="match-date">
-                  {formatMatchDate(match.date)}
-                  {match.time !== "TBD" ? ` · ${match.time}` : ""}
-                </div>
-                <div className="match-venue">
-                  {match.venue !== "TBD"
-                    ? `${match.venue}, ${match.city}`
-                    : "Venue TBD"}
-                </div>
+                {match.result ? (
+                  <div
+                    className={`match-result outcome-${match.result.outcome.toLowerCase()}`}
+                  >
+                    <span className="match-result-badge">
+                      {match.result.outcome}
+                    </span>
+                    <span className="match-result-score">
+                      {match.result.score}
+                    </span>
+                    <span className="match-result-ft">FT</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="match-date">
+                      {formatMatchDate(match.date)}
+                      {match.time !== "TBD" ? ` · ${match.time}` : ""}
+                    </div>
+                    <div className="match-venue">
+                      {match.venue !== "TBD"
+                        ? `${match.venue}, ${match.city}`
+                        : "Venue TBD"}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -419,6 +441,31 @@ export default async function PlayerPage({ params }) {
             </span>
           ))}
         </div>
+        {player.relatedPlayers?.length > 0 && (
+          <div className="related-players">
+            <span className="related-players-label">Also in The Final Chapter</span>
+            <div className="related-players-list">
+              {player.relatedPlayers.map((rel) => {
+                const other = getPlayerById(rel.id);
+                if (!other) return null;
+                return (
+                  <Link
+                    key={rel.id}
+                    href={`/player/${other.id}`}
+                    className="related-player"
+                  >
+                    <span className="related-player-flag" aria-hidden="true">
+                      {other.countryFlag}
+                    </span>
+                    <span className="related-player-name">{other.name}</span>
+                    <span className="related-player-rel">{rel.relation}</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* FAQ — targets long-tail "is 2026 X's last World Cup" search queries */}
