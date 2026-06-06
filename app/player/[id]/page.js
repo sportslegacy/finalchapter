@@ -18,6 +18,7 @@ import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
 import JsonLd from "../../components/JsonLd";
 import JsonLdDedupe from "../../components/JsonLdDedupe";
+import ShopLinks from "../../components/ShopLinks";
 
 export function generateStaticParams() {
   return getPlayerSlugs().map((id) => ({ id }));
@@ -464,6 +465,9 @@ export default async function PlayerPage({ params }) {
           </div>
         )}
       </section>
+
+      {/* Fan shop — Amazon Associates affiliate links (kit + books) */}
+      <ShopLinks player={player} />
 
       {/* FAQ — targets long-tail "is 2026 X's last World Cup" search queries */}
       {player.faqs?.length > 0 && (

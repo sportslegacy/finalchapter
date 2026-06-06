@@ -1194,3 +1194,35 @@ export function latestResultLabel(player) {
   if (!m) return null;
   return `${m.result.outcome} ${m.result.score} v ${m.opponent}`;
 }
+
+// --- Affiliate links (Amazon Associates) ---------------------------------
+//
+// Single source of truth for the Associates tag (account created June 2026).
+// Amazon credits the 24-hour cookie on any tagged link, so we point at tagged
+// search-result pages rather than specific products — durable, nothing breaks
+// when an item goes out of stock and there's no ASIN to maintain. Two rules
+// the program enforces: links must carry rel="sponsored", and the affiliate
+// relationship must be disclosed near them (both handled in ShopLinks).
+export const AFFILIATE_TAG = "finalchapterf-20";
+
+export function amazonSearchUrl(query) {
+  return `https://www.amazon.com/s?k=${encodeURIComponent(query)}&tag=${AFFILIATE_TAG}`;
+}
+
+// The two affiliate items shown on each player page: the national-team kit and
+// books about the player. Derived from existing fields so there's no extra
+// per-player content to maintain. Returns [{ label, sublabel, href }].
+export function playerShopLinks(player) {
+  return [
+    {
+      label: `${player.country} National Team Jersey`,
+      sublabel: "Shop World Cup 2026 kits",
+      href: amazonSearchUrl(`${player.country} soccer jersey`),
+    },
+    {
+      label: `${player.name} — Books & Biographies`,
+      sublabel: "His story, in print",
+      href: amazonSearchUrl(`${player.name} book`),
+    },
+  ];
+}

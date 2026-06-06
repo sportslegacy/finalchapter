@@ -1024,6 +1024,67 @@ a {
   color: var(--text-muted);
 }
 
+/* ========== FAN SHOP (Amazon Associates affiliate) ========== */
+/* Always rendered inside .player-accent-scope, so it reads the national accent
+   directly. Mirrors the milestone-card look with an explicit shop affordance. */
+.shop-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.shop-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 55%, transparent);
+  box-shadow: 0 18px 40px -16px color-mix(in srgb, var(--player-accent, var(--accent-gold)) 40%, transparent);
+}
+
+.shop-card-label {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.shop-card-sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.shop-card-cta {
+  margin-top: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--player-accent, var(--accent-gold));
+}
+
+.shop-disclosure {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
 /* ========== TOURNAMENT SECTION ========== */
 .tournament-grid {
   display: grid;
