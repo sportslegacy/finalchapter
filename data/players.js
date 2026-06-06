@@ -1148,6 +1148,21 @@ export function statusHeadline(player) {
   };
 }
 
+// Editorial one-liner for the on-page status strip — a STATEMENT in the site's
+// voice, not the search-style Q&A above. (The Q&A still powers the <title>,
+// meta description and FAQ JSON-LD, where the answer-led phrasing wins clicks;
+// on the page itself a snippet-box reads off-brand.) Always returns a short
+// serif line that works pre-tournament and as the run unfolds.
+export function statusStatement(player) {
+  const st = player.wc2026?.status || { stage: "group", alive: true };
+  if (st.stage === "champion") return "Champions. 🏆";
+  if (st.alive === false || st.stage === "eliminated") {
+    return `Out — ${stageLabel(st.stage)}.`;
+  }
+  if (stageIndex(st.stage) > 0) return `Into the ${stageLabel(st.stage)}.`;
+  return "In the hunt.";
+}
+
 // --- Match results (in-tournament updates) -------------------------------
 //
 // During the tournament, add a `result` object to a played match in

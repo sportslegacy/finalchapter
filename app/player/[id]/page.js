@@ -6,6 +6,7 @@ import {
   getPlayerById,
   getPlayerSlugs,
   statusHeadline,
+  statusStatement,
   stageLabel,
   stageIndex,
   STAGE_ORDER,
@@ -170,9 +171,10 @@ export default async function PlayerPage({ params }) {
   const faqJsonLd = buildFaqJsonLd(player);
   const firstName = player.name.split(" ")[0];
 
-  // Live tournament status → answer banner + compact progress track.
+  // Live tournament status → editorial status strip + compact progress track.
   const status = player.wc2026?.status || { stage: "group", alive: true };
   const head = statusHeadline(player);
+  const statusLine = statusStatement(player);
   const curIdx = stageIndex(status.stage);
   const eliminated = status.alive === false || status.stage === "eliminated";
   const isChampion = status.stage === "champion";
@@ -193,9 +195,10 @@ export default async function PlayerPage({ params }) {
         }}
       >
 
-      {/* Live status banner — answer-led, rides the "is X still in the World
-          Cup" search intent and gives returning visitors a reason to come back
-          as the tournament progresses. */}
+      {/* Live status strip — an editorial standing line + progress track that
+          gives returning visitors a reason to come back as the tournament
+          unfolds. (Answer-led SEO phrasing lives in the <title>/meta/FAQ
+          JSON-LD; on the page a snippet-box reads off-brand.) */}
       <section
         className={`status-banner${eliminated ? " is-out" : ""}${
           isChampion ? " is-champion" : ""
@@ -203,8 +206,8 @@ export default async function PlayerPage({ params }) {
         aria-label={`${player.name} 2026 World Cup status`}
       >
         <div className="status-banner-inner">
-          <p className="status-banner-q">{head.q}</p>
-          <p className="status-banner-a">{head.a}</p>
+          <p className="status-banner-label">World Cup 2026</p>
+          <p className="status-banner-a">{statusLine}</p>
           <ol className="status-track" aria-hidden="true">
             {STAGE_ORDER.map((stage, i) => {
               const reached = !eliminated && i <= curIdx;

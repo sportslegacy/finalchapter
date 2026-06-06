@@ -467,20 +467,23 @@ a {
   padding-top: 2rem;
 }
 
-.status-banner-q {
+.status-banner-label {
   font-family: var(--font-sans);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--player-accent, var(--accent-gold));
+  margin: 0 0 0.6rem;
 }
 
 .status-banner-a {
   font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 4.5vw, 1.7rem);
+  font-size: clamp(1.4rem, 5vw, 1.9rem);
   font-weight: 700;
-  line-height: 1.2;
-  color: var(--player-accent, var(--accent-gold));
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--text-primary);
   margin: 0 0 1.1rem;
 }
 
