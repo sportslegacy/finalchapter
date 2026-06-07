@@ -1385,7 +1385,12 @@ function siblingOpponentRound(stage, leafSlots) {
   const usingWinners = winners.length > 0;
   const primaryGroups = [...new Set(usingWinners ? winners : runnersUp)];
   const primaryPos = usingWinners ? "Winner" : "Runner-up";
-  const teams = primaryGroups.map((g) => groupSeed(g));
+  // Only name a representative team for WINNER slots — a group's top seed is a
+  // sensible "favorite to win the group" hint (and surfaces legend-vs-legend
+  // collisions). For RUNNER-UP slots the top seed is the LEAST likely team to
+  // finish 2nd, so naming it is misleading — show prose only ("Runner-up ·
+  // Group D/G") and let the reader infer it's an unknown 2nd-placed side.
+  const teams = usingWinners ? primaryGroups.map((g) => groupSeed(g)) : [];
   return {
     stage,
     short: STAGE_SHORT[stage],
