@@ -1788,6 +1788,68 @@ a {
   font-size: 0.82rem;
 }
 
+/* On desktop the lanes widen to the full 1200px, so the projection panel — whose
+   type was tuned tiny to fit a 375px phone — reads small with lots of empty card
+   space. Scale it up here; mobile keeps the compact sizes above. */
+@media (min-width: 769px) {
+  .road-proj-head {
+    font-size: 0.78rem;
+    margin-bottom: 1rem;
+  }
+
+  .road-proj-branches {
+    gap: 1.1rem;
+  }
+
+  .proj-branch {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .proj-branch-title {
+    font-size: 0.98rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .proj-rounds {
+    gap: 0.85rem;
+  }
+
+  .proj-round {
+    gap: 0.75rem;
+  }
+
+  .proj-round-stage {
+    min-width: 42px;
+    font-size: 0.72rem;
+    padding: 0.28rem 0.4rem;
+  }
+
+  .proj-round-body {
+    gap: 0.4rem;
+  }
+
+  .proj-round-pos {
+    font-size: 0.9rem;
+  }
+
+  .proj-or3rd {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.5rem;
+  }
+
+  .proj-teams {
+    gap: 0.35rem 0.85rem;
+  }
+
+  .proj-team {
+    font-size: 0.86rem;
+  }
+
+  .proj-team-flag {
+    font-size: 1.05rem;
+  }
+}
+
 /* ========== FOOTER ========== */
 .site-footer {
   text-align: center;
