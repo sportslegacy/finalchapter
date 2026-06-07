@@ -49,5 +49,13 @@ export default function sitemap() {
     priority: 0.9,
   };
 
-  return [home, status, format, groups, ...players];
+  // Per-legend knockout-path lanes — fills in during the knockouts, recrawl often.
+  const road = {
+    url: `${siteUrl}/road-to-the-final`,
+    lastModified,
+    changeFrequency: "daily",
+    priority: 0.8,
+  };
+
+  return [home, status, road, format, groups, ...players];
 }

@@ -1474,6 +1474,190 @@ a {
 .status-card-result.outcome-d { color: #d9b65f; }
 .status-card-result.outcome-l { color: #d96a59; }
 
+/* ========== ROAD TO THE FINAL: per-legend knockout lanes ========== */
+/* Five parallel left-to-right lanes — one nation's path reads in a straight
+   line. Each lane sets the national accent via inline --player-accent. */
+.road-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.road-lane {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem 1.35rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.road-lane.is-out {
+  opacity: 0.66;
+}
+
+.road-lane.is-champion {
+  border-color: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 60%, transparent);
+  box-shadow: 0 18px 44px -20px color-mix(in srgb, var(--player-accent, var(--accent-gold)) 50%, transparent);
+}
+
+.road-lane-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 1rem;
+}
+
+.road-lane-flag {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.road-lane-id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.road-lane-country {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--player-accent, var(--accent-gold));
+  line-height: 1.15;
+}
+
+.road-lane-name {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.road-lane-standing {
+  margin-left: auto;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--player-accent, var(--accent-gold));
+  text-align: right;
+}
+
+.road-lane.is-out .road-lane-standing {
+  color: var(--text-secondary);
+}
+
+/* The track: a row of stage nodes joined by a connector line. Scrolls
+   horizontally on very narrow screens; fits without scroll on most. */
+.road-track {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.road-node {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  position: relative;
+  padding: 0 0.05rem;
+}
+
+/* Connector line entering each node from the previous one. */
+.road-node:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-subtle);
+  z-index: 0;
+}
+
+/* The "traveled" portion lights up to the node the legend has reached. */
+.road-node.state-reached::before,
+.road-node.state-current::before {
+  background: var(--player-accent, var(--accent-gold));
+}
+
+.road-node.state-out::before {
+  background: #8c3a46;
+}
+
+.road-node-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 28px;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.road-node.state-reached .road-node-stage {
+  color: var(--player-accent, var(--accent-gold));
+  border-color: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 50%, transparent);
+  /* Opaque tint (mixed toward the card surface, NOT transparent) so the gold
+     connector line behind is masked by the pill instead of bleeding through
+     the text like a strikethrough. */
+  background: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 18%, var(--bg-card));
+}
+
+.road-node.state-current .road-node-stage {
+  color: var(--bg-primary);
+  background: var(--player-accent, var(--accent-gold));
+  border-color: var(--player-accent, var(--accent-gold));
+}
+
+.road-node.state-out .road-node-stage {
+  color: #fff;
+  background: #6b2230;
+  border-color: #6b2230;
+}
+
+.road-node-cap {
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-secondary);
+  max-width: 7ch;
+}
+
+.road-node.state-upcoming .road-node-cap {
+  color: var(--text-muted);
+}
+
+.road-node-trophy .road-node-stage {
+  font-size: 0.95rem;
+  padding: 0 0.5rem;
+}
+
+.road-node.road-node-trophy.state-reached .road-node-stage {
+  background: var(--player-accent, var(--accent-gold));
+  border-color: var(--player-accent, var(--accent-gold));
+}
+
 /* ========== FOOTER ========== */
 .site-footer {
   text-align: center;

@@ -206,7 +206,26 @@ export default function StatusPage() {
         </div>
 
         {/* Cross-links */}
-        <p style={{ textAlign: "center", marginTop: "2.25rem" }}>
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "2.25rem",
+            display: "flex",
+            gap: "1.5rem",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Link
+            href="/road-to-the-final"
+            style={{
+              color: "var(--accent-gold)",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Trace each legend&apos;s road to the final &rarr;
+          </Link>
           <Link
             href="/world-cup-2026-groups"
             style={{

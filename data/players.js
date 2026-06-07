@@ -1195,6 +1195,82 @@ export function latestResultLabel(player) {
   return `${m.result.outcome} ${m.result.score} v ${m.opponent}`;
 }
 
+// --- Road to the Final (knockout-path lanes on /road-to-the-final) --------
+//
+// The five legends' knockout journeys drawn as parallel left-to-right lanes,
+// so a single nation's path reads in a straight line — the thing a symmetric
+// bracket tree (ESPN/FIFA) makes hard. Driven by wc2026.status (how far a
+// legend has progressed) plus the OPTIONAL wc2026.knockout[] opponents/results
+// we fill in per round once the knockouts begin (June 28). Pre-knockout every
+// lane shows the group node lit and the rounds ahead dated from the schedule.
+//
+//   wc2026.knockout: [                 // OPTIONAL — add one entry per round as
+//     { stage: "r32",                  //   the legend plays it. stage ∈ ROAD_STAGES.
+//       opponent: "Switzerland",       //   the named opponent once known
+//       result: { outcome: "W", score: "2-1", scorers: "…" } },  // same shape as a match result; absent until played
+//   ]
+//
+// Absent ⇒ that round's node shows the round date placeholder. Keep this in
+// sync with wc2026.status.stage (the lane lights nodes from status, not from
+// the knockout[] array) — the array only supplies opponent/score labels.
+
+// First date of each knockout round (mirrors tournament.keyDates).
+export const KNOCKOUT_STAGE_DATES = {
+  group: "2026-06-11",
+  r32: "2026-06-28",
+  r16: "2026-07-05",
+  qf: "2026-07-11",
+  sf: "2026-07-15",
+  final: "2026-07-19",
+};
+
+// The lane stages, group → final. "champion" is rendered as a trophy cap.
+export const ROAD_STAGES = ["group", "r32", "r16", "qf", "sf", "final"];
+
+// Build the ordered node list for a legend's lane. Each node is:
+//   { stage, label, short, state, opponent, result, date }
+// state ∈ "reached" (advanced past it) | "current" (where they are now) |
+//         "out" (eliminated at this round) | "upcoming" (not yet reached).
+export function playerRoad(player) {
+  const st = player.wc2026?.status || { stage: "group", alive: true };
+  const out = st.alive === false || st.stage === "eliminated";
+  const champion = st.stage === "champion";
+  const curIdx = stageIndex(st.stage);
+  const ko = player.wc2026?.knockout || [];
+  const koByStage = {};
+  for (const k of ko) koByStage[k.stage] = k;
+
+  return ROAD_STAGES.map((stage, i) => {
+    let state;
+    if (champion) state = "reached";
+    else if (out && i === curIdx) state = "out";
+    else if (i < curIdx) state = "reached";
+    else if (i === curIdx) state = "current";
+    else state = "upcoming";
+
+    const k = koByStage[stage];
+    return {
+      stage,
+      label: stageLabel(stage),
+      short: STAGE_SHORT[stage],
+      state,
+      // The group node always names the group; knockout nodes name the
+      // opponent once we know it (else null → the lane shows the round date).
+      opponent:
+        stage === "group"
+          ? `Group ${player.wc2026?.group || ""}`.trim()
+          : k?.opponent || null,
+      result: k?.result || null,
+      date: KNOCKOUT_STAGE_DATES[stage] || null,
+    };
+  });
+}
+
+// True once the legend has lifted the trophy — drives the trophy cap on the lane.
+export function isChampion(player) {
+  return (player.wc2026?.status?.stage || "") === "champion";
+}
+
 // --- Affiliate links (Amazon Associates) ---------------------------------
 //
 // Single source of truth for the Associates tag (account created June 2026).
