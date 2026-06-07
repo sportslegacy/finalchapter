@@ -1347,9 +1347,17 @@ function groupTeamsByLetter() {
   return _groupTeams;
 }
 // Pot-1 seed = the first-listed team in a group (draw is in seeding order).
-function groupSeed(letter) {
+// Groups are stored in pot/seeding order, so index 0 is the projected group
+// winner and index 1 the projected runner-up — the "favourite" for each
+// finishing position. nth(letter, i) returns that team (gracefully if absent).
+function groupNth(letter, i) {
   const t = groupTeamsByLetter()[letter];
-  return t ? { ...t[0], grp: letter } : { name: letter, flag: "", grp: letter };
+  return t && t[i]
+    ? { ...t[i], grp: letter }
+    : { name: letter, flag: "", grp: letter };
+}
+function groupSeed(letter) {
+  return groupNth(letter, 0);
 }
 
 // The R32 round: a single, exact opponent slot.
@@ -1385,12 +1393,13 @@ function siblingOpponentRound(stage, leafSlots) {
   const usingWinners = winners.length > 0;
   const primaryGroups = [...new Set(usingWinners ? winners : runnersUp)];
   const primaryPos = usingWinners ? "Winner" : "Runner-up";
-  // Only name a representative team for WINNER slots — a group's top seed is a
-  // sensible "favorite to win the group" hint (and surfaces legend-vs-legend
-  // collisions). For RUNNER-UP slots the top seed is the LEAST likely team to
-  // finish 2nd, so naming it is misleading — show prose only ("Runner-up ·
-  // Group D/G") and let the reader infer it's an unknown 2nd-placed side.
-  const teams = usingWinners ? primaryGroups.map((g) => groupSeed(g)) : [];
+  // Name the projected team for each candidate group, matching the slot's
+  // finishing position: WINNER slot → the group's top seed (favourite to win,
+  // and where the legend-vs-legend collisions surface); RUNNER-UP slot → the
+  // group's 2nd seed (favourite to finish 2nd). Both are pot-seeding
+  // projections, disclaimed by the panel header — never show the top seed under
+  // a "Runner-up" label (it's the LEAST likely team to finish 2nd).
+  const teams = primaryGroups.map((g) => groupNth(g, usingWinners ? 0 : 1));
   return {
     stage,
     short: STAGE_SHORT[stage],
