@@ -191,6 +191,15 @@ export default function Nav() {
               Who&apos;s Still Standing
             </Link>
           </li>
+          <li>
+            <Link
+              href="/road-to-the-final"
+              className="nav-drawer-link"
+              onClick={closeAll}
+            >
+              Road to the Final
+            </Link>
+          </li>
           {SECTIONS.map(({ id, label }) => (
             <li key={id}>
               <a
