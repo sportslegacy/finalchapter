@@ -545,7 +545,7 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
-  max-width: 900px;
+  max-width: var(--max-width);
   margin: 0 auto;
 }
 
@@ -648,6 +648,49 @@ a {
   font-family: var(--font-sans);
   font-size: 0.74rem;
   color: var(--text-secondary);
+}
+
+/* The cards are tuned compact for narrow phones; on desktop the grid is
+   wide, so scale the photo + type up to fill the larger cards and match the
+   surrounding editorial weight. Mobile sizes above stay intact. */
+@media (min-width: 769px) {
+  .status-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+  }
+  .status-card {
+    gap: 1.25rem;
+    padding: 1.35rem;
+  }
+  .status-card-photo {
+    width: 84px;
+    height: 105px;
+  }
+  .status-card-flag {
+    font-size: 1rem;
+  }
+  .status-card-name {
+    font-size: 1.35rem;
+  }
+  .status-card-country {
+    font-size: 0.9rem;
+    margin-bottom: 0.45rem;
+  }
+  .status-card-stage {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+  }
+  .status-track.is-mini {
+    gap: 0.3rem;
+    margin: 0 0 0.5rem;
+  }
+  .status-track.is-mini .status-step {
+    font-size: 0.7rem;
+    padding: 0.22rem 0.5rem;
+  }
+  .status-card-note {
+    font-size: 0.86rem;
+  }
 }
 
 .profile-hero {
