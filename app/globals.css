@@ -2078,9 +2078,19 @@ body.nav-menu-open {
   scroll-margin-top: 6rem;
 }
 
+/* "Road to the Final" lives in the hamburger drawer on mobile/tablet; surface
+   it inline only on desktop, where the hamburger (and its drawer) is hidden. */
+.nav-road-item {
+  display: none;
+}
+
 @media (min-width: 769px) {
   .nav-menu-btn {
     display: none;
+  }
+
+  .nav-road-item {
+    display: block;
   }
 
   .nav-brand {

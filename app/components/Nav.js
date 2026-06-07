@@ -142,6 +142,11 @@ export default function Nav() {
               Cities
             </a>
           </li>
+          <li className="nav-road-item">
+            <Link href="/road-to-the-final" onClick={closeAll}>
+              Road to the Final
+            </Link>
+          </li>
         </ul>
       </div>
 
