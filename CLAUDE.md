@@ -200,6 +200,21 @@ The five-lane knockout-path view (built 2026-06-06; the legends-lens alternative
 
 Sorted alive-first/deepest (`rank()`, mirrors `/status`). `isChampion(player)` drives the trophy cap.
 
+#### "Who they could face" — projected opponents per lane (added 2026-06-06)
+
+After shipping the lanes the user asked for "more than this, also easy to tell who are the potential opponents." Each still-alive, pre-knockout lane now carries a **"Who they could face"** panel with **two branches** (win the group vs finish 2nd), each listing the **R32 / R16 / QF** projected opponents. Derived 100% from the fixed bracket + the group draw at render time — **zero ongoing maintenance**; once real names exist (`wc2026.knockout[]`), the lane nodes above already show them, and this panel is hidden anyway once the legend is out/deep.
+
+The bracket model lives in `data/players.js` (after `isChampion()`):
+- **`R32_MATCHES`** (matches 73–88) maps each R32 slot to its two feeder slots, encoded as `"W:E"` (winner of E), `"RU:C"` (runner-up of C), or `"3:A,B,C,D,F"` (one of these groups' 3rd-place sides — the 8 best-thirds are unassigned until June 27). **`KO_TREE`** (89→104) maps each later match to its two feeder matches. Both verified against Wikipedia "2026 FIFA World Cup knockout stage."
+- **`projectedPaths(player)`** → `{ group, win[], runnerUp[] }`. `projectBranch(group, finish)` finds the legend's R32 match, takes the *other* slot as the R32 opponent, then walks `KO_TREE` parents taking the *sibling* subtree's seed teams for R16/QF.
+- The page renders only **`rounds.slice(0, 3)`** (R32/R16/QF) — SF/Final fan out across half the draw, too many candidates to name.
+
+**Two accuracy gotchas (don't revert):**
+1. **No team chips for an open 3rd-place R32 slot.** `r32OpponentRound` returns `teams: []` when the slot spans multiple groups (`"3:D,E,I,J,L"`) — the occupant is a genuinely-unknown 3rd-placed side, and is **never** a group's seed/winner. Showing seed chips there was misleading (implied Portugal could meet Argentina in the R32). The prose line ("3rd place · Group D/E/I/J/L") carries it instead. Single-group slots still show all four group teams.
+2. **`siblingOpponentRound` shows the seed (group winner) + an "or a 3rd-place side" pill** when the sibling subtree contains a thirds slot (`hasThirds`). It names winners (or runners-up if no winners) of the sibling's groups, not an exhaustive list.
+
+The panel only renders for `!out && !champ` lanes (`projectedPaths` returns null without a `group`). Styles: `.road-proj` / `.proj-branch` / `.proj-round*` / `.proj-team*` in `globals.css`; two-column grid → single column at ≤640px. Picks up the national accent inside the lane's `--player-accent` scope.
+
 ### Status strip is EDITORIAL, not a Q&A snippet box (don't revert)
 
 The player-page status strip first shipped (2026-06-05) literally rendering `statusHeadline`'s `q`+`a` — "Is Cristiano Ronaldo playing in the 2026 World Cup? / Yes — Portugal are in Group K." It read like a Google featured-snippet widget grafted onto the tribute page → off-brand against the serif/editorial tone (user flagged it "weird and not cohesive"). Reshaped into: gold `WORLD CUP 2026` label (section-label vocabulary) + serif-italic `statusStatement()` line + stage track + note. **Keep the on-page strip editorial; keep the Q&A phrasing in title/meta/JSON-LD where it earns clicks.** Don't merge the two back together. Also: the strip is the first element on the page, so `.status-banner-inner` carries top padding to clear the fixed 53px nav (without it the label hides under the nav and the statement reads orphaned).

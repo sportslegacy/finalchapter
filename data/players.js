@@ -1271,6 +1271,165 @@ export function isChampion(player) {
   return (player.wc2026?.status?.stage || "") === "champion";
 }
 
+// --- Projected knockout opponents (fixed 2026 bracket) --------------------
+//
+// The 2026 Round-of-32 bracket is FIXED by group letter (FIFA; verified vs
+// Wikipedia "2026 FIFA World Cup knockout stage", matches 73–104). So before a
+// ball is kicked we can project — for any group + finishing position — which
+// groups can supply each knockout opponent. The bracket is the source of truth;
+// nothing here needs editing during the tournament (the real opponent names
+// arrive via wc2026.knockout[] as rounds are played and override the projection
+// on /road-to-the-final).
+//
+// Each R32 slot is "POS:GROUPS": "W:C" (winner of C), "RU:F" (runner-up of F),
+// or "3:A,E,H,I,J" (a 3rd-place team from one of those groups — the 8 best
+// third-placed teams aren't assigned to slots until the group stage ends, so
+// these stay genuinely open).
+const R32_MATCHES = {
+  73: ["RU:A", "RU:B"],
+  74: ["W:E", "3:A,B,C,D,F"],
+  75: ["W:F", "RU:C"],
+  76: ["W:C", "RU:F"],
+  77: ["W:I", "3:C,D,F,G,H"],
+  78: ["RU:E", "RU:I"],
+  79: ["W:A", "3:C,E,F,H,I"],
+  80: ["W:L", "3:E,H,I,J,K"],
+  81: ["W:D", "3:B,E,F,I,J"],
+  82: ["W:G", "3:A,E,H,I,J"],
+  83: ["RU:K", "RU:L"],
+  84: ["W:H", "RU:J"],
+  85: ["W:B", "3:E,F,G,I,J"],
+  86: ["W:J", "RU:H"],
+  87: ["W:K", "3:D,E,I,J,L"],
+  88: ["RU:D", "RU:G"],
+};
+// Which two earlier match-winners feed each later match (R16 → final).
+const KO_TREE = {
+  89: [74, 77], 90: [73, 75], 91: [76, 78], 92: [79, 80],
+  93: [83, 84], 94: [81, 82], 95: [86, 88], 96: [85, 87],
+  97: [89, 90], 98: [93, 94], 99: [91, 92], 100: [95, 96],
+  101: [97, 98], 102: [99, 100],
+  104: [101, 102],
+};
+
+const slotPos = (slot) => slot.split(":")[0]; // "W" | "RU" | "3"
+const slotGroups = (slot) => slot.split(":")[1].split(",");
+
+function findR32Match(slot) {
+  for (const [m, slots] of Object.entries(R32_MATCHES)) {
+    if (slots.includes(slot)) return Number(m);
+  }
+  return null;
+}
+function findParent(matchNo) {
+  for (const [p, feeders] of Object.entries(KO_TREE)) {
+    if (feeders.includes(matchNo)) return Number(p);
+  }
+  return null;
+}
+// All R32 leaf slots feeding a given match (the whole sub-bracket below it).
+function r32Leaves(matchNo) {
+  if (R32_MATCHES[matchNo]) return [...R32_MATCHES[matchNo]];
+  const [a, b] = KO_TREE[matchNo];
+  return [...r32Leaves(a), ...r32Leaves(b)];
+}
+
+// Lazy group-letter → [{ name, flag }] lookup, built from tournament.groups
+// (which is defined later in this module but always initialized by call time,
+// since these helpers only run during page render).
+let _groupTeams = null;
+function groupTeamsByLetter() {
+  if (_groupTeams) return _groupTeams;
+  _groupTeams = {};
+  for (const g of tournament.groups) {
+    _groupTeams[g.id] = g.teams.map((t) => ({ name: t.name, flag: t.flag }));
+  }
+  return _groupTeams;
+}
+// Pot-1 seed = the first-listed team in a group (draw is in seeding order).
+function groupSeed(letter) {
+  const t = groupTeamsByLetter()[letter];
+  return t ? { ...t[0], grp: letter } : { name: letter, flag: "", grp: letter };
+}
+
+// The R32 round: a single, exact opponent slot.
+function r32OpponentRound(slot) {
+  const pos = slotPos(slot);
+  const groups = slotGroups(slot);
+  const posLabel = pos === "W" ? "Winner" : pos === "RU" ? "Runner-up" : "3rd place";
+  // One named group ⇒ list its four teams (the opponent is one of them in the
+  // stated position). Multiple groups ⇒ an open 3rd-place slot whose occupant is
+  // genuinely unknown — and never a group's seed — so we show NO team chips and
+  // let the prose ("3rd place · Group D/E/I/J/L") carry it. Surfacing seeds here
+  // would wrongly imply the opponent is one of those strong sides.
+  const single = groups.length === 1;
+  const teams = single
+    ? groupTeamsByLetter()[groups[0]].map((t) => ({ ...t, grp: groups[0] }))
+    : [];
+  return { stage: "r32", short: "R32", posLabel, groups, single, teams };
+}
+
+// A later round: opponent is the winner of a whole sibling sub-bracket. Group
+// winners are the seeded/likely advancers, so surface the W-slot groups as the
+// headline candidates; note when a runner-up or 3rd-place side could slot in.
+function siblingOpponentRound(stage, leafSlots) {
+  const winners = [];
+  const runnersUp = [];
+  let hasThirds = false;
+  for (const s of leafSlots) {
+    const pos = slotPos(s);
+    if (pos === "W") winners.push(...slotGroups(s));
+    else if (pos === "RU") runnersUp.push(...slotGroups(s));
+    else hasThirds = true;
+  }
+  const usingWinners = winners.length > 0;
+  const primaryGroups = [...new Set(usingWinners ? winners : runnersUp)];
+  const primaryPos = usingWinners ? "Winner" : "Runner-up";
+  const teams = primaryGroups.map((g) => groupSeed(g));
+  return {
+    stage,
+    short: STAGE_SHORT[stage],
+    primaryPos,
+    primaryGroups,
+    teams,
+    hasThirds,
+    // Deep rounds fan out across half the draw — too broad to list cleanly.
+    wide: teams.length > 4,
+  };
+}
+
+// Trace one finishing scenario ("W" or "RU" of a group) up the bracket and
+// describe the potential opponent at each round (R32 → final).
+function projectBranch(group, finish) {
+  const slot = `${finish}:${group}`;
+  const r32 = findR32Match(slot);
+  if (!r32) return [];
+  const oppSlot = R32_MATCHES[r32].find((s) => s !== slot);
+  const rounds = [r32OpponentRound(oppSlot)];
+  let cur = r32;
+  for (const stage of ["r16", "qf", "sf", "final"]) {
+    const parent = findParent(cur);
+    if (!parent) break;
+    const [a, b] = KO_TREE[parent];
+    const sibling = a === cur ? b : a;
+    rounds.push(siblingOpponentRound(stage, r32Leaves(sibling)));
+    cur = parent;
+  }
+  return rounds;
+}
+
+// The projected road for a legend, both finishing scenarios. Used by
+// /road-to-the-final to show "who could they face" before the draw resolves.
+export function projectedPaths(player) {
+  const group = player.wc2026?.group;
+  if (!group) return null;
+  return {
+    group,
+    win: projectBranch(group, "W"),
+    runnerUp: projectBranch(group, "RU"),
+  };
+}
+
 // --- Affiliate links (Amazon Associates) ---------------------------------
 //
 // Single source of truth for the Associates tag (account created June 2026).
