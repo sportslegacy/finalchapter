@@ -63,7 +63,7 @@ app/
   player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema; opens with the live status strip
   player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
-    Nav.js                        # header w/ hamburger drawer + LEGENDS dropdown; logo scrolls-to-top when already on "/"
+    Nav.js                        # header w/ hamburger drawer + TWO inline dropdowns (Tournament▾ = the 4 secondary pages /status, /road-to-the-final, /world-cup-2026-format, /world-cup-2026-groups; Legends▾ = the 5 players); logo scrolls-to-top when already on "/"
     Countdown.js                  # site-wide ticker to the tournament opener
     MatchCountdown.js             # per-player ticker to their first group match (handles TBD)
     HashScroll.js                 # smooth-scroll for /#section links
@@ -270,9 +270,20 @@ Most freely-licensed (CC) football photos on Wikimedia Commons come from **Russi
 
 FIFA's own homepage countdown widget appears to run ~1 hour late (showing 20:00 UTC). **Don't "fix" our countdown to match FIFA's widget** — ours is correct, theirs is off.
 
+### Nav dropdowns (Tournament ▾ and Legends ▾) — two splits, shared CSS
+
+The inline nav row is `Tournament▾ | Legends▾ | Cities`. Both "Tournament" and "Legends" are **split items**: the label is an `<a>` that scrolls to the homepage section (`/#tournament`, `/#legends`), and a chevron `<button>` toggles a dropdown panel. Tournament's panel = the 4 secondary PAGES (`TOURNAMENT_PAGES` array in `Nav.js`); Legends' panel = the 5 players. Built 2026-06-06 to make `/status`, `/road-to-the-final`, `/world-cup-2026-format`, `/world-cup-2026-groups` reachable from the nav on desktop (the hamburger drawer — the prior only route to them — is hidden ≥769px).
+
+Three things NOT to revert:
+1. **Both panels share the `.nav-legends-panel` CSS**; the tournament panel adds `.nav-tournament-panel` ONLY to flip the desktop anchor from `right: 0` (Legends, right side of row) to `left: 0` (Tournament, left side of row). Without the left-anchor the Tournament panel drops under Cities, misaligned.
+2. **The chevron-rotate + open-toggle-highlight CSS keys off `aria-expanded`** (`.nav-legends-toggle[aria-expanded="true"]`), NOT the old `.site-nav.legends-open` nav-level class. Both toggles carry `.nav-legends-toggle`, so a nav-level class would rotate/highlight BOTH chevrons when either opens. Per-toggle `aria-expanded` scopes it correctly. (The `legends-open`/`tournament-open` classes are still set on `.site-nav` but no longer drive the chevron.)
+3. **The two dropdowns are mutually exclusive + close on outside-click.** Each toggle's onClick closes the other dropdown and the menu; each has its own `useEffect` outside-click handler keyed to its `ref` + toggle class. The hamburger button closes both.
+
+The Tournament split li has class `nav-tournament-item` (NOT `nav-legends-item`), so the `@media (max-width:430px)` `:not(.nav-legends-item)` rule still hides it on tiny phones — only the Legends dropdown stays inline there, same as before; the 4 pages fall back to the drawer.
+
 ### Nav dropdown chevron on narrow phones
 
-At < 430px viewport, the `Tournament | Legends + chevron | Cities` row used to overflow and the chevron got pushed off-screen on iPhone 17 (393pt). Fix lives in `app/globals.css` — a `@media (max-width: 430px)` that hides Tournament and Cities inline (they're still in the hamburger drawer). Don't undo it.
+At < 430px viewport, the `Tournament | Legends + chevron | Cities` row used to overflow and the chevron got pushed off-screen on iPhone 17 (393pt). Fix lives in `app/globals.css` — a `@media (max-width: 430px)` rule (`.nav-links > li:not(.nav-legends-item)`) that hides the Tournament and Cities inline items (they're still in the hamburger drawer), leaving only the Legends dropdown. Don't undo it.
 
 ### Next.js dev "N" indicator
 
@@ -446,7 +457,7 @@ In rough priority if traffic justifies more work:
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
 - ✅ **Match-result updates during the tournament** — ENGINE BUILT 2026-06-05. Add a `result: { outcome, score, scorers }` to the played match in `wc2026.matches[]` (schema above) — it renders on the schedule card + `/status`. Also flip `wc2026.status` as legends advance/exit. This is the manual returning-visitor loop (~5 min/game); no active results in prod yet.
 - **Generic knockout bracket page** — STILL deliberately NOT built (decided 2026-06-01). A full 104-match symmetric bracket tree is the saturated, maintenance-trap space: "world cup 2026 bracket" demand is HIGH but owned by purpose-built **interactive predictor** tools (bracket2026.com, cup-predictor.com, worldcuppass.com, CNN, Covers) an editorial static site can't out-execute. **What we DID build instead (2026-06-06): `/road-to-the-final`** — the pre-approved legends-lens take, but framed as five single-line *path lanes* rather than a fillable bracket. It needs no speculative R32-slot table (lit nodes derive from `wc2026.status`; opponent/score labels come from the optional `wc2026.knockout[]` array filled in per round from June 28). See "Road to the Final" gotcha below. The generic predictor remains off the table; revisit a fuller knockout surface only if GSC shows `/road-to-the-final` or `/world-cup-2026-format` pulling steady bracket/knockout impressions.
-- **"Groups" nav entry** — NOT added (decided 2026-06-01). The groups page is discoverable via the homepage `#tournament` CTA + format-page cross-link + sitemap, and the nav is already crowded on narrow phones (Tournament/Cities hidden inline <430px) + guarded by a Playwright width test. If ever wanted, the clean version is folding Format + Groups *into* the existing LEGENDS dropdown (rename to a "Tournament" menu) — a nav refactor, not a quick add.
+- ✅ **"Tournament ▾" nav dropdown** — BUILT 2026-06-06 (this is the "fold Format + Groups into a Tournament menu" refactor the old backlog note proposed). The inline "Tournament" item is now a split (label still scrolls to `/#tournament`; a chevron toggle opens a panel of the 4 secondary PAGES: Who's Still Standing, Road to the Final, How the 2026 Format Works, All 12 Groups). Mirrors the existing Legends split exactly — shares `.nav-legends-*` styling; the panel anchors LEFT (`.nav-tournament-panel { left: 0 }`) since Tournament sits on the left of the row, vs Legends' right anchor. The 4 pages also list in the hamburger drawer's Navigate section (both fed by the shared `TOURNAMENT_PAGES` array). See "Nav dropdowns" gotcha. This closed the desktop-discoverability gap: `/status`, `/road-to-the-final`, `/world-cup-2026-format`, `/world-cup-2026-groups` were previously reachable from the nav ONLY via the hamburger drawer, which is hidden ≥769px.
 
 ### Shipped — was on this list previously
 - ✅ **`/road-to-the-final`** — five legends' knockout paths as single straight lanes (the legends-lens alternative to a generic bracket). Lit nodes from `wc2026.status`; opponent/score captions from optional `wc2026.knockout[]`. SportsEvent JSON-LD, in sitemap (daily, 0.8), cross-linked from `/status`. See "Road to the Final" gotcha. (2026-06-06)
@@ -497,7 +508,7 @@ Quick orientation for a fresh session. Details live in the gotchas + "three tour
 
 **Decisions made this session (don't re-litigate without new data):**
 - **No bracket page** — demand is high but the space is saturated with interactive predictors; revisit only if GSC shows the format page pulling bracket/knockout impressions, and then only a post-June-27 legends-lens version. See backlog.
-- **No "Groups" nav entry** — discoverable via cross-links; nav is crowded + test-guarded. See backlog.
+- ~~**No "Groups" nav entry**~~ — SUPERSEDED 2026-06-06: built the "Tournament ▾" dropdown (Status / Road to the Final / Format / Groups) + drawer entries. The 4 secondary pages are now nav-reachable on both desktop and mobile. See the Shipped backlog item + "Nav dropdowns" gotcha.
 - **User is holding social posting** (as of 2026-06-01) to let the format/groups SEO work breathe before the next Reddit wave.
 
 **Carried over from 2026-05-30 (CL-final wave — verify if still relevant):**
@@ -671,7 +682,7 @@ Opening that URL in any browser shows the actual generated PNG — what crawlers
 
 ## Quick checks after any deploy
 
-1. **Phone:** load https://finalchapterfc.com, click into a player, open the LEGENDS dropdown
+1. **Phone:** load https://finalchapterfc.com, click into a player, open the LEGENDS dropdown (and on desktop the TOURNAMENT dropdown → 4 secondary pages)
 2. **Countdown** is ticking and the day count matches `(2026-06-11T19:00:00Z − Now())`
 3. **Per-player MatchCountdown** renders "Next up · …" above each schedule
 4. **Records in Play** cards show with the gold top stripe

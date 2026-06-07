@@ -11,15 +11,28 @@ const SECTIONS = [
   { id: "cities", label: "Cities" },
 ];
 
+// The standalone tournament pages (not homepage sections). Reused by both the
+// desktop "Tournament" dropdown panel and the mobile hamburger drawer so the
+// two stay in sync.
+const TOURNAMENT_PAGES = [
+  { href: "/status", label: "Who's Still Standing" },
+  { href: "/road-to-the-final", label: "Road to the Final" },
+  { href: "/world-cup-2026-format", label: "How the 2026 Format Works" },
+  { href: "/world-cup-2026-groups", label: "All 12 Groups" },
+];
+
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [legendsOpen, setLegendsOpen] = useState(false);
+  const [tournamentOpen, setTournamentOpen] = useState(false);
   const legendsRef = useRef(null);
+  const tournamentRef = useRef(null);
 
   const closeAll = useCallback(() => {
     setMenuOpen(false);
     setLegendsOpen(false);
+    setTournamentOpen(false);
   }, []);
 
   const onSectionClick = useCallback(
@@ -79,9 +92,22 @@ export default function Nav() {
     return () => document.removeEventListener("click", onClick);
   }, [legendsOpen]);
 
+  useEffect(() => {
+    if (!tournamentOpen) return;
+    const onClick = (e) => {
+      const inPanel = tournamentRef.current?.contains(e.target);
+      const onToggle = e.target.closest(".nav-tournament-toggle");
+      if (!inPanel && !onToggle) {
+        setTournamentOpen(false);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [tournamentOpen]);
+
   return (
     <nav
-      className={`site-nav ${scrolled ? "scrolled" : ""} ${menuOpen ? "menu-open" : ""} ${legendsOpen ? "legends-open" : ""}`}
+      className={`site-nav ${scrolled ? "scrolled" : ""} ${menuOpen ? "menu-open" : ""} ${legendsOpen ? "legends-open" : ""} ${tournamentOpen ? "tournament-open" : ""}`}
     >
       <div className="nav-primary">
         <div className="nav-brand">
@@ -94,6 +120,7 @@ export default function Nav() {
             onClick={() => {
               setMenuOpen((open) => !open);
               setLegendsOpen(false);
+              setTournamentOpen(false);
             }}
           >
             <span className="nav-menu-icon" aria-hidden="true" />
@@ -105,10 +132,35 @@ export default function Nav() {
         </div>
 
         <ul className="nav-links">
-          <li>
-            <a href="/#tournament" onClick={(e) => onSectionClick(e, "tournament")}>
-              Tournament
-            </a>
+          <li className="nav-tournament-item">
+            <div className="nav-legends-split">
+              <a
+                href="/#tournament"
+                className="nav-legends-label"
+                onClick={(e) => onSectionClick(e, "tournament")}
+              >
+                Tournament
+              </a>
+              <button
+                type="button"
+                className="nav-legends-toggle nav-tournament-toggle"
+                aria-expanded={tournamentOpen}
+                aria-controls="nav-tournament-panel"
+                aria-label={
+                  tournamentOpen ? "Hide tournament pages" : "Show tournament pages"
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTournamentOpen((open) => !open);
+                  setLegendsOpen(false);
+                  setMenuOpen(false);
+                }}
+              >
+                <svg className="nav-chevron" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </button>
+            </div>
           </li>
           <li className="nav-legends-item">
             <div className="nav-legends-split">
@@ -128,6 +180,7 @@ export default function Nav() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setLegendsOpen((open) => !open);
+                  setTournamentOpen(false);
                   setMenuOpen(false);
                 }}
               >
@@ -142,13 +195,31 @@ export default function Nav() {
               Cities
             </a>
           </li>
-          <li className="nav-road-item">
-            <Link href="/road-to-the-final" onClick={closeAll}>
-              Road to the Final
-            </Link>
-          </li>
         </ul>
       </div>
+
+      {tournamentOpen && (
+        <div
+          id="nav-tournament-panel"
+          className="nav-legends-panel nav-tournament-panel"
+          ref={tournamentRef}
+        >
+          <p className="nav-legends-panel-heading">World Cup 2026</p>
+          <ul className="nav-legends-panel-list">
+            {TOURNAMENT_PAGES.map((page) => (
+              <li key={page.href}>
+                <Link
+                  href={page.href}
+                  className="nav-legends-panel-player nav-tournament-panel-link"
+                  onClick={closeAll}
+                >
+                  {page.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {legendsOpen && (
         <div id="nav-legends-panel" className="nav-legends-panel" ref={legendsRef}>
@@ -191,20 +262,17 @@ export default function Nav() {
               Home
             </Link>
           </li>
-          <li>
-            <Link href="/status" className="nav-drawer-link" onClick={closeAll}>
-              Who&apos;s Still Standing
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/road-to-the-final"
-              className="nav-drawer-link"
-              onClick={closeAll}
-            >
-              Road to the Final
-            </Link>
-          </li>
+          {TOURNAMENT_PAGES.map((page) => (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                className="nav-drawer-link"
+                onClick={closeAll}
+              >
+                {page.label}
+              </Link>
+            </li>
+          ))}
           {SECTIONS.map(({ id, label }) => (
             <li key={id}>
               <a

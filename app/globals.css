@@ -1997,7 +1997,7 @@ a {
 
 .nav-legends-label:hover,
 .nav-legends-toggle:hover,
-.site-nav.legends-open .nav-legends-toggle {
+.nav-legends-toggle[aria-expanded="true"] {
   color: var(--text-primary);
   background: rgba(212, 168, 83, 0.06);
 }
@@ -2009,7 +2009,9 @@ a {
   transition: transform 0.2s ease;
 }
 
-.site-nav.legends-open .nav-chevron {
+/* Both dropdown toggles share .nav-legends-toggle; key off each one's own
+   aria-expanded so opening one panel only rotates that panel's chevron. */
+.nav-legends-toggle[aria-expanded="true"] .nav-chevron {
   transform: rotate(180deg);
 }
 
@@ -2078,19 +2080,9 @@ body.nav-menu-open {
   scroll-margin-top: 6rem;
 }
 
-/* "Road to the Final" lives in the hamburger drawer on mobile/tablet; surface
-   it inline only on desktop, where the hamburger (and its drawer) is hidden. */
-.nav-road-item {
-  display: none;
-}
-
 @media (min-width: 769px) {
   .nav-menu-btn {
     display: none;
-  }
-
-  .nav-road-item {
-    display: block;
   }
 
   .nav-brand {
@@ -2119,6 +2111,14 @@ body.nav-menu-open {
     border: 1px solid var(--border-subtle);
     border-top: 1px solid var(--border-subtle);
     border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  /* The Tournament dropdown sits on the left of the row, so its panel anchors
+     to the left edge instead of the right (unlike the Legends panel). */
+  .nav-tournament-panel {
+    right: auto;
+    left: 0;
+    width: min(20rem, 100%);
   }
 }
 
