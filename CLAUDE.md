@@ -412,6 +412,22 @@ The countdowns render time-relative text, so the build-time HTML never matches t
 
 A link-checker browser extension red-boxed many links and the user reported them broken. They were NOT: `curl -w "%{http_code}"` confirmed every URL returned 200, and analytics showed 3.7 pages/visit (real users navigating fine). The extension was reacting to the React #418 console error (now fixed), not to any actual dead link. The prev/next player nav links are valid `<Link>`s — just dim-styled by design. **If links are reported broken again: first `curl` the URLs for status codes and check analytics pages/visit before touching any link markup.**
 
+### Short-URL redirects — long keyword slugs stay canonical (2026-06-07)
+
+The two tournament SEO pages live at the **long, keyword-rich slugs** `/world-cup-2026-format` and `/world-cup-2026-groups` — those are canonical and must stay so (sitemap, `<link rel=canonical>`, OpenGraph URLs, and all internal links point at them; the keywords in the path are a ranking signal matching real query intent).
+
+The short forms people guess/type (`/format`, `/groups`, `/group`) are **308 permanent redirects** to the canonical long slugs, declared via `async redirects()` in `next.config.mjs`. A 308 passes ranking signal through and tells Google the canonical lives at the long slug, so the aliases don't split or dilute SEO. They work on the static deploy because **Vercel serves redirects at the edge** (no SSR needed). Verified locally with `next start` + curl (308 → canonical, both targets 200). Commit `51b78b5`.
+
+**SEO rule:** anything a crawler indexes or you link internally → the long slug. Short forms are human-convenience only (say-out-loud, Reddit comments) — the redirect lands them on the canonical page. **NEVER put a short URL into the sitemap or a canonical tag.** If you add more SEO pages later, follow the same pattern: long keyword slug canonical + optional short 308 alias.
+
+### Responsive sizing — compact mobile BASE + `@media (min-width: 769px)` desktop scale-up (2026-06-07)
+
+`/status` cards and the `/road-to-the-final` "Who they could face" projection panels read small on both desktop (content capped at a narrow max-width, empty side margins) and on physically-larger phones (base sizes tuned for 375px). Fixed in two layers in `globals.css`:
+1. **Desktop** — widened `.status-grid` from `max-width: 900px` to `var(--max-width)` (1200px) and added a `@media (min-width: 769px)` block (matches the nav desktop breakpoint) scaling up status-card photo/name/track and `.proj-*` panel type.
+2. **Phone** — raised the **base** `.status-card` and `.proj-*` font/photo sizes. The user judges absolute readability on a real device, not relative correctness — verifying "the desktop block doesn't apply + no overflow" is NOT enough; eyeball the base sizes at native size.
+
+**HARD constraint that survived all bumps:** `.road-track` (the 7-node knockout lane) must fit a 375px viewport with `scrollWidth <= clientWidth` — measured 264px == 264px, ZERO slack. NEVER enlarge the track nodes/captions or the Final node + trophy clip. Re-measure across all 5 lanes after any node-sizing change. Commits `394fc1b`, `701951e`, `8ed0a7e`, `fad9ef5`.
+
 ### SportsEvent JSON-LD enhancement fields (GSC "Improve item appearance")
 
 Google flagged 4 *optional* enhancement suggestions (0 errors) for the SportsEvent schema. Three are now added to BOTH the homepage `eventJsonLd` (`app/page.js`) and the player-page `buildPersonJsonLd` `subjectOf` SportsEvent (`app/player/[id]/page.js`), commit `9e7881b`:
@@ -476,9 +492,14 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-06)
+## Session handoff — current state (last updated 2026-06-07)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-07 session — responsive sizing + short-URL redirects:**
+- **Enlarged `/status` cards + `/road-to-the-final` projection panels** on both desktop and phone (the "looks small" feedback). Two-layer fix: widened `.status-grid` to `var(--max-width)` + a `@media (min-width:769px)` scale-up block, AND raised the base mobile sizes. The `.road-track` 7-node lane stays untouched (375px fit constraint, zero slack). See "Responsive sizing" gotcha. Commits `394fc1b`, `701951e`, `8ed0a7e`, `fad9ef5`.
+- **Short-URL redirects** — `/format`, `/groups`, `/group` now 308 → the canonical long slugs (`async redirects()` in `next.config.mjs`). Long keyword slugs remain canonical for SEO; short forms are human-convenience only. See "Short-URL redirects" gotcha. Commit `51b78b5`.
+- **SEO confirmed complete** for the recent pages — sitemap (9 URLs) + robots + per-page metadata/JSON-LD already cover `/status`, `/road-to-the-final`, `/world-cup-2026-format`, `/world-cup-2026-groups`. No changes needed there.
 
 **2026-06-06 session — first monetization + status-strip polish:**
 - **Amazon Associates "Fan Shop"** — first revenue mechanism. Per-player block (`app/components/ShopLinks.js`) links to national-team kit + player books via tagged Amazon search URLs (tag `finalchapterf-20`, single source of truth: `AFFILIATE_TAG` in `data/players.js`). Server component, `rel="sponsored"` + Associates disclosure, picks up national accent inside `.player-accent-scope`. Commit `9e5b486`. **Hobby-plan commercial-use ToS now technically violated** — upgrade to Vercel Pro if revenue becomes meaningful. See "Affiliate monetization" gotcha.
