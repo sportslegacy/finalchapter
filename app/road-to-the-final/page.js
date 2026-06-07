@@ -83,9 +83,14 @@ function ProjBranch({ title, rounds }) {
             <span className="proj-round-stage">{r.short}</span>
             <span className="proj-round-body">
               <span className="proj-round-pos">
-                {r.stage === "r32"
-                  ? `${r.posLabel} · Group ${r.groups.join("/")}`
-                  : `${r.primaryPos} · Group ${r.primaryGroups.join("/")}`}
+                <span className="proj-round-seed">
+                  {r.stage === "r32" ? r.posLabel : r.primaryPos}
+                </span>
+                {` · Group ${
+                  r.stage === "r32"
+                    ? r.groups.join("/")
+                    : r.primaryGroups.join("/")
+                }`}
                 {r.hasThirds ? (
                   <span className="proj-or3rd">or a 3rd-place side</span>
                 ) : null}

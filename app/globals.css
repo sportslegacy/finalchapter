@@ -1754,6 +1754,11 @@ a {
   line-height: 1.35;
 }
 
+.proj-round-seed {
+  font-weight: 700;
+  color: color-mix(in srgb, var(--player-accent) 70%, var(--text-primary));
+}
+
 .proj-or3rd {
   font-size: 0.56rem;
   color: var(--text-muted);
