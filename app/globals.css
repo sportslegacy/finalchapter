@@ -577,8 +577,8 @@ a {
 .status-card-photo {
   position: relative;
   flex: 0 0 auto;
-  width: 74px;
-  height: 92px;
+  width: 82px;
+  height: 102px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--player-accent, var(--accent-gold)) 40%, transparent);
@@ -598,7 +598,7 @@ a {
   position: absolute;
   bottom: 2px;
   right: 2px;
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1;
 }
 
@@ -609,7 +609,7 @@ a {
 
 .status-card-name {
   font-family: var(--font-serif);
-  font-size: 1.22rem;
+  font-size: 1.34rem;
   font-weight: 700;
   color: var(--player-accent, var(--accent-gold));
 }
@@ -620,14 +620,14 @@ a {
 
 .status-card-country {
   font-family: var(--font-sans);
-  font-size: 0.86rem;
+  font-size: 0.94rem;
   color: var(--text-muted);
   margin-bottom: 0.35rem;
 }
 
 .status-card-stage {
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
@@ -640,13 +640,13 @@ a {
 }
 
 .status-track.is-mini .status-step {
-  font-size: 0.66rem;
-  padding: 0.2rem 0.46rem;
+  font-size: 0.72rem;
+  padding: 0.24rem 0.5rem;
 }
 
 .status-card-note {
   font-family: var(--font-sans);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
 }
 
@@ -663,21 +663,21 @@ a {
     padding: 1.35rem;
   }
   .status-card-photo {
-    width: 84px;
-    height: 105px;
+    width: 92px;
+    height: 115px;
   }
   .status-card-flag {
-    font-size: 1rem;
+    font-size: 1.08rem;
   }
   .status-card-name {
-    font-size: 1.4rem;
+    font-size: 1.52rem;
   }
   .status-card-country {
-    font-size: 0.95rem;
+    font-size: 1.02rem;
     margin-bottom: 0.45rem;
   }
   .status-card-stage {
-    font-size: 1rem;
+    font-size: 1.08rem;
     margin-bottom: 0.6rem;
   }
   .status-track.is-mini {
@@ -685,11 +685,11 @@ a {
     margin: 0 0 0.5rem;
   }
   .status-track.is-mini .status-step {
-    font-size: 0.72rem;
-    padding: 0.24rem 0.52rem;
+    font-size: 0.8rem;
+    padding: 0.26rem 0.56rem;
   }
   .status-card-note {
-    font-size: 0.92rem;
+    font-size: 1rem;
   }
 }
 
@@ -1709,7 +1709,7 @@ a {
 }
 
 .road-proj-head {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -1749,7 +1749,7 @@ a {
 }
 
 .proj-branch-title {
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.7rem;
@@ -1772,15 +1772,15 @@ a {
 
 .proj-round-stage {
   flex: 0 0 auto;
-  min-width: 36px;
+  min-width: 40px;
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  padding: 0.22rem 0.36rem;
+  padding: 0.24rem 0.4rem;
   margin-top: 0.05rem;
 }
 
@@ -1792,7 +1792,7 @@ a {
 }
 
 .proj-round-pos {
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   color: var(--text-secondary);
   line-height: 1.35;
 }
@@ -1803,7 +1803,7 @@ a {
 }
 
 .proj-or3rd {
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -1819,7 +1819,7 @@ a {
 }
 
 .proj-team {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: var(--text-primary);
   display: inline-flex;
   align-items: center;
@@ -1828,7 +1828,7 @@ a {
 }
 
 .proj-team-flag {
-  font-size: 0.98rem;
+  font-size: 1.08rem;
 }
 
 /* On desktop the lanes widen to the full 1200px, so the projection panel — whose
@@ -1836,7 +1836,7 @@ a {
    space. Scale it up here; mobile keeps the compact sizes above. */
 @media (min-width: 769px) {
   .road-proj-head {
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     margin-bottom: 1rem;
   }
 
@@ -1849,7 +1849,7 @@ a {
   }
 
   .proj-branch-title {
-    font-size: 1.05rem;
+    font-size: 1.12rem;
     margin-bottom: 0.9rem;
   }
 
@@ -1862,9 +1862,9 @@ a {
   }
 
   .proj-round-stage {
-    min-width: 44px;
-    font-size: 0.78rem;
-    padding: 0.28rem 0.42rem;
+    min-width: 48px;
+    font-size: 0.84rem;
+    padding: 0.3rem 0.46rem;
   }
 
   .proj-round-body {
@@ -1872,11 +1872,11 @@ a {
   }
 
   .proj-round-pos {
-    font-size: 0.95rem;
+    font-size: 1.02rem;
   }
 
   .proj-or3rd {
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     padding: 0.1rem 0.5rem;
   }
 
@@ -1885,11 +1885,11 @@ a {
   }
 
   .proj-team {
-    font-size: 0.94rem;
+    font-size: 1.02rem;
   }
 
   .proj-team-flag {
-    font-size: 1.12rem;
+    font-size: 1.2rem;
   }
 }
 
