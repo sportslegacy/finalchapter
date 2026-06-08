@@ -37,22 +37,42 @@ if ! command -v node >/dev/null 2>&1; then
   exit 127
 fi
 
+# Run the digest into TEMP files first; only promote to the dated files +
+# "latest" pointers once we've confirmed the run actually produced output.
+# A transient Reddit-RSS/API hiccup used to leave a 0-byte digest behind and
+# silently strand latest.html on the previous day (seen 2026-06-07).
+#
 # stdout → digest file; node's stderr (ESM reparse notice + any real error)
 # → a dedicated log so failures are diagnosable but the digest stays clean.
-node scripts/distribution/discover.mjs --draft --days=7 --html="$HTML" >"$OUT" 2>"$OUT_DIR/node.err.log"
-rc=$?
+run_digest() {
+  node scripts/distribution/discover.mjs --draft --days=7 --html="$HTML.tmp" \
+    >"$OUT.tmp" 2>"$OUT_DIR/node.err.log"
+  local rc=$?
+  # Success = clean exit AND non-empty text AND non-empty HTML. `-s` is
+  # false for missing or zero-byte files, which is exactly the failure mode.
+  [[ $rc -eq 0 && -s "$OUT.tmp" && -s "$HTML.tmp" ]]
+}
 
-# Keep stable "latest" pointers for quick opening (text + the styled HTML view).
-cp -f "$OUT" "$OUT_DIR/latest.txt" 2>/dev/null
-cp -f "$HTML" "$OUT_DIR/latest.html" 2>/dev/null
-
-# Count drafts produced so the notification is informative.
-drafts=$(grep -c "draft reply" "$OUT" 2>/dev/null || echo 0)
+# Try once, then retry a single time after a short pause for transient flakiness.
+rc=1
+for attempt in 1 2; do
+  if run_digest; then rc=0; break; fi
+  [[ $attempt -eq 1 ]] && sleep 20
+done
 
 if [[ $rc -eq 0 ]]; then
+  # Promote temp → dated files, then refresh the stable "latest" pointers.
+  mv -f "$OUT.tmp" "$OUT"
+  mv -f "$HTML.tmp" "$HTML"
+  cp -f "$OUT" "$OUT_DIR/latest.txt" 2>/dev/null
+  cp -f "$HTML" "$OUT_DIR/latest.html" 2>/dev/null
+  drafts=$(grep -c "draft reply" "$OUT" 2>/dev/null || echo 0)
   msg="$drafts draft(s) ready · $(basename "$OUT")"
 else
-  msg="run failed (exit $rc) — see $OUT"
+  # Failed run: discard the empty/partial temp files and LEAVE the existing
+  # latest.* pointers untouched so yesterday's digest stays openable.
+  rm -f "$OUT.tmp" "$HTML.tmp" 2>/dev/null
+  msg="run failed (empty output after retry) — see node.err.log"
 fi
 
 # macOS notification (clicking it does nothing actionable, but it pings you).
