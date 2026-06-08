@@ -59,7 +59,7 @@ app/
   status/page.js                  # "Who's Still Standing" hub — live status of all 5 legends, sorted alive-first/deepest-stage; SportsEvent + FAQPage JSON-LD
   status/opengraph-image.js       # 1200×630 OG card: "{aliveCount} of 5 legends still in it" + 5 legend rows w/ stage label
   status/twitter-image.js         # re-exports status/opengraph-image
-  road-to-the-final/page.js       # "Road to the Final" — each legend's knockout path drawn as a single straight left-to-right lane (5 lanes), so one nation's route is readable (a symmetric bracket tree isn't). Lit nodes derive from wc2026.status; opponent/score labels from optional wc2026.knockout[]. SportsEvent JSON-LD. Sorted alive-first/deepest (mirrors /status)
+  road-to-the-final/page.js       # "Road to the Final" — each legend's knockout path drawn as a single straight left-to-right lane (5 lanes), so one nation's route is readable (a symmetric bracket tree isn't). Lit nodes derive from wc2026.status; opponent/score labels from optional wc2026.knockout[]. SportsEvent + FAQPage JSON-LD (roadFaqs: knockout-journey-specific Q&As, scoped to NOT cannibalize the format page). Sorted alive-first/deepest (mirrors /status)
   player/[id]/page.js             # per-player detail page (SSG'd for all 5 ids) + JSON-LD Person schema; opens with the live status strip
   player/[id]/opengraph-image.js  # PER-PLAYER 1200×630 OG card with photo + name + first milestone hook
   components/
@@ -495,6 +495,9 @@ In rough priority if traffic justifies more work:
 ## Session handoff — current state (last updated 2026-06-07)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-07 session (cont.) — FAQ on /road-to-the-final:**
+- Added a **knockout-journey FAQ** (4 Q&As in `roadFaqs`) + FAQPage JSON-LD to `/road-to-the-final`, matching the FAQ surface player/status/format pages already have (`/status` already had FAQPage — no change there). Deliberately scoped to PATH-specific intent (games-to-win=8, final date/venue, legend QF collisions Messi↔Ronaldo & Modrić↔Neymar verified from `projectedPaths`, how projections work) so it does NOT cannibalize `/world-cup-2026-format`, which owns the generic format/knockout FAQ. Reuses the `.faq-*` CSS. Visible section is the real value — Google deprecated FAQ rich results for non-gov/health sites in 2023, so the JSON-LD is for site-pattern consistency + indexable text, not a rich snippet.
 
 **2026-06-07 session — responsive sizing + short-URL redirects:**
 - **Enlarged `/status` cards + `/road-to-the-final` projection panels** on both desktop and phone (the "looks small" feedback). Two-layer fix: widened `.status-grid` to `var(--max-width)` + a `@media (min-width:769px)` scale-up block, AND raised the base mobile sizes. The `.road-track` 7-node lane stays untouched (375px fit constraint, zero slack). See "Responsive sizing" gotcha. Commits `394fc1b`, `701951e`, `8ed0a7e`, `fad9ef5`.

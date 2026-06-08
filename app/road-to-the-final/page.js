@@ -34,6 +34,29 @@ export const metadata = {
   },
 };
 
+// Path-specific FAQ — deliberately scoped to the KNOCKOUT JOURNEY (games to win,
+// final date, legend collisions, how projections work) so it doesn't cannibalise
+// the generic format/knockout FAQ that /world-cup-2026-format owns. Both the
+// visible section and the FAQPage JSON-LD read from this one array.
+const roadFaqs = [
+  {
+    q: "How many matches must a team win to be crowned 2026 World Cup champions?",
+    a: "The champions will play eight matches in all — three in the group stage, then five straight knockout wins: Round of 32, Round of 16, quarter-final, semi-final and the final on July 19. That's one more game than at any previous World Cup, a result of the expansion to 48 teams and the new Round of 32.",
+  },
+  {
+    q: "When and where is the 2026 World Cup final?",
+    a: "The final is on Sunday, July 19, 2026 at MetLife Stadium in the New York / New Jersey area. Every legend's lane above ends at that same point — the gold trophy node only lights up for whoever's nation gets there.",
+  },
+  {
+    q: "Could two of these legends meet in the knockout rounds?",
+    a: "Yes. The bracket is fixed in advance, and on current seeding two collisions stand out: if both win their groups, Argentina's Lionel Messi and Portugal's Cristiano Ronaldo are projected to meet in the quarter-finals, as are Croatia's Luka Modrić and Brazil's Neymar. These are projections from the draw — the actual opponents lock in once the group stage finishes on June 27.",
+  },
+  {
+    q: "How are the projected opponents worked out before the draw is final?",
+    a: "The knockout bracket is set in advance — the winner of a given group always feeds into the same Round of 32 slot — so each lane's \"who they could face\" panel is built directly from that fixed bracket and the group draw. Only the specific team names are unknown until the groups finish; the shape of the path itself is already decided.",
+  },
+];
+
 // Sort: still-alive legends first, deepest stage on top; eliminated drop to the
 // bottom (also ordered by how far they got). Mirrors /status.
 function rank(p) {
@@ -113,6 +136,17 @@ function ProjBranch({ title, rounds }) {
   );
 }
 
+// FAQPage schema mirrors the on-page Q&A (shared source: roadFaqs).
+const faqJsonLd = (faqs) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+});
+
 const eventJsonLd = {
   "@context": "https://schema.org",
   "@type": "SportsEvent",
@@ -159,6 +193,7 @@ export default function RoadToFinalPage() {
   return (
     <>
       <JsonLd data={eventJsonLd} />
+      <JsonLd data={faqJsonLd(roadFaqs)} />
       <JsonLdDedupe />
       <Nav />
 
@@ -298,6 +333,22 @@ export default function RoadToFinalPage() {
             See all 12 groups &rarr;
           </Link>
         </p>
+      </section>
+
+      {/* FAQ — knockout-journey specific (see roadFaqs note) */}
+      <section className="faq-section" id="faq">
+        <div className="section-header">
+          <div className="section-label">Common Questions</div>
+          <h2 className="section-title">The Road to the Final, Explained</h2>
+        </div>
+        <div className="faq-list">
+          {roadFaqs.map((f, i) => (
+            <div key={i} className="faq-item">
+              <h3 className="faq-q">{f.q}</h3>
+              <p className="faq-a">{f.a}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Footer */}
