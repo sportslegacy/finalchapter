@@ -32,22 +32,25 @@ const UA = "FinalChapterBot/1.0 (distribution discovery; contact tbcql1986@gmail
 // `query` is the Reddit search term; `match` is the regex used to decide whether
 // a thread's TITLE is really about this player (title hits rank far above
 // body-only mentions, which are usually lineup lists / unrelated noise).
+// NOTE: r/soccer is gone from every list — the posting account was PERMABANNED
+// there 2026-06-10 (self-promo pattern). BANNED_SUB below also filters it out
+// of the global-search results, so it can never surface as a reply target.
 const PLAYERS = [
   { id: "messi",    name: "Lionel Messi",      site: "/player/messi",
     query: "Messi",              match: /\bmessi\b/i,
-    subs: ["soccer", "worldcup", "Barca", "argentina", "InterMiamiCF"] },
+    subs: ["worldcup", "Barca", "argentina", "InterMiamiCF"] },
   { id: "ronaldo",  name: "Cristiano Ronaldo", site: "/player/ronaldo",
     query: '"Cristiano Ronaldo"', match: /\bronaldo\b/i,
-    subs: ["soccer", "worldcup", "realmadrid", "portugal"] },
+    subs: ["worldcup", "realmadrid", "portugal"] },
   { id: "modric",   name: "Luka Modric",       site: "/player/modric",
     query: "Modric",             match: /modri[cć]/i,
-    subs: ["soccer", "worldcup", "realmadrid", "ACMilan", "croatia"] },
+    subs: ["worldcup", "realmadrid", "ACMilan", "croatia"] },
   { id: "neymar",   name: "Neymar",            site: "/player/neymar",
     query: "Neymar",             match: /\bneymar\b/i,
-    subs: ["soccer", "worldcup", "Barca", "PSG", "brasil"] },
+    subs: ["worldcup", "Barca", "PSG", "brasil", "Canarinho"] },
   { id: "debruyne", name: "Kevin De Bruyne",   site: "/player/debruyne",
     query: '"De Bruyne"',        match: /\bde bruyne\b/i,
-    subs: ["soccer", "worldcup", "MCFC", "Napoli", "belgium"] },
+    subs: ["worldcup", "MCFC", "Napoli", "belgium"] },
 ];
 
 // Titles matching this are low-value reply targets (live/auto-generated threads
@@ -64,6 +67,20 @@ const JUNK_SUB = /(auto|newspaper|^u_|_news$|memes?$|bot$|trials$|goalupon|getno
 // r/SoccerJerseys reply pulled 450 views but -2 karma). Penalize hard so the
 // digest stops queuing them as reply targets.
 const COMMERCE_SUB = /(jerseys?$|kits?$|merch|forsale|swap|deals?$|shopping|sneakers|fashionreps|reps?$)/i;
+
+// Subs where the posting account is BANNED — filtered out entirely, never
+// surfaced as reply targets. r/soccer: permanent ban 2026-06-10 (mods read the
+// finalchapterfc.com link history as a self-promo pattern). Do NOT work around
+// this with another account: Reddit admins treat ban evasion as grounds for a
+// PLATFORM-WIDE ban, which would kill every old still-converting comment.
+const BANNED_SUB = /^(soccer)$/i;
+
+// Big general-football subs with strict self-promo moderation: still worth
+// participating in, but with NO link (account-warming / visibility only).
+// The r/soccer permaban + an earlier r/worldcup "[Removed by moderator]"
+// taught this. Drafts for these subs are generated link-free and the digest +
+// editor's brief label them "NO-LINK".
+const NO_LINK_SUB = /^(worldcup|football|futbol)$/i;
 
 // APPROXIMATE subscriber counts per subreddit — a reach TIEBREAKER for the
 // editor's brief only (NOT used in scoring). Reddit RSS gives us no engagement
@@ -301,6 +318,7 @@ async function gatherReddit() {
         if (seen.has(e.link)) continue;
         seen.add(e.link);
         if (Number.isNaN(e.ts) || Date.now() - e.ts > WINDOW_MS) continue;
+        if (BANNED_SUB.test(e.subreddit)) continue; // account banned there — can't reply
         const s = scoreReddit(e, p);
         hits.push({
           player: p.id,
@@ -308,6 +326,7 @@ async function gatherReddit() {
           ageH: s.ageH,
           titleHit: s.titleHit,
           subreddit: e.subreddit,
+          noLink: NO_LINK_SUB.test(e.subreddit),
           title: e.title,
           url: e.link,
           site: p.site,
@@ -460,17 +479,26 @@ async function callClaude({ apiKey, system, userMsg, attempts = 4, backoff = 150
 }
 
 async function draftReply({ player, thread, apiKey }) {
-  const facts = playerFacts(player);
+  // NO-LINK subs (strict self-promo moderation): the draft must carry no URL
+  // at all — strip the URL line from the facts and override drafting rule 4.
+  let facts = playerFacts(player);
+  if (thread.noLink) {
+    facts = facts.replace(/^The ONLY URL to use.*$/m,
+      `NO URL for this reply — r/${thread.subreddit} is a no-link sub for us.`);
+  }
   const top = thread.topComments?.[0];
   const commentBlock = top
     ? `\nTOP COMMENT to reply under (engage THIS person's point):
 u/${top.author}: "${top.body.slice(0, 500)}"\n`
     : "";
+  const noLinkBlock = thread.noLink
+    ? `\nOVERRIDE for this thread: r/${thread.subreddit} moderates self-promotion hard (we are already permabanned from r/soccer over link history). The reply must contain NO URL anywhere — rule 4 does not apply. End on the sharp fact or a natural conversational question instead.\n`
+    : "";
   const userMsg = `THREAD to reply inside:
 Subreddit: r/${thread.subreddit}
 Title: ${thread.title}
 URL: ${thread.url}
-${commentBlock}
+${commentBlock}${noLinkBlock}
 FACTS you may use (and nothing beyond these):
 ${facts}
 
@@ -518,7 +546,7 @@ Output GitHub-flavoured markdown, in this order:
 - "## Skip today" — one or two lines naming players or thread types not worth it today, and why.
 - If and only if a news item is time-sensitive enough to act on immediately, add a final "## Breaking" line.
 
-Rules: Reference ONLY threads/news/commenters that appear in the digest below — never invent a thread, stat, quote, or username. Be decisive and specific; no generic marketing advice. A 4h-old thread with an active debate beats a 60h-old one; body-only mentions are weak targets. Each thread shows its subreddit's APPROXIMATE subscriber count (e.g. "r/soccer (~6.5M subs)" vs "r/messi (~55K subs)") — use it as a reach TIEBREAKER: a reply on a huge sub is seen by far more people, so NEVER call a small/niche sub "high-visibility". But reach is only a tiebreaker, not the deciding factor — a fresh thread with a live high-upvote comment to reply under (even on a small sub) usually beats a bigger sub's thread that has no comment surfaced or is stale. When you pick a smaller-sub thread over a bigger-sub one, say why in one clause (e.g. "over the bigger r/soccer post, which has no comment to reply under"). Keep the whole brief under ~200 words.`;
+Rules: Reference ONLY threads/news/commenters that appear in the digest below — never invent a thread, stat, quote, or username. Be decisive and specific; no generic marketing advice. Threads tagged [NO-LINK sub] sit in big strict-moderation subs where our reply must carry NO URL (the account is already permabanned from r/soccer over link history) — they are still worth picking for visibility and account-warming, but when you pick one, say "no link in this reply" in the angle. A 4h-old thread with an active debate beats a 60h-old one; body-only mentions are weak targets. Each thread shows its subreddit's APPROXIMATE subscriber count (e.g. "r/soccer (~6.5M subs)" vs "r/messi (~55K subs)") — use it as a reach TIEBREAKER: a reply on a huge sub is seen by far more people, so NEVER call a small/niche sub "high-visibility". But reach is only a tiebreaker, not the deciding factor — a fresh thread with a live high-upvote comment to reply under (even on a small sub) usually beats a bigger sub's thread that has no comment surfaced or is stale. When you pick a smaller-sub thread over a bigger-sub one, say why in one clause (e.g. "over the bigger r/soccer post, which has no comment to reply under"). Keep the whole brief under ~200 words.`;
 
 function digestForBrief({ reddit, news }) {
   let s = "";
@@ -531,7 +559,7 @@ function digestForBrief({ reddit, news }) {
         continue;
       }
       for (const h of p.hits.slice(0, SHOW_TOP_N)) {
-        s += `  - [score ${h.score}, ${h.ageH}h old, r/${h.subreddit} (${formatReach(h.subreddit)})${h.titleHit ? "" : ", body-only"}] ${h.title}\n`;
+        s += `  - [score ${h.score}, ${h.ageH}h old, r/${h.subreddit} (${formatReach(h.subreddit)})${h.titleHit ? "" : ", body-only"}]${h.noLink ? " [NO-LINK sub]" : ""} ${h.title}\n`;
         // Only topComments[0] is a valid reply target — it's the comment the
         // per-player section prints AND the one the paste-ready draft is written
         // against. The remaining comments are shown to the brief purely as
@@ -631,7 +659,7 @@ function printDigest({ reddit, news, brief, xplays }) {
         continue;
       }
       for (const h of p.hits.slice(0, SHOW_TOP_N)) {
-        console.log(`  [${String(h.score).padStart(3)}] r/${h.subreddit} · ${h.ageH}h ago${h.titleHit ? "" : " · (body mention)"}`);
+        console.log(`  [${String(h.score).padStart(3)}] r/${h.subreddit} · ${h.ageH}h ago${h.titleHit ? "" : " · (body mention)"}${h.noLink ? " · ⚠ NO-LINK sub (draft has no URL)" : ""}`);
         console.log(`        ${h.title}`);
         console.log(`        ${h.url}`);
         const tc = h.topComments?.[0];
@@ -739,6 +767,7 @@ function renderHtml({ reddit, news, brief, xplays, colors }) {
             <span class="sub">r/${esc(h.subreddit)}</span>
             <span class="age">${h.ageH}h ago</span>
             ${h.titleHit ? "" : `<span class="bodyonly">body mention</span>`}
+            ${h.noLink ? `<span class="nolink">no-link sub — draft has no URL</span>` : ""}
           </div>
           <a class="title" href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a>`;
         const tc = h.topComments?.[0];
@@ -819,6 +848,7 @@ function renderHtml({ reddit, news, brief, xplays, colors }) {
   .score.hot{background:#7ed492}.score.warm{background:var(--gold)}.score.cool{background:#6b6b80}
   .sub{color:var(--blue)}
   .bodyonly{color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 5px;font-size:11px}
+  .nolink{color:#e0a36b;border:1px solid #5a4533;border-radius:4px;padding:0 5px;font-size:11px}
   a.title{display:block;color:var(--txt);text-decoration:none;font-weight:600;margin-bottom:8px}
   a.title:hover{color:var(--gold)}
   .replyunder{display:block;font-size:12.5px;color:var(--txt2);text-decoration:none;

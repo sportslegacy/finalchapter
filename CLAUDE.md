@@ -492,9 +492,16 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-07)
+## Session handoff — current state (last updated 2026-06-10, T-1 to the opener)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-08 → 06-10 session — Neymar surge, r/soccer permaban, digest hardening:**
+- **Neymar surge traced (06-08):** 208 visitors (+890%), 199 straight to `/player/neymar`, from the r/Justfuckmyshitup "haircut" comment (2,538 views, ~8% CTR). Week-4 learning logged: banter subs CAN convert with a curiosity hook + clickable `https://` deep-link. Same day, **Neymar declared 2026 his last World Cup** — strongest news peg the project has had.
+- **r/soccer PERMABANNED the posting account (06-10)** after the Messi TIME100 linked reply. See the "r/soccer PERMABAN" playbook section: no evasion ever, megasubs are no-link territory, ~2–3 linked comments/week max, watch for domain shadow-filtering. `discover.mjs` now has `BANNED_SUB` (r/soccer filtered entirely) + `NO_LINK_SUB` (r/worldcup etc. → link-free drafts, labelled in digest/brief); r/Canarinho added to Neymar's curated subs.
+- **Email capture: deliberately deferred** (traffic too cold/bouncy to convert; the status-update loop is the retention engine). Trigger to revisit: engaged multi-page traffic sustaining during opener week.
+- **30-day analytics (06-09): 569 visitors / 1,281 views.** Baseline floor trending up (~20→50/day pre-spike). neymar 342 > ronaldo 98 > modric 69 > messi 55 > debruyne 38.
+- **NEXT: the tournament starts June 11.** The whole returning-visitor loop = flip `wc2026.status` + add match `result`s after every legend's game (~5 min/game). User committed to this cadence.
 
 **2026-06-07 session (cont.) — FAQ on /road-to-the-final:**
 - Added a **knockout-journey FAQ** (4 Q&As in `roadFaqs`) + FAQPage JSON-LD to `/road-to-the-final`, matching the FAQ surface player/status/format pages already have (`/status` already had FAQPage — no change there). Deliberately scoped to PATH-specific intent (games-to-win=8, final date/venue, legend QF collisions Messi↔Ronaldo & Modrić↔Neymar verified from `projectedPaths`, how projections work) so it does NOT cannibalize `/world-cup-2026-format`, which owns the generic format/knockout FAQ. Reuses the `.faq-*` CSS. Visible section is the real value — Google deprecated FAQ rich results for non-gov/health sites in 2023, so the JSON-LD is for site-pattern consistency + indexable text, not a rich snippet.
@@ -563,7 +570,7 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 
 **Reddit:**
 - **r/WorldCup (~350K subs) is the best target** — exact topical match for a "Final Chapter" site
-- **r/soccer (~1.2M)** is bigger but stricter; save it for after r/WorldCup has worked
+- ~~**r/soccer (~1.2M)** is bigger but stricter~~ — **ACCOUNT PERMABANNED 2026-06-10, off-limits forever.** See "r/soccer permaban" section below; never touch it from any account (evasion = platform-wide ban risk)
 - Country/club-specific subs are smaller (5–50K) but engagement is high: `r/realmadrid` covers both Modrić and Ronaldo's histories, `r/Barca` covers Messi
 - **Warm up before posting:** comment 2–3× in an active thread (no link) before dropping a linked post. Drive-by self-promo gets removed even when the content is good.
 - **Reply, don't post, when you find a thread that's already debating your topic.** Example: a 7-day-old r/worldcup thread debating "Portugal stacked but held back by 41-year-old Ronaldo" — reply with the "not tactical, terminal" reframe + a clickable per-player URL. The clickable link does the converting (see "Reddit comment links" gotcha below — there is NO card preview in comments).
@@ -582,6 +589,7 @@ Site went live May 24, 2026 — ~3 weeks before the tournament opener. Current a
 - **Facebook:** declining organic reach, older demographic, not where football discussion lives
 - **Instagram feed posts:** zero off-platform click conversion — IG actively suppresses outbound links
 - **Shopping / merch / jersey subs (r/SoccerJerseys, r/FashionReps, kit/swap/deals subs):** people there want a BUY link, not editorial analysis — an on-brand reply gets **downvoted**. Learned 2026-06-02: an r/SoccerJerseys Neymar-kit reply pulled 450 views but **−2 karma**. `discover.mjs` now hard-penalizes these via the `COMMERCE_SUB` regex (score × 0.05) so the digest stops queuing them.
+- **r/soccer: PERMANENTLY BANNED (2026-06-10).** The posting account was permabanned for self-promo after the Messi TIME100 linked reply. `discover.mjs` hard-filters it (`BANNED_SUB` — never surfaces) and it's removed from every player's sub list. **NEVER post/comment there from any account** — see the permaban section below.
 
 ### Timing for the tournament window
 
@@ -643,6 +651,18 @@ Full comment-history view-count audit (39 comments, the posting account's Commen
 **Refined rule (supersedes the blanket "avoid jfmsu"):** circlejerk/jfmsu/banter subs CAN convert — but ONLY when the comment (a) ends on a genuine curiosity hook about the player's actual 2026 stakes, and (b) carries a full clickable `https://` deep-link. The structure that works is **banter hook → "but his real 2026 story is…" → deep-link**. Replicate the *formula*, not the sub: the same structure on an on-target national-team sub (r/Canarinho) should convert even harder because it stacks a warm audience on top of it. Link-less banter is still pure account-warming (karma only) — that part of the week-3 rule holds.
 
 **Timing context:** Neymar publicly declared on 2026-06-08 that the 2026 World Cup will be **his last** (international-farewell / "Last Dance" in response to a FIFA post), as Brazil celebrated his squad inclusion ahead of the June 13 opener vs Morocco. The whole site IS "The Final Chapter," so this is the single strongest news peg the project has had — ride farewell/"last dance" threads on r/Canarinho while the news is live.
+
+### r/soccer PERMABAN (2026-06-10) — the link-frequency ceiling is real
+
+One day before the opener, **r/soccer permanently banned the posting account** ("your comment violates this community's rules" — the Messi TIME100 reply with the site link, from that morning's digest). A mod clicking the profile sees a comment history dense with `finalchapterfc.com` links → reads as a promo pattern → permaban on pattern, not on the single comment. We had a warning sign the week before: a r/worldcup comment was `[Removed by moderator]`. Rules now in force:
+
+1. **NO evasion, ever.** The modmail carried the Reddit-admin warning: using another account in r/soccer = platform-wide ban risk. The account — and its old, still-converting comments — is worth more than any sub. If the account dies, ~80% of distribution dies with it.
+2. **Megasubs are NO-LINK territory.** r/soccer is gone; r/worldcup was already removing linked comments. Policy: in big general-football subs, participate with **no URL at all** (visibility + account-warming only). The link belongs exclusively in small on-target subs where the account is a known regular (r/Canarinho, r/croatia, r/ACMilan) — which is also where conversion was always best.
+3. **Ratio discipline (Reddit's ~9:1 guideline).** Most contributions must be genuine no-link comments; **~2–3 linked comments per WEEK, not per day.** It's the *history reading as a promo feed* that converts one mod click into a permaban.
+4. **Watch for domain shadow-filtering — the real existential risk.** Periodically open a recent linked comment in a logged-out/incognito browser. If it's invisible logged-out while visible logged-in, Reddit's spam layer has learned the domain and every linked comment everywhere is silently dead → stop linking entirely and reassess.
+5. **Appeal:** optional, one polite modmail max, never argue. Rated <20% given the history.
+
+**`discover.mjs` changes (same date):** `BANNED_SUB` regex — r/soccer is filtered out entirely (can't reply there, so it never surfaces) and removed from every player's curated sub list; `NO_LINK_SUB` regex (r/worldcup, r/football, r/futbol) — drafts for these subs are generated **without a URL** (rule-4 override in the draft prompt) and labelled "⚠ NO-LINK sub" in the text digest, HTML, and editor's brief. Also added r/Canarinho to Neymar's curated subs (best converter; was only reachable via global search before).
 
 Distribution remains brutally bimodal: a handful of comments break 500+, the long tail sits at 1–5 views — driven by *thread position*, not text quality. Every 1–2-view comment here (KDB "done filtering," Stellini "napoli politics," Lugano reframe) was top-level or on a busy thread → reconfirms the #1 lever: **sub-reply under a high-upvote comment, never top-level on a big thread.** Also: r/SoccerJerseys −2 again (commerce-sub penalty holding as modeled in discover.mjs); a r/worldcup comment was `[Removed by moderator]` (145 views, check removal reason — r/worldcup filter may be tightening).
 
