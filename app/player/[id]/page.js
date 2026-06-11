@@ -298,12 +298,16 @@ export default async function PlayerPage({ params }) {
           <h2 className="section-title">Group Stage Schedule</h2>
         </div>
 
-        {player.wc2026.matches[0] && (
-          <MatchCountdown
-            match={player.wc2026.matches[0]}
-            country={player.country}
-          />
-        )}
+        {/* Count down to the next UNPLAYED match (first one without a result).
+            Adding a result to a played match advances this automatically —
+            same single edit that drives the status strip. Hidden once all
+            group games have results (knockout games aren't in matches[]). */}
+        {(() => {
+          const nextMatch = player.wc2026.matches.find((m) => !m.result);
+          return nextMatch ? (
+            <MatchCountdown match={nextMatch} country={player.country} />
+          ) : null;
+        })()}
 
         <div className="group-header">
           <div className="group-badge">Group {player.wc2026.group}</div>
