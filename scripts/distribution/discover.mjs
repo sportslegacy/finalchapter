@@ -311,7 +311,14 @@ async function gatherReddit() {
       try {
         entries = await redditRssSearch({ sub, query: p.query });
       } catch (e) {
-        if (e instanceof RateLimitError) throttled = true;
+        if (e instanceof RateLimitError) {
+          throttled = true;
+          // Give the limiter time to reset instead of plowing through the
+          // remaining feeds while they're all doomed to 429. Seen on opener
+          // day (2026-06-11): every feed throttled two runs in a row, while a
+          // single polite request succeeded between the runs.
+          await sleep(15_000);
+        }
         /* ignore a single failed feed; keep whatever other feeds returned */
       }
       for (const e of entries) {
@@ -332,7 +339,7 @@ async function gatherReddit() {
           site: p.site,
         });
       }
-      await sleep(1100); // be polite to Reddit's public feeds (it throttles fast)
+      await sleep(2200); // be polite to Reddit's public feeds (it throttles fast; was 1100 — tightened limits seen on opener day)
     }
     hits.sort((a, b) => b.score - a.score);
     // Collapse the same headline reposted across subs — keep the top-scored.
