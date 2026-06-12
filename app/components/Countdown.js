@@ -1,18 +1,52 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { tournament } from "../../data/players";
+import Link from "next/link";
+import { players } from "../../data/players";
 
-const KICKOFF = new Date(tournament.openingMatch.kickoffUtc);
+// Pre-tournament this bar counted down to the opening match. Now that the
+// tournament is live it counts down to the NEXT LEGEND MATCH: the earliest
+// unplayed group game (no `result`) across all five players. Result-driven,
+// not clock-driven — the same post-match result edit that updates the
+// schedule cards advances this bar on the next deploy, and build HTML always
+// matches the client's first hydration pass (no React #418).
+//
+// Three states:
+//   1. upcoming  -> ticking countdown to the next legend kickoff
+//   2. kicked off (client clock passes target before the result is pushed)
+//      -> "underway" line linking /status   [mounted-gate: post-hydration only]
+//   3. all group games have results (knockouts) -> road-to-the-final line
+function nextLegendMatch() {
+  let best = null;
+  for (const p of players) {
+    const m = p.wc2026.matches.find((x) => !x.result && x.kickoffUtc);
+    if (m && (!best || new Date(m.kickoffUtc) < new Date(best.m.kickoffUtc))) {
+      best = { p, m };
+    }
+  }
+  return best;
+}
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+// Format "2026-06-13" without Date() so no timezone can shift the day.
+function fmtDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
 
 export default function Countdown() {
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
+  const next = nextLegendMatch();
+  const target = next ? new Date(next.m.kickoffUtc) : null;
 
   function getTimeLeft() {
-    const now = new Date();
-    const diff = KICKOFF - now;
-    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    if (!target) return { ended: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    const diff = target - new Date();
+    if (diff <= 0) return { ended: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
     return {
+      ended: false,
       days: Math.floor(diff / (1000 * 60 * 60 * 24)),
       hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
       minutes: Math.floor((diff / (1000 * 60)) % 60),
@@ -20,19 +54,59 @@ export default function Countdown() {
     };
   }
 
+  const [timeLeft, setTimeLeft] = useState(() => getTimeLeft());
+  // The structural swap to the "underway" view must only happen after mount —
+  // the first client render has to match the build-time HTML structure.
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // All group games played — knockout rounds in progress.
+  if (!next) {
+    return (
+      <div className="countdown-bar">
+        <div className="countdown-inner">
+          <span className="countdown-label">The knockout rounds are underway</span>
+          <span className="countdown-meta">
+            <Link href="/road-to-the-final">Follow the road to the final →</Link>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const matchup = `${next.p.country} vs ${next.m.opponent}`;
+
+  // Kickoff has passed but the result isn't in the data yet — match underway.
+  if (mounted && timeLeft.ended) {
+    return (
+      <div className="countdown-bar">
+        <div className="countdown-inner">
+          <span className="countdown-label">
+            {next.p.countryFlag} {matchup} · kicked off
+          </span>
+          <span className="countdown-meta">
+            <Link href="/status">See who&apos;s still standing →</Link>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const { ended, ...units } = timeLeft;
 
   return (
     <div className="countdown-bar">
       <div className="countdown-inner">
         <span className="countdown-label">
-          Until opening match · {tournament.openingMatch.teams}
+          Next legend in action · {next.p.countryFlag} {matchup}
         </span>
         <div className="countdown-units">
-          {Object.entries(timeLeft).map(([unit, value]) => (
+          {Object.entries(units).map(([unit, value]) => (
             <div key={unit} className="countdown-unit">
               <div className="countdown-value" suppressHydrationWarning>
                 {String(value).padStart(2, "0")}
@@ -42,7 +116,7 @@ export default function Countdown() {
           ))}
         </div>
         <span className="countdown-meta">
-          11 June 2026 · 13:00 Mexico City (15:00 ET)
+          {fmtDate(next.m.date)} · {next.m.time} · {next.m.venue}
         </span>
       </div>
     </div>
