@@ -557,7 +557,7 @@ export const players = [
     worldCupApps: 13,
     wc2026: {
       group: "C",
-      status: { stage: "group", alive: true, note: "Opener vs Morocco · Jun 13" },
+      status: { stage: "group", alive: true, note: "Brazil held 1-1 by Morocco — Neymar (calf) eyes a return vs Haiti, Jun 19" },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
       matches: [
         {
@@ -567,6 +567,7 @@ export const players = [
           kickoffUtc: "2026-06-13T22:00:00.000Z",
           venue: "MetLife Stadium",
           city: "New York / New Jersey",
+          result: { outcome: "D", score: "1-1", scorers: "Vinícius Júnior 32′ · Neymar out (calf)" },
         },
         {
           opponent: "Haiti",

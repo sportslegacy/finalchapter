@@ -1471,6 +1471,7 @@ a {
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-end;
+  flex-shrink: 0; /* keep the badge/score/FT cluster intact; let the teams column wrap instead */
 }
 
 .match-result-badge {
@@ -1493,6 +1494,7 @@ a {
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap; /* never break "1-1" across lines */
 }
 
 .match-result-ft {
