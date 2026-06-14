@@ -190,6 +190,18 @@ All three carry SportsEvent JSON-LD; format + homepage also carry FAQPage; homep
 
 During the tournament: flip `status.stage`/`alive` (and update `note`) as each legend advances or goes out; add a `result` to the played match in `wc2026.matches[]` (see schema). That's the whole "reason to come back" loop.
 
+### The match-result update loop (operational recipe — proven 2026-06-13)
+
+The P0 tournament workflow. The user pings after a legend's nation plays ("Brazil played" / a score); ~5 min per game. Steps that worked for the first one (Brazil 1-1 Morocco):
+
+1. **Get the result, verify against ≥2 sources.** Reddit is blocked for the fetcher, but ESPN/FIFA/news pages work. Note: ESPN's match page is cached ~15 min — a single fetch can show a stale minute ("86'") long after full time. Cross-check FIFA match-centre title + a match report; reason from elapsed time since kickoff (>~115 min ⇒ FT) when sources disagree. Sources can differ on a scorer's MINUTE (Saibari 17' vs 21') — doesn't matter, our card shows only the legend's nation scorer line, not opponent minutes.
+2. **Edit `data/players.js`:** add `result: { outcome, score, scorers }` to the played match (outcome from the LEGEND'S nation POV: W/D/L; score "own-opp"; scorers a short string). **If the legend didn't play** (e.g. Neymar out injured), still record the team result and put the actual scorer + an out-note in `scorers` (we used `"Vinícius Júnior 32′ · Neymar out (calf)"`). Update `status.note` to point at the next match / situation. Flip `status.stage`/`alive` only at group resolution or a knockout exit.
+3. **The cascade is automatic from those two edits** — no other files: schedule card shows the W/D/L badge + score + FT + scorers; player `MatchCountdown` advances to the next unplayed game; homepage hero bar advances to the next legend match; `/status` shows "Last: D 1-1 v Morocco" (`latestResultLabel`).
+4. **Verify before push:** stat-integrity check (Check 1 — should stay OK; a 2026 result does NOT change the `worldCupGoals/Apps` totals, which exclude the 2026 entry), `npm run build`, and a quick Claude-Preview DOM check of the played card + the three downstream surfaces. Then commit + push; confirm in prod with `curl … | grep <scorer>`.
+5. **CSS guard already in place:** `.match-result-score` is `white-space: nowrap` and `.match-result` is `flex-shrink: 0` (commit `7e7f348`) so a score never wraps to two lines in the narrow mobile column. Don't remove.
+
+**What this loop does for traffic (be honest about the mechanism):** the update is NOT an acquisition tool on its own — almost nobody is watching the site waiting for it. It pays off two ways: (a) **retention** — it's the only thing that makes "come back after the next match" real, converting one-time hits into repeat sessions over five weeks (watch pages/visit); (b) **distribution ammunition** — a fresh result is a news-pegged reason to post that day ("Brazil drew while Neymar watched — here's what's still at stake"), which is what actually earns the click. SEO freshness is real but NARROW: we won't outrank ESPN for "Brazil Morocco result", but the legend long-tail ("is Neymar playing the World Cup", "did Neymar play vs Morocco") is the question-cluster we already rank ~7 for, and Google rewards freshness there. The mistake is updating and NOT distributing the peg — the highest-traffic version is *legend plays → update site → post the fresh angle on their national sub*.
+
 ### Road to the Final (`/road-to-the-final`) — lit by status, captioned by knockout[]
 
 The five-lane knockout-path view (built 2026-06-06; the legends-lens alternative to a generic bracket — see backlog). Three rules so it stays accurate with near-zero maintenance:
@@ -300,9 +312,21 @@ Per the global CLAUDE.md rule: `next build` exits cleanly doesn't prove anything
 
 Or manually: `npm run dev` and open in iPhone-sized window. **Production deploys on push** — a broken UI lands instantly.
 
-### MatchCountdown handles TBD times
+### MatchCountdown targets the next UNPLAYED match (not matches[0]) + TBD handling
 
-`wc2026.matches[*].kickoffUtc` is `null` for matches whose kickoff time isn't published yet (Ronaldo's Group K, KDB's Group G). The component falls back to a date-only countdown ("23d 3h (kickoff TBD)") anchored at 04:00 UTC of that date. When FIFA publishes times, just fill the `kickoffUtc` ISO and the countdown switches to the precise form.
+Two behaviors, both load-bearing — don't revert:
+
+1. **Targets the first match WITHOUT a `result`,** not `matches[0]` (changed 2026-06-12, commit `ae6a33a`). `app/player/[id]/page.js` does `player.wc2026.matches.find((m) => !m.result)` and feeds that to `<MatchCountdown>`. So adding a `result` to a played game auto-advances the on-page countdown to the next fixture — the SAME single edit that drives the status strip. Hidden once all three group games have results (knockout games aren't in `matches[]`). Before this, the countdown was pinned to game 1 and would read "in progress or completed" for the rest of the tournament after the opener.
+2. **TBD kickoffs:** `kickoffUtc: null` → the component falls back to a date-only countdown ("23d 3h (kickoff TBD)") anchored at 04:00 UTC of that date. As of 2026-06-12 ALL 15 group fixtures have a verified `kickoffUtc` (no TBDs left); the fallback only matters again if a future knockout fixture is added before its time is published.
+
+### Homepage hero Countdown retargets to the next legend match (tournament-live)
+
+`app/components/Countdown.js` was rewritten 2026-06-13 (commit `61d16ab`). Pre-tournament it ticked to the opening match; once the opener passed it would have frozen at `00:00:00:00`. It now derives the **next legend match** = the earliest unplayed group game (no `result`) with a `kickoffUtc`, across all five players (`nextLegendMatch()`), and has three states:
+1. **upcoming** → ticking countdown to that kickoff (label "Next legend in action · 🇧🇷 Brazil vs Morocco", with date/time/venue).
+2. **kicked off** (client clock passes the target before the result is pushed) → "🇧🇷 Brazil vs Morocco · kicked off — See who's still standing →" linking `/status`. **Mounted-gated** (`mounted` state set in `useEffect`) so the build-time HTML matches the first client render — same #418-avoidance pattern as the rest; don't render the time-relative swap pre-mount.
+3. **all group games have results** → "The knockout rounds are underway → Road to the Final."
+
+Because it's result-driven, the same post-match `result` edit that updates the schedule card also advances this bar on the next deploy — no separate clock to maintain. The "kicked off" state was verified rendering live in prod during Brazil–Morocco. Don't revert it to the static opener countdown.
 
 ### `playwright` is for `scripts/test-nav.mjs`
 
@@ -325,7 +349,7 @@ All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC lice
 
 `data/players.js` is the only file to touch for content. Things that may drift:
 - `clubAtTournament` (Modrić → AC Milan, KDB → Napoli — already updated for 2025 transfers)
-- `wc2026.matches[*].time` / `kickoffUtc` — FIFA will lock in TBD times closer to tournament
+- `wc2026.matches[*].time` / `kickoffUtc` — all 15 group fixtures verified + filled as of 2026-06-12 (no TBDs). Add `kickoffUtc` for knockout fixtures as they're scheduled (June 28+)
 - `worldCups[*].apps/goals/assists` for the 2026 entry — currently `null`, fill post-tournament
 - `careerHonors` numbers (e.g. Ballons d'Or count) — verify on Wikipedia after any awards ceremony
 - `worldCupGoals`/`worldCupAssists`/`worldCupApps` top-level totals MUST equal the sum of the per-WC entries. See "Stat data integrity" below.
@@ -471,7 +495,7 @@ In rough priority if traffic justifies more work:
 - **`error.js` boundary** — pure static + no API means basically nothing to crash, but it's polite.
 - **A11y audit** — Lighthouse pass; spot-check contrast tweaks.
 - **PWA manifest beyond `apple-icon`** — service worker / offline play.
-- ✅ **Match-result updates during the tournament** — ENGINE BUILT 2026-06-05. Add a `result: { outcome, score, scorers }` to the played match in `wc2026.matches[]` (schema above) — it renders on the schedule card + `/status`. Also flip `wc2026.status` as legends advance/exit. This is the manual returning-visitor loop (~5 min/game); no active results in prod yet.
+- ✅ **Match-result updates during the tournament** — ENGINE BUILT 2026-06-05, **LIVE LOOP RUNNING since 2026-06-13** (first result: Brazil 1-1 Morocco on Neymar's opener card, commit `7e7f348`). Add a `result: { outcome, score, scorers }` to the played match in `wc2026.matches[]` (schema above) — it renders on the schedule card + `/status`, auto-advances the player MatchCountdown + homepage hero bar, and updates `status.note`. Also flip `wc2026.status` as legends advance/exit. This is the manual returning-visitor loop (~5 min/game). See "The match-result update loop" operational recipe below.
 - **Generic knockout bracket page** — STILL deliberately NOT built (decided 2026-06-01). A full 104-match symmetric bracket tree is the saturated, maintenance-trap space: "world cup 2026 bracket" demand is HIGH but owned by purpose-built **interactive predictor** tools (bracket2026.com, cup-predictor.com, worldcuppass.com, CNN, Covers) an editorial static site can't out-execute. **What we DID build instead (2026-06-06): `/road-to-the-final`** — the pre-approved legends-lens take, but framed as five single-line *path lanes* rather than a fillable bracket. It needs no speculative R32-slot table (lit nodes derive from `wc2026.status`; opponent/score labels come from the optional `wc2026.knockout[]` array filled in per round from June 28). See "Road to the Final" gotcha below. The generic predictor remains off the table; revisit a fuller knockout surface only if GSC shows `/road-to-the-final` or `/world-cup-2026-format` pulling steady bracket/knockout impressions.
 - ✅ **"Tournament ▾" nav dropdown** — BUILT 2026-06-06 (this is the "fold Format + Groups into a Tournament menu" refactor the old backlog note proposed). The inline "Tournament" item is now a split (label still scrolls to `/#tournament`; a chevron toggle opens a panel of the 4 secondary PAGES: Who's Still Standing, Road to the Final, How the 2026 Format Works, All 12 Groups). Mirrors the existing Legends split exactly — shares `.nav-legends-*` styling; the panel anchors LEFT (`.nav-tournament-panel { left: 0 }`) since Tournament sits on the left of the row, vs Legends' right anchor. The 4 pages also list in the hamburger drawer's Navigate section (both fed by the shared `TOURNAMENT_PAGES` array). See "Nav dropdowns" gotcha. This closed the desktop-discoverability gap: `/status`, `/road-to-the-final`, `/world-cup-2026-format`, `/world-cup-2026-groups` were previously reachable from the nav ONLY via the hamburger drawer, which is hidden ≥769px.
 
@@ -492,9 +516,18 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-10, T-1 to the opener)
+## Session handoff — current state (last updated 2026-06-13, tournament LIVE)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-11 → 06-13 session — tournament opens, schedule fixed, first result loop fires:**
+- **THE LIVE RESULT LOOP IS RUNNING.** First result pushed 2026-06-13: **Brazil 1-1 Morocco** (Saibari ~17–21', Vinícius Júnior 32') on Neymar's opener card — he sat out injured (calf), recorded as team-level `D 1-1` with scorers `"Vinícius Júnior 32′ · Neymar out (calf)"`, status note → Haiti return Jun 19 (commit `7e7f348`). See the new **"match-result update loop"** operational recipe. This is now the weekly P0; the user pings after each legend's game.
+- **Schedule audited + corrected vs FIFA/Wikipedia (commit `ae6a33a`).** Real errors fixed, not just TBDs: KDB/Belgium–Egypt is **Jun 15** (was 16) at Lumen Field Seattle, Iran Jun 21 (was 22), venues were all TBD; Messi–Austria Jun 22 (was 21), Jordan Jun 27 (was 25); Ronaldo's three kickoffs filled; Neymar–Haiti 8:30pm ET. **All 15 group fixtures now have a verified `kickoffUtc`** (zero TBDs). Corrected match week: Jun 13 Neymar · **15 KDB** · 16 Messi · 17 Ronaldo+Modrić.
+- **Homepage hero Countdown retargeted (commit `61d16ab`)** — was going to freeze at 00:00:00:00 once the opener kicked off; now counts down to the next legend match, shows a "kicked off · see who's still standing" state mid-match, falls back to a knockout line. Verified live in prod during Brazil–Morocco. See the new Countdown gotcha.
+- **MatchCountdown now targets the first UNPLAYED match** (not `matches[0]`) so it auto-advances when a result is added — see updated gotcha.
+- **discover.mjs adaptive backoff (commit `123cecb`)** — opener-day Reddit throttled every feed two runs straight (single requests still 200 → burst budget tightened); on a 429 the crawl now cools down 15s before the next feed + base inter-feed gap 1100→2200ms. The 06-12 run recovered (9 drafts). If a morning run still comes back all-throttled, next lever is cutting requests/run (drop global search or trim subs).
+- **Still in the post-ban no-link cool-down** (started 06-10, ~5–7 days). Digest drafts still print URLs — STRIP the link line before posting this week; link-free participation only, esp. r/Canarinho before/around Brazil games.
+- **NEXT match in the loop: Mon Jun 15, 3pm ET — Belgium vs Egypt (KDB plays).** Richer card than the Neymar-sat-out draw.
 
 **2026-06-08 → 06-10 session — Neymar surge, r/soccer permaban, digest hardening:**
 - **Neymar surge traced (06-08):** 208 visitors (+890%), 199 straight to `/player/neymar`, from the r/Justfuckmyshitup "haircut" comment (2,538 views, ~8% CTR). Week-4 learning logged: banter subs CAN convert with a curiosity hook + clickable `https://` deep-link. Same day, **Neymar declared 2026 his last World Cup** — strongest news peg the project has had.
