@@ -1,0 +1,139 @@
+name: Match-result auto-update
+
+# Server-side replacement for the Mac-dependent scheduled task: keeps the live
+# site's legend match results current without anyone's laptop being open.
+#
+# Flow each run:
+#   1. Detector (pending-results.mjs) lists legend matches that have kicked off
+#      but have no `result` yet. If none, the job exits cheaply — no Claude, no
+#      tokens. This is why the cron can run often.
+#   2. If something's pending, headless Claude Code runs the documented
+#      match-result recipe (CLAUDE.md → "The match-result update loop"):
+#      fetch + verify the score (>=2 sources), edit ONLY data/players.js, run
+#      the stat-integrity check + `npm run build`. It does NOT touch git.
+#   3. A deterministic step shows the proposed diff in the run summary, and —
+#      only when AUTO_PUSH is "true" — commits + pushes (which auto-deploys via
+#      Vercel). Starts in REPORT-ONLY mode (AUTO_PUSH: "false") so we watch one
+#      clean cycle before trusting an unattended push. Flip to "true" to go live.
+#
+# Requires repo secret ANTHROPIC_API_KEY (Settings -> Secrets -> Actions).
+
+on:
+  schedule:
+    - cron: "0 */2 * * *" # every 2h; the detector gates the costly Claude step
+  workflow_dispatch: {} # manual "Run workflow" button for dry-runs
+
+permissions:
+  contents: write # needed for the push step once AUTO_PUSH is enabled
+
+# Don't pile up overlapping runs.
+concurrency:
+  group: match-results
+  cancel-in-progress: false
+
+env:
+  AUTO_PUSH: "false" # <- flip to "true" after a clean dry-run to enable live push
+
+jobs:
+  fill-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22 # 22+ auto-detects ESM syntax in data/players.js
+
+      - name: Detect matches needing a result
+        id: detect
+        run: |
+          node scripts/distribution/pending-results.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+          COUNT=$(node scripts/distribution/pending-results.mjs --count 2>/dev/null)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Install deps
+        if: steps.detect.outputs.count != '0'
+        run: npm ci
+
+      - name: Fill results with Claude (judgment only — no git)
+        if: steps.detect.outputs.count != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: '--allowedTools "Bash,Read,Edit,Write,WebFetch,WebSearch" --max-turns 40'
+          prompt: |
+            You are the autonomous match-result updater for "The Final Chapter"
+            (a static Next.js fan site about five footballers' last World Cup).
+            Repo root is the current working directory. The full recipe and the
+            data schema are in CLAUDE.md under "The match-result update loop" and
+            "data/players.js schema per player" — READ THEM FIRST.
+
+            STEP 1. Run `node scripts/distribution/pending-results.mjs --json` to
+            get the list of legend matches that have kicked off but have no
+            `result` yet. For EACH pending match, do the following.
+
+            STEP 2. GET THE RESULT — verify against AT LEAST 2 agreeing sources
+            (ESPN, the FIFA match centre, a written match report) via WebSearch +
+            WebFetch. ESPN's match page is cached ~15 min and can show a stale
+            in-progress minute long after full time — cross-check FIFA + a report
+            and reason from elapsed time since kickoff (well past 90+stoppage =>
+            full time). Determine: final score, the LEGEND'S nation's goalscorers
+            with minutes, and specifically whether the legend (the `name` in the
+            pending entry) scored or assisted.
+
+            SAFETY GATE: if you cannot confidently confirm a match's FINAL score
+            from >=2 agreeing sources, DO NOT edit that match — skip it and note
+            why. A missing update is far better than a wrong one. (Disagreement on
+            an opponent's scorer minute is fine; our card never shows it.)
+
+            STEP 3. EDIT ONLY data/players.js. For each verified match, on that
+            player's wc2026.matches entry add:
+              result: { outcome: "W"|"D"|"L", score: "own-opp", scorers: "..." }
+            - outcome is from the LEGEND'S nation's POV (W/D/L).
+            - score is own-opp order, e.g. legend's team 2, opponent 0 => "2-0".
+            - scorers: short string, the LEGEND FIRST if he scored/assisted (use
+              the ′ prime char for minutes, e.g. "De Bruyne 23′, Lukaku 41′"). If
+              the legend did not play or didn't score/assist, list the team's
+              actual scorer(s); if relevant note the legend's absence like the
+              existing Neymar card ("… · Neymar out (calf)").
+            - ALSO update that player's wc2026.status.note to reflect the result
+              and point at their next match.
+            - DO NOT change worldCupGoals / worldCupAssists / worldCupApps or any
+              worldCups[] entry — a 2026 result must not alter those totals.
+            - DO NOT flip status.stage / status.alive unless the match
+              mathematically eliminates the team or clinches advancement; a single
+              group game in isolation does neither.
+
+            STEP 4. VERIFY: run the stat-integrity Check 1 command from CLAUDE.md
+            (must print OK for all 5 players — a result must NOT change it) and
+            `npm run build` (must compile clean). If the build fails or the stat
+            check regresses, fix your edit.
+
+            STEP 5. DO NOT run any git command (no add/commit/push). Leave your
+            edits in the working tree. Print a clear final summary: for each
+            pending match, the verified score, the legend's involvement, and
+            whether you recorded it or skipped it (with the reason).
+
+      - name: Show proposed changes (dry-run diff)
+        if: steps.detect.outputs.count != '0'
+        run: |
+          {
+            echo '## Proposed data/players.js changes'
+            echo '```diff'
+            git --no-pager diff -- data/players.js
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit & push (only when AUTO_PUSH=true)
+        if: steps.detect.outputs.count != '0' && env.AUTO_PUSH == 'true'
+        run: |
+          if git diff --quiet -- data/players.js; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/players.js
+          git commit -m "result: auto-update legend match result(s)"
+          git push
