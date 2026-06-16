@@ -129,8 +129,15 @@ export default function Countdown() {
         <div className="countdown-units">
           {Object.entries(units).map(([unit, value]) => (
             <div key={unit} className="countdown-unit">
-              <div className="countdown-value" suppressHydrationWarning>
-                {String(value).padStart(2, "0")}
+              {/* Show a placeholder until the client computes the value. The
+                  page is statically generated + edge-cached, so baking a real
+                  number into the HTML means every refresh briefly shows that
+                  STALE build-time value (a "larger number" that then ticks
+                  down). Rendering "--" on the server + first client render
+                  keeps them identical (no hydration mismatch) and guarantees
+                  the digits a visitor sees are always live, never cached. */}
+              <div className="countdown-value">
+                {mounted ? String(value).padStart(2, "0") : "--"}
               </div>
               <div className="countdown-unit-label">{unit}</div>
             </div>
