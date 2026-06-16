@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: write # needed for the push step once AUTO_PUSH is enabled
+  id-token: write # claude-code-action@v1 fetches an OIDC token even in agent mode
 
 # Don't pile up overlapping runs.
 concurrency:

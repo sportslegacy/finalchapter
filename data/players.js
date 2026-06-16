@@ -719,7 +719,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "group", alive: true, note: "Opener vs Egypt · Jun 15" },
+      status: { stage: "group", alive: true, note: "Held 1-1 by Egypt — De Bruyne hit the post; next: Iran, Jun 21" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       matches: [
         {
@@ -729,6 +729,7 @@ export const players = [
           kickoffUtc: "2026-06-15T19:00:00.000Z",
           venue: "Lumen Field",
           city: "Seattle, WA",
+          result: { outcome: "D", score: "1-1", scorers: "Hany own goal 66′ · De Bruyne hit the post" },
         },
         {
           opponent: "Iran",
