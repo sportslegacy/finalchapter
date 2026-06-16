@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { players } from "../../data/players";
+import { useServerOffset } from "../lib/useServerOffset";
 
 // Pre-tournament this bar counted down to the opening match. Now that the
 // tournament is live it counts down to the NEXT LEGEND MATCH: the earliest
@@ -40,10 +41,12 @@ function fmtDate(iso) {
 export default function Countdown() {
   const next = nextLegendMatch();
   const target = next ? new Date(next.m.kickoffUtc) : null;
+  // Correct for a wrong device clock by anchoring "now" to the server's time.
+  const offset = useServerOffset();
 
   function getTimeLeft() {
     if (!target) return { ended: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
-    const diff = target - new Date();
+    const diff = target - (Date.now() + offset);
     if (diff <= 0) return { ended: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
     return {
       ended: false,
@@ -79,7 +82,9 @@ export default function Countdown() {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", tick);
     };
-  }, []);
+    // Re-run when the server offset arrives so the displayed time immediately
+    // jumps to the corrected value.
+  }, [offset]);
 
   // All group games played — knockout rounds in progress.
   if (!next) {

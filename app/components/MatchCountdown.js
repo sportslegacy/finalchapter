@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useServerOffset } from "../lib/useServerOffset";
 
 // Compact countdown shown above each player's group schedule.
 // Different from the sitewide <Countdown/> in two ways:
@@ -18,9 +19,11 @@ export default function MatchCountdown({ match, country }) {
   // Start as null so the server render and the first client render match
   // (rendering a time-relative string on both would mismatch -> React #418).
   const [now, setNow] = useState(null);
+  // Anchor "now" to the server clock so a wrong device clock can't skew it.
+  const offset = useServerOffset();
 
   useEffect(() => {
-    const tick = () => setNow(new Date());
+    const tick = () => setNow(new Date(Date.now() + offset));
     tick();
     const id = setInterval(tick, 60_000);
     // iOS Safari suspends background-tab timers / restores from bfcache with a
@@ -36,7 +39,7 @@ export default function MatchCountdown({ match, country }) {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", tick);
     };
-  }, []);
+  }, [offset]); // re-run when the server offset arrives
 
   // Stable placeholder until mounted: team names only, no ticking value.
   if (now === null) {
