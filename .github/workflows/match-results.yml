@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  AUTO_PUSH: "false" # <- flip to "true" after a clean dry-run to enable live push
+  AUTO_PUSH: "true" # report-only when "false"; "true" enables unattended push (build-gated below)
 
 jobs:
   fill-results:
@@ -133,6 +133,9 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
+          # Re-verify the agent's edit compiles before publishing — a broken
+          # data file fails the job here and is NEVER pushed to prod.
+          npm run build
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/players.js
