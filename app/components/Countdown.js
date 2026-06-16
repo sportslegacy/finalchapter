@@ -61,8 +61,24 @@ export default function Countdown() {
 
   useEffect(() => {
     setMounted(true);
-    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
-    return () => clearInterval(timer);
+    const tick = () => setTimeLeft(getTimeLeft());
+    tick(); // recompute immediately on mount
+    const timer = setInterval(tick, 1000);
+    // Mobile browsers (iOS Safari especially) suspend a backgrounded tab's
+    // setInterval and can restore the page from bfcache with a FROZEN value —
+    // so the countdown would show a stale time until the timer resumes. Force
+    // a recompute the moment the page becomes visible again, and on bfcache
+    // restore (pageshow), so it always self-corrects to real time.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", tick);
+    };
   }, []);
 
   // All group games played — knockout rounds in progress.

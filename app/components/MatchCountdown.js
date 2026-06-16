@@ -20,9 +20,22 @@ export default function MatchCountdown({ match, country }) {
   const [now, setNow] = useState(null);
 
   useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
+    const tick = () => setNow(new Date());
+    tick();
+    const id = setInterval(tick, 60_000);
+    // iOS Safari suspends background-tab timers / restores from bfcache with a
+    // frozen value — recompute the instant the page is visible again so the
+    // countdown never shows a stale time (same fix as the hero Countdown).
+    const onVisible = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", tick);
+    };
   }, []);
 
   // Stable placeholder until mounted: team names only, no ticking value.
