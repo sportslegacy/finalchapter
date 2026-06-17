@@ -20,8 +20,13 @@ name: Match-result auto-update
 
 on:
   schedule:
-    - cron: "0 */2 * * *" # every 2h; the detector gates the costly Claude step
-  workflow_dispatch: {} # manual "Run workflow" button for dry-runs
+    # Every 10 min, on :X7 offsets. GitHub deprioritizes scheduled cron on quiet
+    # public repos and skips runs (we saw ~4h gaps on "0 */2"), and it's worst at
+    # the top of the hour — odd offsets + high frequency mean one still lands
+    # within a few minutes of any match. The detector gates the costly Claude
+    # step, so the frequent no-op runs spend zero tokens.
+    - cron: "7,17,27,37,47,57 * * * *"
+  workflow_dispatch: {} # manual "Run workflow" button / API trigger
 
 permissions:
   contents: write # needed for the push step once AUTO_PUSH is enabled
