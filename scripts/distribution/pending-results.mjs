@@ -19,12 +19,18 @@ const players = mod.players || [];
 
 const now = Date.now();
 const pending = [];
+// A match is only "ready to record" once it's definitely over — flag it no
+// earlier than this many ms after kickoff so neither updater tries to fetch a
+// final score mid-game (a group match is done well within ~135 min of kickoff;
+// knockouts with extra time + penalties may need a larger value later).
+const FINISHED_AFTER_MS = 135 * 60 * 1000;
+
 for (const p of players) {
   const matches = p.wc2026?.matches || [];
   matches.forEach((m, i) => {
     if (!m.kickoffUtc) return;            // TBD kickoff — can't know if it's been played
     if (m.result) return;                 // already recorded
-    if (new Date(m.kickoffUtc).getTime() > now) return; // not kicked off yet
+    if (new Date(m.kickoffUtc).getTime() + FINISHED_AFTER_MS > now) return; // not finished yet
     pending.push({
       player: p.id,
       name: p.name,
