@@ -62,13 +62,11 @@ jobs:
         if: steps.detect.outputs.count != '0'
         run: npm ci
 
-      - name: Fill results with Claude (judgment only — no git)
+      - name: Fill results with Claude CLI (judgment only — no git)
         if: steps.detect.outputs.count != '0'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: '--allowedTools "Bash,Read,Edit,Write,WebFetch,WebSearch" --max-turns 40'
-          prompt: |
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROMPT: |
             You are the autonomous match-result updater for "The Final Chapter"
             (a static Next.js fan site about five footballers' last World Cup).
             Repo root is the current working directory. The full recipe and the
@@ -120,6 +118,17 @@ jobs:
             edits in the working tree. Print a clear final summary: for each
             pending match, the verified score, the legend's involvement, and
             whether you recorded it or skipped it (with the reason).
+        run: |
+          # Run Claude Code via the CLI, NOT claude-code-action — the action
+          # needs the Claude GitHub App installed on the repo (it does an app
+          # token exchange and 401s without it). The CLI under --bare authes
+          # strictly with ANTHROPIC_API_KEY, no GitHub App. bypassPermissions
+          # so it never hangs on a prompt; the deterministic git/build steps
+          # below are what actually publish (the prompt forbids git).
+          npm install -g @anthropic-ai/claude-code
+          claude -p "$PROMPT" --bare --permission-mode bypassPermissions \
+            --allowedTools "Bash Read Edit Write WebFetch WebSearch" \
+            --max-budget-usd 5 --output-format text --no-session-persistence
 
       - name: Show proposed changes (dry-run diff)
         if: steps.detect.outputs.count != '0'
