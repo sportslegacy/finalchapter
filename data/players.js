@@ -20,7 +20,7 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "group", alive: true, note: "Opener vs Algeria · Jun 16" },
+      status: { stage: "group", alive: true, note: "Hat-trick vs Algeria — equals Klose's all-time record of 16 World Cup goals. Next: Austria, Jun 22" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       matches: [
         {
@@ -30,6 +30,7 @@ export const players = [
           kickoffUtc: "2026-06-17T01:00:00.000Z",
           venue: "Arrowhead Stadium",
           city: "Kansas City",
+          result: { outcome: "W", score: "3-0", scorers: "Messi ×3 (hat-trick) — 16th WC goal, equals Klose" },
         },
         {
           opponent: "Austria",
@@ -203,7 +204,7 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
-      status: { stage: "group", alive: true, note: "Opener vs DR Congo · Jun 17" },
+      status: { stage: "group", alive: true, note: "Held 1-1 by DR Congo — Ronaldo blanked on a record-equalling 23rd World Cup appearance. Next: Uzbekistan, Jun 23" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       matches: [
         {
@@ -213,6 +214,7 @@ export const players = [
           kickoffUtc: "2026-06-17T17:00:00.000Z",
           venue: "NRG Stadium",
           city: "Houston, TX",
+          result: { outcome: "D", score: "1-1", scorers: "João Neves 6′ · Ronaldo held scoreless" },
         },
         {
           opponent: "Uzbekistan",
@@ -385,7 +387,7 @@ export const players = [
     worldCupApps: 19,
     wc2026: {
       group: "L",
-      status: { stage: "group", alive: true, note: "Opener vs England · Jun 17" },
+      status: { stage: "group", alive: true, note: "Beaten 4-2 by England in the opener — a 2018 final rematch lost. Next: Panama, Jun 23" },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
       matches: [
         {
@@ -395,6 +397,7 @@ export const players = [
           kickoffUtc: "2026-06-17T20:00:00.000Z",
           venue: "AT&T Stadium",
           city: "Dallas, TX",
+          result: { outcome: "L", score: "2-4", scorers: "Baturina 36′, Musa 45+5′" },
         },
         {
           opponent: "Panama",
