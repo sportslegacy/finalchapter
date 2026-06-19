@@ -19,11 +19,12 @@ const players = mod.players || [];
 
 const now = Date.now();
 const pending = [];
-// A match is only "ready to record" once it's definitely over — flag it no
-// earlier than this many ms after kickoff so neither updater tries to fetch a
-// final score mid-game (a group match is done well within ~135 min of kickoff;
-// knockouts with extra time + penalties may need a larger value later).
-const FINISHED_AFTER_MS = 135 * 60 * 1000;
+// A match is only "ready to record" this many ms after kickoff — a group game
+// is over by ~120 min (90 + half-time + stoppage). If a cron still fires while
+// a long-stoppage game is in its dying minutes, the agent's "is it final?"
+// safety check skips it, so 120 is safe. Knockouts (extra time + pens) run
+// longer; their cron cluster extends later and the safety check covers the gap.
+const FINISHED_AFTER_MS = 120 * 60 * 1000;
 
 for (const p of players) {
   const matches = p.wc2026?.matches || [];
