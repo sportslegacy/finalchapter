@@ -16,11 +16,16 @@
 const mod = await import(new URL("../../data/players.js", import.meta.url));
 const players = mod.players || [];
 
-// Minutes after kickoff to attempt. First at the 120-min gate (≈ full time for
-// a group game), then spread out to ~FT+95 so that even if GitHub honors only
-// one of the cluster, it lands within ~1.5h of the final whistle. Knockouts
-// run longer — the later attempts still catch them once they're final.
-const ATTEMPTS_MIN = [120, 145, 175, 215];
+// Minutes after kickoff to attempt. Spread across the WHOLE match, not just
+// after full time: GitHub honors only a fraction of scheduled triggers, so
+// more attempts spanning the game = better odds it honors one in the recording
+// window. The first three (+5 right after kickoff, +55 mid-game, +95 late) are
+// heartbeat no-ops — the detector's 120-min gate won't let the agent record an
+// in-progress match — but they're extra trigger chances and confirm the cron
+// is live that day. Recording happens at +125 onward (just past the gate),
+// out to ~FT+100 so a throttled-early cluster still gets caught before the
+// 6-hourly safety net. Knockouts run longer; regenerate with later tail times.
+const ATTEMPTS_MIN = [5, 55, 125, 165, 215];
 
 const now = Date.now();
 const lines = new Map(); // cron string -> earliest match label (for a comment)
