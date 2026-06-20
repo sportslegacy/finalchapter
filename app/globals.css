@@ -549,6 +549,29 @@ a {
   margin: 0 auto;
 }
 
+/* "Results auto-updated X ago" freshness line — proves the autonomous updater
+   actually wrote to the site, not just that a run triggered. */
+.status-autoupdate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.75rem auto 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+.status-autoupdate strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.status-autoupdate-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3fae6b;
+  box-shadow: 0 0 6px rgba(63, 174, 107, 0.7);
+}
+
 .status-card {
   display: flex;
   gap: 1rem;

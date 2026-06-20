@@ -151,11 +151,16 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
+          # Stamp the freshness signal shown on /status — proves THIS push
+          # reached the live site, not just that a run triggered. Written only
+          # when there's a real result change (we're past the diff gate above).
+          printf 'export const autoUpdate = { updatedAt: "%s" };\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" > data/autoUpdate.js
           # Re-verify the agent's edit compiles before publishing — a broken
           # data file fails the job here and is NEVER pushed to prod.
           npm run build
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/players.js
+          git add data/players.js data/autoUpdate.js
           git commit -m "result: auto-update legend match result(s)"
           git push

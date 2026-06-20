@@ -10,7 +10,9 @@ import {
   STAGE_ORDER,
   STAGE_SHORT,
 } from "../../data/players";
+import { autoUpdate } from "../../data/autoUpdate";
 import Nav from "../components/Nav";
+import AgoTime from "../components/AgoTime";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
 
@@ -124,6 +126,10 @@ export default function StatusPage() {
             stands right now &mdash; {aliveCount} of {players.length}{" "}
             still in it &mdash; tracked from the group stage to the final.
             Bookmark this page; it updates as the tournament unfolds.
+          </p>
+          <p className="status-autoupdate" title="When the automated updater last wrote a real result to the site">
+            <span className="status-autoupdate-dot" aria-hidden="true" />
+            Results auto-updated <strong><AgoTime iso={autoUpdate.updatedAt} /></strong>
           </p>
         </div>
 
