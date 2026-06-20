@@ -20,68 +20,18 @@ name: Match-result auto-update
 
 on:
   schedule:
-    # GitHub heavily throttles scheduled cron on quiet public repos (a flat
-    # every-10-min collapsed to every ~2-3h in practice). Instead, spread a few
-    # attempts across each match's whole window — right after kickoff, mid-game,
-    # then a tight post-full-time cluster — so GitHub honoring ANY one of them in
-    # the recording window catches the result. The +5/+55 attempts are heartbeat
-    # no-ops (the detector's 120-min gate won't record an in-progress match); the
-    # +125/+165/+215 ones do the recording. Regenerate this dated block via
-    # scripts/distribution/gen-match-cron.mjs when the schedule changes (e.g.
-    # knockout fixtures get kickoff times).
-    #
-    # Sparse safety net — catches anything the match-window clusters miss.
+    # BACKUP ONLY — do not rely on this. GitHub heavily throttles scheduled cron
+    # on quiet public repos (it gapped 8h+ and missed matches). The PRIMARY,
+    # reliable trigger is an external cron-job.org schedule that POSTs to the
+    # workflow_dispatch endpoint (below) every 15 min — GitHub honors a dispatch
+    # instantly, unlike its own cron. This 6-hourly entry is just a free fallback
+    # if cron-job.org is ever down. (See CLAUDE.md "Reliable trigger — cron-job.org".)
     - cron: "13 */6 * * *"
-    # --- match-window attempts (generated 2026-06-20T02:32Z) ---
-    - cron: "35 2 20 6 *" # Brazil v Haiti
-    - cron: "15 3 20 6 *" # Brazil v Haiti
-    - cron: "5 4 20 6 *" # Brazil v Haiti
-    - cron: "5 19 21 6 *" # Belgium v Iran
-    - cron: "55 19 21 6 *" # Belgium v Iran
-    - cron: "5 21 21 6 *" # Belgium v Iran
-    - cron: "45 21 21 6 *" # Belgium v Iran
-    - cron: "35 22 21 6 *" # Belgium v Iran
-    - cron: "5 17 22 6 *" # Argentina v Austria
-    - cron: "55 17 22 6 *" # Argentina v Austria
-    - cron: "5 19 22 6 *" # Argentina v Austria
-    - cron: "45 19 22 6 *" # Argentina v Austria
-    - cron: "35 20 22 6 *" # Argentina v Austria
-    - cron: "5 17 23 6 *" # Portugal v Uzbekistan
-    - cron: "55 17 23 6 *" # Portugal v Uzbekistan
-    - cron: "5 19 23 6 *" # Portugal v Uzbekistan
-    - cron: "45 19 23 6 *" # Portugal v Uzbekistan
-    - cron: "35 20 23 6 *" # Portugal v Uzbekistan
-    - cron: "5 23 23 6 *" # Croatia v Panama
-    - cron: "55 23 23 6 *" # Croatia v Panama
-    - cron: "5 1 24 6 *" # Croatia v Panama
-    - cron: "45 1 24 6 *" # Croatia v Panama
-    - cron: "35 2 24 6 *" # Croatia v Panama
-    - cron: "5 22 24 6 *" # Brazil v Scotland
-    - cron: "55 22 24 6 *" # Brazil v Scotland
-    - cron: "5 0 25 6 *" # Brazil v Scotland
-    - cron: "45 0 25 6 *" # Brazil v Scotland
-    - cron: "35 1 25 6 *" # Brazil v Scotland
-    - cron: "5 3 27 6 *" # Belgium v New Zealand
-    - cron: "55 3 27 6 *" # Belgium v New Zealand
-    - cron: "5 5 27 6 *" # Belgium v New Zealand
-    - cron: "45 5 27 6 *" # Belgium v New Zealand
-    - cron: "35 6 27 6 *" # Belgium v New Zealand
-    - cron: "5 21 27 6 *" # Croatia v Ghana
-    - cron: "55 21 27 6 *" # Croatia v Ghana
-    - cron: "5 23 27 6 *" # Croatia v Ghana
-    - cron: "35 23 27 6 *" # Portugal v Colombia
-    - cron: "45 23 27 6 *" # Croatia v Ghana
-    - cron: "25 0 28 6 *" # Portugal v Colombia
-    - cron: "35 0 28 6 *" # Croatia v Ghana
-    - cron: "35 1 28 6 *" # Portugal v Colombia
-    - cron: "5 2 28 6 *" # Argentina v Jordan
-    - cron: "15 2 28 6 *" # Portugal v Colombia
-    - cron: "55 2 28 6 *" # Argentina v Jordan
-    - cron: "5 3 28 6 *" # Portugal v Colombia
-    - cron: "5 4 28 6 *" # Argentina v Jordan
-    - cron: "45 4 28 6 *" # Argentina v Jordan
-    - cron: "35 5 28 6 *" # Argentina v Jordan
-  workflow_dispatch: {} # manual "Run workflow" button / API trigger
+  # PRIMARY TRIGGER: cron-job.org POSTs here every 15 min (workflow_id
+  # match-results.yml, body {"ref":"main"}, fine-grained PAT with Actions:write).
+  # The detector gates the Claude step, so each dispatch is a free no-op until a
+  # match is actually pending.
+  workflow_dispatch: {}
 
 permissions:
   contents: write # for the push step (the Claude CLI auths via ANTHROPIC_API_KEY, no OIDC)
