@@ -22,6 +22,15 @@ export const players = [
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
       status: { stage: "group", alive: true, note: "Hat-trick vs Algeria — equals Klose's all-time record of 16 World Cup goals. Next: Austria, Jun 22" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
+      groupTable: {
+        asOf: "Jun 21",
+        teams: [
+          { name: "Argentina", played: 1, points: 3 },
+          { name: "Austria", played: 1, points: 3 },
+          { name: "Jordan", played: 1, points: 0 },
+          { name: "Algeria", played: 1, points: 0 },
+        ],
+      },
       matches: [
         {
           opponent: "Algeria",
@@ -206,6 +215,15 @@ export const players = [
       group: "K",
       status: { stage: "group", alive: true, note: "Held 1-1 by DR Congo — Ronaldo blanked on a record-equalling 23rd World Cup appearance. Next: Uzbekistan, Jun 23" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
+      groupTable: {
+        asOf: "Jun 21",
+        teams: [
+          { name: "Colombia", played: 1, points: 3 },
+          { name: "Portugal", played: 1, points: 1 },
+          { name: "DR Congo", played: 1, points: 1 },
+          { name: "Uzbekistan", played: 1, points: 0 },
+        ],
+      },
       matches: [
         {
           opponent: "DR Congo",
@@ -389,6 +407,15 @@ export const players = [
       group: "L",
       status: { stage: "group", alive: true, note: "Beaten 4-2 by England in the opener — a 2018 final rematch lost. Next: Panama, Jun 23" },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
+      groupTable: {
+        asOf: "Jun 21",
+        teams: [
+          { name: "England", played: 1, points: 3 },
+          { name: "Ghana", played: 1, points: 3 },
+          { name: "Panama", played: 1, points: 0 },
+          { name: "Croatia", played: 1, points: 0 },
+        ],
+      },
       matches: [
         {
           opponent: "England",
@@ -562,6 +589,15 @@ export const players = [
       group: "C",
       status: { stage: "group", alive: true, note: "Brazil routed Haiti 3-0 (Cunha brace, Vinícius Júnior) to go top of Group C — Neymar (calf) still sidelined; Scotland next, Jun 24" },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
+      groupTable: {
+        asOf: "Jun 21",
+        teams: [
+          { name: "Brazil", played: 2, points: 4 },
+          { name: "Morocco", played: 2, points: 4 },
+          { name: "Scotland", played: 2, points: 3 },
+          { name: "Haiti", played: 2, points: 0 },
+        ],
+      },
       matches: [
         {
           opponent: "Morocco",
@@ -725,6 +761,15 @@ export const players = [
       group: "G",
       status: { stage: "group", alive: true, note: "Goalless draw with Iran (down to 10 after Ngoy's red) — 2 pts from 2; must beat New Zealand Jun 26" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
+      groupTable: {
+        asOf: "Jun 21",
+        teams: [
+          { name: "Iran", played: 2, points: 2 },
+          { name: "Belgium", played: 2, points: 2 },
+          { name: "New Zealand", played: 1, points: 1 },
+          { name: "Egypt", played: 1, points: 1 },
+        ],
+      },
       matches: [
         {
           opponent: "Egypt",

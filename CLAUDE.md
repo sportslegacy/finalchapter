@@ -112,6 +112,7 @@ Everything below (after Nav, before footer) is wrapped in a `.player-accent-scop
   quote, worldCupGoals, worldCupAssists, worldCupApps,
   wc2026: {
     group, groupTeams[], storyline,
+    groupTable: { asOf, teams: [{ name, played, points }] },        // OPTIONAL — live group standings shown on the player page (ranked, legend's nation highlighted, top-2 marked "advancing"). teams ORDERED by current position (winner first); `name` must match groupTeams spelling. The match-result agent refreshes it when it records that legend's result + sets asOf to a "Mon DD" date. CAVEAT: only refreshes on the LEGEND's matches, so it lags when OTHER group teams play in between — the "as of <date>" label owns that. Group-stage only (moot once knockouts start).
     status: { stage, alive, note },                                // LIVE status — single source of truth. stage ∈ STAGE_ORDER (group→…→champion) or "eliminated"; alive=false ⇒ out. Drives the player status strip, the /status hub, the dynamic <title>, and FAQ JSON-LD. note = short opener/next-match line.
     matches: [{ opponent, date, time, kickoffUtc, venue, city,
                 result: { outcome, score, scorers } }],            // first match's kickoffUtc drives the countdown; null when TBD. result OPTIONAL — add per played game: outcome "W"|"D"|"L" (legend's nation POV), score "own-opp", scorers (legend first, optional). Absent ⇒ card shows date/venue.

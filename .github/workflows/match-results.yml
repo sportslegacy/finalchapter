@@ -107,6 +107,11 @@ jobs:
               existing Neymar card ("… · Neymar out (calf)").
             - ALSO update that player's wc2026.status.note to reflect the result
               and point at their next match.
+            - ALSO refresh that player's wc2026.groupTable IF it exists: fetch the
+              group's CURRENT standings and set teams to all four
+              { name, played, points } ordered by current position (group winner
+              first), and set asOf to today as a short "Mon DD" date (e.g.
+              "Jun 24"). Keep each team `name` spelled exactly as in groupTeams.
             - DO NOT change worldCupGoals / worldCupAssists / worldCupApps or any
               worldCups[] entry — a 2026 result must not alter those totals.
             - DO NOT flip status.stage / status.alive unless the match

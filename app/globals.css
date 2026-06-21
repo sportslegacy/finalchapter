@@ -1420,6 +1420,94 @@ a {
   color: var(--text-secondary);
 }
 
+/* Live group standings table on the player page — agent-maintained, the
+   legend's nation highlighted, top-2 (advancing) marked. */
+.group-standings {
+  max-width: 360px;
+  margin: 1.1rem auto 0;
+  text-align: left;
+}
+.group-standings-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+.group-standings-asof {
+  color: var(--player-accent, var(--accent-gold));
+  opacity: 0.85;
+}
+.group-standings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+.group-standings-row {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr 1.6rem 2.1rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+  border-left: 2px solid transparent;
+}
+.group-standings-row:first-child {
+  border-top: 0;
+}
+.group-standings-row.is-header {
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+.group-standings-row.is-advancing {
+  border-left-color: color-mix(in srgb, #3fae6b 70%, transparent);
+}
+.group-standings-row.is-legend {
+  background: color-mix(in srgb, var(--player-accent, var(--accent-gold)) 12%, var(--bg-secondary));
+  color: var(--text-primary);
+}
+.group-standings-row.is-legend .gs-team {
+  font-weight: 700;
+  color: var(--player-accent, var(--accent-gold));
+}
+.gs-pos {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.gs-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.gs-pts {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.group-standings-row.is-header .gs-pts {
+  font-weight: inherit;
+  color: var(--text-muted);
+}
+.group-standings-foot {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+  text-align: center;
+}
+
 .group-storyline {
   font-size: 0.9rem;
   color: var(--text-muted);
