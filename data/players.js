@@ -723,7 +723,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "group", alive: true, note: "Held 1-1 by Egypt — De Bruyne hit the post; next: Iran, Jun 21" },
+      status: { stage: "group", alive: true, note: "Goalless draw with Iran (down to 10 after Ngoy's red) — 2 pts from 2; must beat New Zealand Jun 26" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       matches: [
         {
@@ -742,6 +742,7 @@ export const players = [
           kickoffUtc: "2026-06-21T19:00:00.000Z",
           venue: "SoFi Stadium",
           city: "Los Angeles, CA",
+          result: { outcome: "D", score: "0-0", scorers: "Goalless — Belgium down to 10 (Ngoy red 66′)" },
         },
         {
           opponent: "New Zealand",
