@@ -20,13 +20,13 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "group", alive: true, note: "Hat-trick vs Algeria — equals Klose's all-time record of 16 World Cup goals. Next: Austria, Jun 22" },
+      status: { stage: "group", alive: true, note: "Beat Austria 2-0 — Messi's brace (17th & 18th WC goals) breaks Klose's all-time record. Argentina top Group J. Next: Jordan, Jun 27" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       groupTable: {
-        asOf: "Jun 21",
+        asOf: "Jun 22",
         teams: [
-          { name: "Argentina", played: 1, points: 3 },
-          { name: "Austria", played: 1, points: 3 },
+          { name: "Argentina", played: 2, points: 6 },
+          { name: "Austria", played: 2, points: 3 },
           { name: "Jordan", played: 1, points: 0 },
           { name: "Algeria", played: 1, points: 0 },
         ],
@@ -48,6 +48,7 @@ export const players = [
           kickoffUtc: "2026-06-22T17:00:00.000Z",
           venue: "AT&T Stadium",
           city: "Arlington, TX",
+          result: { outcome: "W", score: "2-0", scorers: "Messi 38′, 90+5′ — 18th WC goal, breaks Klose's all-time record" },
         },
         {
           opponent: "Jordan",
