@@ -31,10 +31,16 @@ on:
   # match-results.yml, body {"ref":"main"}, fine-grained PAT with Actions:write).
   # The detector gates the Claude step, so each dispatch is a free no-op until a
   # match is actually pending.
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_fail:
+        description: "TEST ONLY — force the run to fail to exercise the alert step"
+        type: boolean
+        default: false
 
 permissions:
   contents: write # for the push step (the Claude CLI auths via ANTHROPIC_API_KEY, no OIDC)
+  issues: write # for the failure-alert step to open/close a tracking issue
 
 # Don't pile up overlapping runs.
 concurrency:
@@ -61,6 +67,12 @@ jobs:
           node scripts/distribution/pending-results.mjs | tee -a "$GITHUB_STEP_SUMMARY"
           COUNT=$(node scripts/distribution/pending-results.mjs --count 2>/dev/null)
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Force-fail (TEST ONLY — exercises the failure alert)
+        if: ${{ github.event.inputs.force_fail == 'true' }}
+        run: |
+          echo "force_fail=true → deliberately failing to test the alert step."
+          exit 1
 
       - name: Install deps
         if: steps.detect.outputs.count != '0'
@@ -169,3 +181,43 @@ jobs:
           git add data/players.js data/autoUpdate.js
           git commit -m "result: auto-update legend match result(s)"
           git push
+
+      # --- Failure alerting: a silent failure (e.g. Anthropic credits run out)
+      # went unnoticed for ~1.5 days once. These two steps surface it: a failed
+      # run opens ONE tracking issue (which emails/notifies the repo owner), and
+      # the next successful run auto-closes it. cron-job.org can't catch this —
+      # it only sees GitHub's 204 on the dispatch, not the downstream failure.
+      - name: Alert on failure — open a tracking issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Match-result auto-updater is failing"
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          NUM=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 50 \
+                  --json number,title --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")
+          if [ -n "$NUM" ]; then
+            echo "Alert issue #$NUM already open — not duplicating (no comment spam)."
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body \
+          "A scheduled run of the match-result updater **failed**: $RUN_URL
+
+          **Most likely cause:** the Anthropic Console credit balance is empty — the agent step prints \`Credit balance is too low\`. Top up at https://console.anthropic.com → Billing → Credits and the next 15-min run recovers on its own.
+
+          Other possibilities: a broken edit caught by the build gate, or an API/auth error — open the run log above to see which.
+
+          This issue **auto-closes** the next time a run succeeds."
+          fi
+
+      - name: Resolve alert on success — close the tracking issue
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Match-result auto-updater is failing"
+          NUM=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 50 \
+                  --json number,title --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")
+          if [ -n "$NUM" ]; then
+            gh issue close "$NUM" --repo "$GITHUB_REPOSITORY" \
+              --comment "Recovered — a run just succeeded ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID). Auto-closing."
+          fi
