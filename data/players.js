@@ -27,8 +27,8 @@ export const players = [
         teams: [
           { name: "Argentina", played: 2, points: 6 },
           { name: "Austria", played: 2, points: 3 },
-          { name: "Jordan", played: 1, points: 0 },
-          { name: "Algeria", played: 1, points: 0 },
+          { name: "Algeria", played: 2, points: 3 },
+          { name: "Jordan", played: 2, points: 0 },
         ],
       },
       matches: [
@@ -214,15 +214,15 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
-      status: { stage: "group", alive: true, note: "Held 1-1 by DR Congo — Ronaldo blanked on a record-equalling 23rd World Cup appearance. Next: Uzbekistan, Jun 23" },
+      status: { stage: "group", alive: true, note: "Brace in a 5-0 rout of Uzbekistan — Ronaldo becomes the first man to score at six World Cups; Portugal top Group K. Next: Colombia, Jun 27" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       groupTable: {
-        asOf: "Jun 21",
+        asOf: "Jun 23",
         teams: [
+          { name: "Portugal", played: 2, points: 4 },
           { name: "Colombia", played: 1, points: 3 },
-          { name: "Portugal", played: 1, points: 1 },
           { name: "DR Congo", played: 1, points: 1 },
-          { name: "Uzbekistan", played: 1, points: 0 },
+          { name: "Uzbekistan", played: 2, points: 0 },
         ],
       },
       matches: [
@@ -242,6 +242,7 @@ export const players = [
           kickoffUtc: "2026-06-23T17:00:00.000Z",
           venue: "NRG Stadium",
           city: "Houston, TX",
+          result: { outcome: "W", score: "5-0", scorers: "Ronaldo 6′ & 45′ (1st to score at 6 WCs) · Nuno Mendes, Leão, Nematov OG" },
         },
         {
           opponent: "Colombia",
@@ -406,15 +407,15 @@ export const players = [
     worldCupApps: 19,
     wc2026: {
       group: "L",
-      status: { stage: "group", alive: true, note: "Beaten 4-2 by England in the opener — a 2018 final rematch lost. Next: Panama, Jun 23" },
+      status: { stage: "group", alive: true, note: "First win — 1-0 past Panama; Croatia climb to 3rd, still chasing a Round of 32 berth. Next: Ghana, Jun 27" },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
       groupTable: {
-        asOf: "Jun 21",
+        asOf: "Jun 23",
         teams: [
-          { name: "England", played: 1, points: 3 },
-          { name: "Ghana", played: 1, points: 3 },
-          { name: "Panama", played: 1, points: 0 },
-          { name: "Croatia", played: 1, points: 0 },
+          { name: "England", played: 2, points: 4 },
+          { name: "Ghana", played: 2, points: 4 },
+          { name: "Croatia", played: 2, points: 3 },
+          { name: "Panama", played: 2, points: 0 },
         ],
       },
       matches: [
@@ -434,6 +435,7 @@ export const players = [
           kickoffUtc: "2026-06-23T23:00:00.000Z",
           venue: "BMO Field",
           city: "Toronto",
+          result: { outcome: "W", score: "1-0", scorers: "Budimir — Croatia's first win; Modrić started, subbed off" },
         },
         {
           opponent: "Ghana",
