@@ -590,15 +590,15 @@ export const players = [
     worldCupApps: 13,
     wc2026: {
       group: "C",
-      status: { stage: "group", alive: true, note: "Brazil routed Haiti 3-0 (Cunha brace, Vinícius Júnior) to go top of Group C — Neymar (calf) still sidelined; Scotland next, Jun 24" },
+      status: { stage: "r32", alive: true, note: "Brazil beat Scotland 3-0 (Vinícius Júnior brace, Cunha) to win Group C — and Neymar came off the bench at 76′ for his first appearance since the calf tear. Into the Round of 32 (Jun 28+)" },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
       groupTable: {
-        asOf: "Jun 21",
+        asOf: "Jun 25",
         teams: [
-          { name: "Brazil", played: 2, points: 4 },
-          { name: "Morocco", played: 2, points: 4 },
-          { name: "Scotland", played: 2, points: 3 },
-          { name: "Haiti", played: 2, points: 0 },
+          { name: "Brazil", played: 3, points: 7 },
+          { name: "Morocco", played: 3, points: 7 },
+          { name: "Scotland", played: 3, points: 3 },
+          { name: "Haiti", played: 3, points: 0 },
         ],
       },
       matches: [
@@ -627,6 +627,7 @@ export const players = [
           kickoffUtc: "2026-06-24T22:00:00.000Z",
           venue: "Hard Rock Stadium",
           city: "Miami, FL",
+          result: { outcome: "W", score: "3-0", scorers: "Vinícius Júnior 7′, 45+3′, Cunha 60′ · Neymar on at 76′ (1st game back)" },
         },
       ],
       storyline:
