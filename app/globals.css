@@ -1013,6 +1013,14 @@ a {
   align-self: center;
 }
 
+/* A projected opponent that has RESOLVED to the real qualifier (its group is
+   decided) — accent-colored + bold so a confirmed team reads differently from
+   the muted pot-seeding guesses around it on /road-to-the-final. */
+.proj-team.is-resolved {
+  color: var(--player-accent, var(--accent-gold));
+  font-weight: 600;
+}
+
 /* Answer-first "2026 World Cup stats" block on player pages — sits just under
    the status banner; editorial, not a snippet box. Inside .player-accent-scope
    so the label picks up the national accent. */

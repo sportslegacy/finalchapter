@@ -11,6 +11,7 @@ import {
 import Nav from "../components/Nav";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
+import RoadProjLive from "../components/RoadProjLive";
 
 const SITE_URL = "https://finalchapterfc.com";
 
@@ -92,49 +93,6 @@ function nodeCaption(node, group, groupTeams) {
     return `vs ${node.opponent}`;
   }
   return `from ${shortDate(node.date)}`;
-}
-
-// One finishing scenario's projected opponents (R32 → QF). The deeper rounds
-// fan out across half the draw, so we stop at the QF where the candidates are
-// still few enough to name — that's where the legend-vs-legend collisions are.
-function ProjBranch({ title, rounds }) {
-  return (
-    <div className="proj-branch">
-      <div className="proj-branch-title">{title}</div>
-      <ol className="proj-rounds">
-        {rounds.slice(0, 3).map((r) => (
-          <li key={r.stage} className="proj-round">
-            <span className="proj-round-stage">{r.short}</span>
-            <span className="proj-round-body">
-              <span className="proj-round-pos">
-                <span className="proj-round-seed">
-                  {r.stage === "r32" ? r.posLabel : r.primaryPos}
-                </span>
-                {` · Group ${
-                  r.stage === "r32"
-                    ? r.groups.join("/")
-                    : r.primaryGroups.join("/")
-                }`}
-                {r.hasThirds ? (
-                  <span className="proj-or3rd">or a 3rd-place side</span>
-                ) : null}
-              </span>
-              <span className="proj-teams">
-                {r.teams.map((t, i) => (
-                  <span key={`${t.grp}-${i}`} className="proj-team">
-                    <span className="proj-team-flag" aria-hidden="true">
-                      {t.flag}
-                    </span>
-                    {t.name}
-                  </span>
-                ))}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
 }
 
 // FAQPage schema mirrors the on-page Q&A (shared source: roadFaqs).
@@ -275,28 +233,7 @@ export default function RoadToFinalPage() {
                   </li>
                 </ol>
 
-                {proj ? (
-                  <div className="road-proj">
-                    <div className="road-proj-head">
-                      Who they could face
-                      <span>
-                        {" "}
-                        &middot; the bracket is fixed; the actual names lock in
-                        once the groups finish (June 27)
-                      </span>
-                    </div>
-                    <div className="road-proj-branches">
-                      <ProjBranch
-                        title={`If ${p.country} win Group ${proj.group}`}
-                        rounds={proj.win}
-                      />
-                      <ProjBranch
-                        title={`If they finish 2nd in Group ${proj.group}`}
-                        rounds={proj.runnerUp}
-                      />
-                    </div>
-                  </div>
-                ) : null}
+                {proj ? <RoadProjLive proj={proj} country={p.country} /> : null}
               </div>
             );
           })}
