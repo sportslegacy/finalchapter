@@ -407,15 +407,15 @@ export const players = [
     worldCupApps: 19,
     wc2026: {
       group: "L",
-      status: { stage: "group", alive: true, note: "First win — 1-0 past Panama; Croatia climb to 3rd, still chasing a Round of 32 berth. Next: Ghana, Jun 27" },
+      status: { stage: "r32", alive: true, note: "Croatia beat Ghana 2-1 — Modrić's corner teed up Vlašić's late winner (Sučić opened); Croatia finish 2nd in Group L and into the Round of 32 (Jun 28+)" },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
       groupTable: {
-        asOf: "Jun 23",
+        asOf: "Jun 27",
         teams: [
-          { name: "England", played: 2, points: 4 },
-          { name: "Ghana", played: 2, points: 4 },
-          { name: "Croatia", played: 2, points: 3 },
-          { name: "Panama", played: 2, points: 0 },
+          { name: "England", played: 3, points: 7 },
+          { name: "Croatia", played: 3, points: 6 },
+          { name: "Ghana", played: 3, points: 4 },
+          { name: "Panama", played: 3, points: 0 },
         ],
       },
       matches: [
@@ -444,6 +444,7 @@ export const players = [
           kickoffUtc: "2026-06-27T21:00:00.000Z",
           venue: "Lincoln Financial Field",
           city: "Philadelphia, PA",
+          result: { outcome: "W", score: "2-1", scorers: "Modrić assist · Vlašić 83′, Sučić 31′" },
         },
       ],
       storyline:
