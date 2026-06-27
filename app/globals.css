@@ -2004,6 +2004,11 @@ a {
   grid-template-columns: 1fr 1fr;
   gap: 0.8rem;
 }
+/* Once the legend's group is decided, only the branch that happened renders —
+   give it the full width instead of leaving an empty second column. */
+.road-proj-branches.is-single {
+  grid-template-columns: 1fr;
+}
 
 @media (max-width: 640px) {
   .road-proj-branches {

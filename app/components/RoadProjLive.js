@@ -192,6 +192,42 @@ export default function RoadProjLive({ proj, country }) {
     return round;
   };
 
+  // Once the legend's OWN group is decided, collapse the two "if win / if 2nd"
+  // branches to the one that actually happened — showing both is wrong when we
+  // already know they won (or finished 2nd in) the group.
+  const own = resolved?.[proj.group];
+  let only = null; // "win" | "runnerUp" | null (group undecided → show both)
+  if (own?.complete) {
+    if (own.winner && sameTeam(country, own.winner.name)) only = "win";
+    else if (own.runnerUp && sameTeam(country, own.runnerUp.name)) only = "runnerUp";
+  }
+
+  const branches = [];
+  if (only === null || only === "win") {
+    branches.push(
+      <ProjBranch
+        key="win"
+        title={
+          only ? `${country} won Group ${proj.group}` : `If ${country} win Group ${proj.group}`
+        }
+        rounds={proj.win.map(narrow)}
+      />
+    );
+  }
+  if (only === null || only === "runnerUp") {
+    branches.push(
+      <ProjBranch
+        key="ru"
+        title={
+          only
+            ? `${country} finished 2nd in Group ${proj.group}`
+            : `If they finish 2nd in Group ${proj.group}`
+        }
+        rounds={proj.runnerUp.map(narrow)}
+      />
+    );
+  }
+
   return (
     <div className="road-proj">
       <div className="road-proj-head">
@@ -202,15 +238,8 @@ export default function RoadProjLive({ proj, country }) {
           finishes
         </span>
       </div>
-      <div className="road-proj-branches">
-        <ProjBranch
-          title={`If ${country} win Group ${proj.group}`}
-          rounds={proj.win.map(narrow)}
-        />
-        <ProjBranch
-          title={`If they finish 2nd in Group ${proj.group}`}
-          rounds={proj.runnerUp.map(narrow)}
-        />
+      <div className={`road-proj-branches${branches.length === 1 ? " is-single" : ""}`}>
+        {branches}
       </div>
     </div>
   );
