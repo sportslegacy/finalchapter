@@ -763,15 +763,15 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "group", alive: true, note: "Goalless draw with Iran (down to 10 after Ngoy's red) — 2 pts from 2; must beat New Zealand Jun 26" },
+      status: { stage: "r32", alive: true, note: "Belgium thrash New Zealand 5-1 — De Bruyne scores from distance (66′) as Belgium win Group G. Into the Round of 32 (Jun 28+)" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       groupTable: {
-        asOf: "Jun 21",
+        asOf: "Jun 27",
         teams: [
-          { name: "Iran", played: 2, points: 2 },
-          { name: "Belgium", played: 2, points: 2 },
-          { name: "New Zealand", played: 1, points: 1 },
-          { name: "Egypt", played: 1, points: 1 },
+          { name: "Belgium", played: 3, points: 5 },
+          { name: "Egypt", played: 3, points: 5 },
+          { name: "Iran", played: 3, points: 3 },
+          { name: "New Zealand", played: 3, points: 1 },
         ],
       },
       matches: [
@@ -800,6 +800,7 @@ export const players = [
           kickoffUtc: "2026-06-27T03:00:00.000Z",
           venue: "BC Place",
           city: "Vancouver",
+          result: { outcome: "W", score: "5-1", scorers: "De Bruyne 66′, Trossard 28′ 50′, Lukaku 86′, Saelemaekers 90+4′" },
         },
       ],
       storyline:
