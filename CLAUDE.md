@@ -191,6 +191,23 @@ All three carry SportsEvent JSON-LD; format + homepage also carry FAQPage; homep
 
 During the tournament: flip `status.stage`/`alive` (and update `note`) as each legend advances or goes out; add a `result` to the played match in `wc2026.matches[]` (see schema). That's the whole "reason to come back" loop.
 
+#### Status-change propagation checklist (update ALL of these — user-flagged 2026-06-27)
+
+A status/result change fans out to MANY surfaces; updating some but not all reads as broken (the user has flagged this twice — the road projection kept showing all four Group-H teams after H finished, then both "if win/2nd" branches after Brazil had won). The rule: **`wc2026.status.stage` is the single source of truth, and every surface below DERIVES from it — when you change status handling, or add a status-dependent surface, walk this whole list and confirm each reflects the change.** Most are automatic; the gaps were always a surface using a STATIC assumption instead of the live truth.
+
+Driven by `wc2026.status.stage` / `alive` (flip it → all of these move):
+1. **`/status` hub** — `rank()` sort + card stage label + `latestResultLabel` "Last:" line.
+2. **Player page status strip** — `statusStatement(player)`.
+3. **Player `<title>` + meta description** — `statusHeadline(player)` (answer-led).
+4. **Player FAQ JSON-LD** — `statusHeadline` Q&A (`buildFaqJsonLd`).
+5. **`/road-to-the-final` lane** — `playerRoad(player)` lights nodes off `stageIndex(status.stage)`.
+6. **`/road-to-the-final` "Who they could face"** — `RoadProjLive`: branch collapse (own group decided) + round window (drop rounds already played, off `status.stage`).
+7. **Homepage hero** — `Countdown`'s `nextLegendMatch` (all group games recorded → "knockout rounds underway").
+8. **2026 "so far" tally** — `tournament2026Tally` (spans `matches[]` + `knockout[]`).
+9. **sitemap lastmod + per-page `dateModified`** — `playerUpdatedAt(player)`.
+
+Depends on a GROUP RESULT or another nation's progress (NOT in our data for non-legend groups): **use the live ESPN client pattern** (`LiveGroupTable` / `RoadProjLive` / `LiveNow`), NEVER static pot-seeding — static seeding is exactly what went stale. The agent maintains `groupTable` for the 5 legend groups only; everything broader comes from ESPN client-side.
+
 ### The match-result update loop (operational recipe — proven 2026-06-13)
 
 The P0 tournament workflow. The user pings after a legend's nation plays ("Brazil played" / a score); ~5 min per game. Steps that worked for the first one (Brazil 1-1 Morocco):

@@ -180,8 +180,13 @@ export default function RoadToFinalPage() {
             const group = p.wc2026?.group || "";
             const groupTeams = p.wc2026?.groupTeams || [];
             // Projected opponents only matter while a legend is still alive and
-            // pre-knockout-deep; once they're out or champions, the path is set.
-            const proj = !out && !champ ? projectedPaths(p) : null;
+            // not yet past the QF — beyond that (SF/Final) the field fans out
+            // across half the draw, too wide to name. Once out/champion the path
+            // is set. RoadProjLive further drops rounds already played.
+            const proj =
+              !out && !champ && stageIndex(st.stage) <= stageIndex("qf")
+                ? projectedPaths(p)
+                : null;
             return (
               <div
                 key={p.id}
@@ -233,7 +238,13 @@ export default function RoadToFinalPage() {
                   </li>
                 </ol>
 
-                {proj ? <RoadProjLive proj={proj} country={p.country} /> : null}
+                {proj ? (
+                  <RoadProjLive
+                    proj={proj}
+                    country={p.country}
+                    currentStage={st.stage}
+                  />
+                ) : null}
               </div>
             );
           })}

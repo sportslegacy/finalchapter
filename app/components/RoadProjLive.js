@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { tournament } from "../../data/players";
+import { tournament, stageIndex } from "../../data/players";
 
 // The "Who they could face" projection panel on /road-to-the-final. It ships
 // server-rendered as a pot-SEEDING projection (every team of a single group as a
@@ -141,8 +141,19 @@ function ProjBranch({ title, rounds }) {
   );
 }
 
-export default function RoadProjLive({ proj, country }) {
+// Only R32/R16/QF are namable — SF/Final fan out across half the draw.
+const NAMABLE = ["r32", "r16", "qf"];
+
+export default function RoadProjLive({ proj, country, currentStage }) {
   const [resolved, setResolved] = useState(null); // letter → {complete, winner, runnerUp}
+
+  // Show only rounds the legend HASN'T played yet — once they advance past R32,
+  // drop the R32 row (it's history; the lane node above shows the real result),
+  // so the projection stays in step with status.stage. Deterministic from the
+  // prop, so it's identical server + first-client render (no hydration mismatch).
+  const curIdx = stageIndex(currentStage || "group");
+  const visible = (rounds) =>
+    rounds.filter((r) => NAMABLE.includes(r.stage) && stageIndex(r.stage) >= curIdx);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,7 +221,7 @@ export default function RoadProjLive({ proj, country }) {
         title={
           only ? `${country} won Group ${proj.group}` : `If ${country} win Group ${proj.group}`
         }
-        rounds={proj.win.map(narrow)}
+        rounds={visible(proj.win).map(narrow)}
       />
     );
   }
@@ -223,7 +234,7 @@ export default function RoadProjLive({ proj, country }) {
             ? `${country} finished 2nd in Group ${proj.group}`
             : `If they finish 2nd in Group ${proj.group}`
         }
-        rounds={proj.runnerUp.map(narrow)}
+        rounds={visible(proj.runnerUp).map(narrow)}
       />
     );
   }
