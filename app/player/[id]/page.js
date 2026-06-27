@@ -9,6 +9,7 @@ import {
   statusStatement,
   stageLabel,
   stageIndex,
+  tournament2026Tally,
   STAGE_ORDER,
   STAGE_SHORT,
 } from "../../../data/players";
@@ -178,6 +179,8 @@ export default async function PlayerPage({ params }) {
   const head = statusHeadline(player);
   const statusLine = statusStatement(player);
   const curIdx = stageIndex(status.stage);
+  // Running 2026 goals/apps for the "so far" line on the timeline's 2026 card.
+  const tally2026 = tournament2026Tally(player);
   const eliminated = status.alive === false || status.stage === "eliminated";
   const isChampion = status.stage === "champion";
 
@@ -436,6 +439,22 @@ export default async function PlayerPage({ params }) {
                       <strong>{wc.apps}</strong> apps
                     </span>
                     <span className="timeline-stat">Age {wc.age}</span>
+                  </div>
+                )}
+                {isFuture && tally2026 && (
+                  <div className="timeline-stats-row">
+                    <span className="timeline-stat">
+                      <strong>{tally2026.goals}</strong> goals
+                    </span>
+                    <span className="timeline-stat">
+                      <strong>{tally2026.apps}</strong> apps
+                    </span>
+                    <span className="timeline-stat">
+                      Age {player.ageAtTournament}
+                    </span>
+                    <span className="timeline-stat timeline-stat-sofar">
+                      so far
+                    </span>
                   </div>
                 )}
               </div>

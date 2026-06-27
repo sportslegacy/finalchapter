@@ -87,7 +87,7 @@ export default function LiveGroupTable({ group, country, fallback }) {
         <span>Group {group} standings</span>
         <span className={`group-standings-asof${live ? " is-live" : ""}`}>
           {live ? <span className="gs-live-dot" aria-hidden="true" /> : null}
-          {live ? "live" : `as of ${table.asOf}`}
+          {live ? "current" : `as of ${table.asOf}`}
         </span>
       </div>
       <ol className="group-standings-list">

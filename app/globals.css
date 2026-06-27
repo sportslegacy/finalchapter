@@ -998,6 +998,21 @@ a {
   font-weight: 600;
 }
 
+/* "so far" pill on the in-progress 2026 timeline card — flags the tally as a
+   running, mid-tournament count rather than a final one. */
+.timeline-stat-sofar {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--player-accent, var(--accent-gold));
+  border: 1px solid
+    color-mix(in srgb, var(--player-accent, var(--accent-gold)) 40%, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  align-self: center;
+}
+
 .timeline-emoji {
   position: absolute;
   top: 1.5rem;
@@ -1441,26 +1456,23 @@ a {
   color: var(--player-accent, var(--accent-gold));
   opacity: 0.85;
 }
+/* "current" = the table reflects live ESPN data. Deliberately CALM (accent
+   color, static dot) — NOT the red pulsing match-LIVE treatment, which is
+   reserved for an actual in-progress score (LiveNow). A red "LIVE" here read as
+   "a match is happening now" even between matchdays, which was confusing. */
 .group-standings-asof.is-live {
   display: inline-flex;
   align-items: center;
   gap: 0.32em;
-  color: #ff4d4d;
-  opacity: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
+  color: var(--player-accent, var(--accent-gold));
+  opacity: 0.85;
 }
 .gs-live-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #ff4d4d;
-  box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.5);
-  animation: live-pulse 1.6s ease-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .gs-live-dot { animation: none; }
+  background: currentColor;
+  opacity: 0.9;
 }
 .group-standings-list {
   list-style: none;

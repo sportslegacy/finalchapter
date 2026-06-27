@@ -39,7 +39,7 @@ export const players = [
           kickoffUtc: "2026-06-17T01:00:00.000Z",
           venue: "Arrowhead Stadium",
           city: "Kansas City",
-          result: { outcome: "W", score: "3-0", scorers: "Messi ×3 (hat-trick) — 16th WC goal, equals Klose" },
+          result: { outcome: "W", score: "3-0", scorers: "Messi ×3 (hat-trick) — 16th WC goal, equals Klose", legendGoals: 3 },
         },
         {
           opponent: "Austria",
@@ -48,7 +48,7 @@ export const players = [
           kickoffUtc: "2026-06-22T17:00:00.000Z",
           venue: "AT&T Stadium",
           city: "Arlington, TX",
-          result: { outcome: "W", score: "2-0", scorers: "Messi 38′, 90+5′ — 18th WC goal, breaks Klose's all-time record" },
+          result: { outcome: "W", score: "2-0", scorers: "Messi 38′, 90+5′ — 18th WC goal, breaks Klose's all-time record", legendGoals: 2 },
         },
         {
           opponent: "Jordan",
@@ -242,7 +242,7 @@ export const players = [
           kickoffUtc: "2026-06-23T17:00:00.000Z",
           venue: "NRG Stadium",
           city: "Houston, TX",
-          result: { outcome: "W", score: "5-0", scorers: "Ronaldo 6′ & 45′ (1st to score at 6 WCs) · Nuno Mendes, Leão, Nematov OG" },
+          result: { outcome: "W", score: "5-0", scorers: "Ronaldo 6′ & 45′ (1st to score at 6 WCs) · Nuno Mendes, Leão, Nematov OG", legendGoals: 2 },
         },
         {
           opponent: "Colombia",
@@ -609,7 +609,7 @@ export const players = [
           kickoffUtc: "2026-06-13T22:00:00.000Z",
           venue: "MetLife Stadium",
           city: "New York / New Jersey",
-          result: { outcome: "D", score: "1-1", scorers: "Vinícius Júnior 32′ · Neymar out (calf)" },
+          result: { outcome: "D", score: "1-1", scorers: "Vinícius Júnior 32′ · Neymar out (calf)", legendOut: true },
         },
         {
           opponent: "Haiti",
@@ -618,7 +618,7 @@ export const players = [
           kickoffUtc: "2026-06-20T00:30:00.000Z",
           venue: "Lincoln Financial Field",
           city: "Philadelphia, PA",
-          result: { outcome: "W", score: "3-0", scorers: "Cunha 23′, 36′, Vinícius Júnior 45+3′ · Neymar out (calf)" },
+          result: { outcome: "W", score: "3-0", scorers: "Cunha 23′, 36′, Vinícius Júnior 45+3′ · Neymar out (calf)", legendOut: true },
         },
         {
           opponent: "Scotland",
@@ -800,7 +800,7 @@ export const players = [
           kickoffUtc: "2026-06-27T03:00:00.000Z",
           venue: "BC Place",
           city: "Vancouver",
-          result: { outcome: "W", score: "5-1", scorers: "De Bruyne 66′, Trossard 28′ 50′, Lukaku 86′, Saelemaekers 90+4′" },
+          result: { outcome: "W", score: "5-1", scorers: "De Bruyne 66′, Trossard 28′ 50′, Lukaku 86′, Saelemaekers 90+4′", legendGoals: 1 },
         },
       ],
       storyline:
@@ -1260,6 +1260,24 @@ export function latestResultLabel(player) {
   const m = latestPlayedMatch(player);
   if (!m) return null;
   return `${m.result.outcome} ${m.result.score} v ${m.opponent}`;
+}
+
+// The legend's running 2026-tournament tally, derived from per-match structured
+// fields so it can't go stale or be mis-parsed from the free-text scorers:
+//   result.legendGoals → goals the legend scored that game (omit/0 if none)
+//   result.legendOut: true → the legend did NOT feature (injury/suspension)
+// apps therefore = played group/knockout games MINUS the ones he sat out — so
+// e.g. Neymar (out injured for two games, one cameo) reads 1 app, not 3 (the
+// exact apps-accuracy trap from the stat-integrity notes). Assists are
+// deliberately NOT tracked here — we don't have a reliable 2026 assist source,
+// and a fabricated 0 would be wrong. Returns null before any game is played.
+export function tournament2026Tally(player) {
+  const played = (player.wc2026?.matches || []).filter((m) => m.result);
+  if (!played.length) return null;
+  return {
+    goals: played.reduce((s, m) => s + (m.result.legendGoals || 0), 0),
+    apps: played.reduce((s, m) => s + (m.result.legendOut ? 0 : 1), 0),
+  };
 }
 
 // --- Road to the Final (knockout-path lanes on /road-to-the-final) --------
