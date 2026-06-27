@@ -14,7 +14,7 @@ import {
 } from "../../../data/players";
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
-import LiveScore from "../../components/LiveScore";
+import LiveNow from "../../components/LiveNow";
 import LiveGroupTable from "../../components/LiveGroupTable";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
@@ -210,6 +210,7 @@ export default async function PlayerPage({ params }) {
         <div className="status-banner-inner">
           <p className="status-banner-label">World Cup 2026</p>
           <p className="status-banner-a">{statusLine}</p>
+          {!eliminated ? <LiveNow country={player.country} /> : null}
           <ol className="status-track" aria-hidden="true">
             {STAGE_ORDER.map((stage, i) => {
               const reached = !eliminated && i <= curIdx;
@@ -358,7 +359,6 @@ export default async function PlayerPage({ params }) {
                   </div>
                 ) : (
                   <>
-                    <LiveScore match={match} country={player.country} />
                     <div className="match-date">
                       {formatMatchDate(match.date)}
                       {match.time !== "TBD" ? ` · ${match.time}` : ""}

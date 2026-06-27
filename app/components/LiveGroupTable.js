@@ -54,8 +54,20 @@ export default function LiveGroupTable({ group, country, fallback }) {
             played: stat(e, "gamesPlayed"),
             points: stat(e, "points"),
             gd: stat(e, "pointDifferential"),
+            rank: stat(e, "rank"),
           }))
-          .sort((a, b) => b.points - a.points || b.gd - a.gd);
+          // ESPN's `rank` already encodes the full FIFA tiebreaker chain
+          // (pts → GD → goals scored → head-to-head → fair play → draw of lots),
+          // so trust it for ordering and keep pts/GD only as a fallback if rank
+          // is ever missing. Re-deriving pts→GD ourselves silently inverts
+          // 2nd/3rd (and the "advancing" marker) on a goals-scored tiebreak —
+          // exactly the tense final-round case visitors open the page to check.
+          .sort(
+            (a, b) =>
+              (a.rank || 99) - (b.rank || 99) ||
+              b.points - a.points ||
+              b.gd - a.gd
+          );
         if (teams.length && !cancelled) setTable({ asOf: "live", teams });
       } catch {
         /* keep the static fallback */

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { players } from "../../data/players";
 import { useServerOffset } from "../lib/useServerOffset";
-import LiveScore from "./LiveScore";
+import LiveNow from "./LiveNow";
 
 // Pre-tournament this bar counted down to the opening match. Now that the
 // tournament is live it counts down to the NEXT LEGEND MATCH: the earliest
@@ -105,7 +105,7 @@ export default function Countdown() {
 
   // Kickoff has passed but the result isn't in the data yet — match underway.
   // Show the live score (polled from ESPN) right in the hero; if ESPN has no
-  // live data yet (client clock slightly ahead of real kickoff) LiveScore
+  // live data yet (client clock slightly ahead of real kickoff) LiveNow
   // renders null and the label + link carry it.
   if (mounted && timeLeft.ended) {
     return (
@@ -114,7 +114,7 @@ export default function Countdown() {
           <span className="countdown-label">
             {next.p.countryFlag} {matchup} · underway
           </span>
-          <LiveScore match={next.m} country={next.p.country} />
+          <LiveNow country={next.p.country} showFinal />
           <span className="countdown-meta">
             <Link href="/status">See who&apos;s still standing →</Link>
           </span>
