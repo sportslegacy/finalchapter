@@ -15,6 +15,7 @@ import {
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
 import LiveScore from "../../components/LiveScore";
+import LiveGroupTable from "../../components/LiveGroupTable";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
 import JsonLd from "../../components/JsonLd";
@@ -313,41 +314,11 @@ export default async function PlayerPage({ params }) {
         <div className="group-header">
           <div className="group-badge">Group {player.wc2026.group}</div>
           {player.wc2026.groupTable ? (
-            <div className="group-standings">
-              <div className="group-standings-head">
-                <span>Group {player.wc2026.group} standings</span>
-                <span className="group-standings-asof">
-                  as of {player.wc2026.groupTable.asOf}
-                </span>
-              </div>
-              <ol className="group-standings-list">
-                <li className="group-standings-row is-header" aria-hidden="true">
-                  <span className="gs-pos" />
-                  <span className="gs-team">Team</span>
-                  <span className="gs-num">P</span>
-                  <span className="gs-num">Pts</span>
-                </li>
-                {player.wc2026.groupTable.teams.map((t, i) => {
-                  const isLegend = t.name === player.country;
-                  return (
-                    <li
-                      key={t.name}
-                      className={`group-standings-row${
-                        isLegend ? " is-legend" : ""
-                      }${i < 2 ? " is-advancing" : ""}`}
-                    >
-                      <span className="gs-pos">{i + 1}</span>
-                      <span className="gs-team">{t.name}</span>
-                      <span className="gs-num">{t.played}</span>
-                      <span className="gs-num gs-pts">{t.points}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-              <p className="group-standings-foot">
-                Top 2 advance &middot; best third-place sides also qualify
-              </p>
-            </div>
+            <LiveGroupTable
+              group={player.wc2026.group}
+              country={player.country}
+              fallback={player.wc2026.groupTable}
+            />
           ) : (
             <div className="group-teams">
               {player.wc2026.groupTeams.join(" · ")}
