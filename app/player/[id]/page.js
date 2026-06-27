@@ -14,6 +14,7 @@ import {
 } from "../../../data/players";
 import Nav from "../../components/Nav";
 import MatchCountdown from "../../components/MatchCountdown";
+import LiveScore from "../../components/LiveScore";
 import CountUp from "../../components/CountUp";
 import GoalChart from "../../components/GoalChart";
 import JsonLd from "../../components/JsonLd";
@@ -386,6 +387,7 @@ export default async function PlayerPage({ params }) {
                   </div>
                 ) : (
                   <>
+                    <LiveScore match={match} country={player.country} />
                     <div className="match-date">
                       {formatMatchDate(match.date)}
                       {match.time !== "TBD" ? ` · ${match.time}` : ""}
