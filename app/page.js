@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { players, tournament } from "../data/players";
+import { players, tournament, tournamentEventStatus } from "../data/players";
+import { autoUpdate } from "../data/autoUpdate";
 import Countdown from "./components/Countdown";
 import Nav from "./components/Nav";
 import JsonLd from "./components/JsonLd";
@@ -20,7 +21,8 @@ const eventJsonLd = {
     "The first 48-team FIFA World Cup, hosted across USA, Canada, and Mexico from June 11 to July 19, 2026.",
   startDate: "2026-06-11",
   endDate: "2026-07-19",
-  eventStatus: "https://schema.org/EventScheduled",
+  eventStatus: tournamentEventStatus(),
+  dateModified: autoUpdate.updatedAt,
   eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
   sport: "Association Football",
   url: SITE_URL,

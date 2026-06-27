@@ -1280,6 +1280,50 @@ export function tournament2026Tally(player) {
   };
 }
 
+function plural(n, word) {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
+}
+
+// Answer-first sentence for the "how many goals has X scored at the 2026 World
+// Cup" / "[player] world cup 2026 stats" long-tail — crawlable static text baked
+// into the HTML on each agent push, targeting the question cluster player pages
+// already rank ~7 for. Derived from the structured tally (never the free-text
+// scorers). Returns null until a game is played, so pre-tournament copy is
+// unchanged. Truthful 0-goal branch (the "did X score" answer is a real query).
+export function goalsSentence(player) {
+  const t = tournament2026Tally(player);
+  if (!t || t.apps === 0) return null;
+  const apps = plural(t.apps, "appearance");
+  if (t.goals === 0) {
+    return `${player.name} has not scored in ${apps} at the 2026 World Cup so far.`;
+  }
+  return `${player.name} has scored ${plural(t.goals, "goal")} in ${apps} at the 2026 World Cup so far.`;
+}
+
+// schema.org eventStatus for the tournament-level SportsEvent blocks. Derived
+// from the build date vs the fixed tournament bounds, so the schema stops saying
+// "Scheduled" while the cup is live and self-expires to "Completed" after the
+// final — no manual flip. The site redeploys on every agent push, so the build
+// date stays current through the tournament.
+export function tournamentEventStatus() {
+  const now = new Date();
+  if (now < new Date("2026-06-11T00:00:00Z")) return "https://schema.org/EventScheduled";
+  if (now >= new Date("2026-07-20T00:00:00Z")) return "https://schema.org/EventCompleted";
+  return "https://schema.org/EventInProgress";
+}
+
+// Per-player content-change timestamp (ISO) for dateModified + sitemap lastmod —
+// the kickoff of that player's most recent recorded result. Per-player, so a
+// Neymar-only push does NOT falsely re-stamp Messi's page as "just updated"
+// (the granularity trap a single global timestamp would create). Null until a
+// game is played.
+export function playerUpdatedAt(player) {
+  const ts = (player.wc2026?.matches || [])
+    .filter((m) => m.result && m.kickoffUtc)
+    .map((m) => new Date(m.kickoffUtc).getTime());
+  return ts.length ? new Date(Math.max(...ts)).toISOString() : null;
+}
+
 // --- Road to the Final (knockout-path lanes on /road-to-the-final) --------
 //
 // The five legends' knockout journeys drawn as parallel left-to-right lanes,

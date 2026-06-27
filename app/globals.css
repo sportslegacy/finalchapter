@@ -1013,6 +1013,37 @@ a {
   align-self: center;
 }
 
+/* Answer-first "2026 World Cup stats" block on player pages — sits just under
+   the status banner; editorial, not a snippet box. Inside .player-accent-scope
+   so the label picks up the national accent. */
+.stats-so-far {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+.stats-so-far-q {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0.35rem 0 0.55rem;
+}
+.stats-so-far-a {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+@media (min-width: 769px) {
+  .stats-so-far-q {
+    font-size: 1.6rem;
+  }
+  .stats-so-far-a {
+    font-size: 1.15rem;
+  }
+}
+
 .timeline-emoji {
   position: absolute;
   top: 1.5rem;

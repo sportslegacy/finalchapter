@@ -6,6 +6,7 @@ import {
   stageIndex,
   isChampion,
   projectedPaths,
+  tournamentEventStatus,
 } from "../../data/players";
 import Nav from "../components/Nav";
 import JsonLd from "../components/JsonLd";
@@ -155,7 +156,7 @@ const eventJsonLd = {
     "The knockout rounds of the first 48-team FIFA World Cup: Round of 32, Round of 16, quarter-finals, semi-finals and the final on July 19, 2026.",
   startDate: "2026-06-28",
   endDate: "2026-07-19",
-  eventStatus: "https://schema.org/EventScheduled",
+  eventStatus: tournamentEventStatus(),
   sport: "Association Football",
   url: `${SITE_URL}/road-to-the-final`,
   image: `${SITE_URL}/opengraph-image`,

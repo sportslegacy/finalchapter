@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { players, tournament } from "../../data/players";
+import { players, tournament, tournamentEventStatus } from "../../data/players";
 import Nav from "../components/Nav";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
@@ -35,7 +35,7 @@ const eventJsonLd = {
     "The first 48-team FIFA World Cup, drawn into 12 groups of four. Hosted across the USA, Canada, and Mexico from June 11 to July 19, 2026.",
   startDate: "2026-06-11",
   endDate: "2026-07-19",
-  eventStatus: "https://schema.org/EventScheduled",
+  eventStatus: tournamentEventStatus(),
   sport: "Association Football",
   url: `${SITE_URL}/world-cup-2026-groups`,
   image: `${SITE_URL}/opengraph-image`,

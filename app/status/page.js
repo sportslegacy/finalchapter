@@ -7,6 +7,7 @@ import {
   stageLabel,
   stageIndex,
   latestResultLabel,
+  tournamentEventStatus,
   STAGE_ORDER,
   STAGE_SHORT,
 } from "../../data/players";
@@ -71,7 +72,8 @@ const eventJsonLd = {
     "The first 48-team FIFA World Cup, hosted across the USA, Canada, and Mexico from June 11 to July 19, 2026.",
   startDate: "2026-06-11",
   endDate: "2026-07-19",
-  eventStatus: "https://schema.org/EventScheduled",
+  eventStatus: tournamentEventStatus(),
+  dateModified: autoUpdate.updatedAt,
   sport: "Association Football",
   url: `${SITE_URL}/status`,
   image: `${SITE_URL}/opengraph-image`,

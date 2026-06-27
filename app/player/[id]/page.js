@@ -10,6 +10,9 @@ import {
   stageLabel,
   stageIndex,
   tournament2026Tally,
+  goalsSentence,
+  tournamentEventStatus,
+  playerUpdatedAt,
   STAGE_ORDER,
   STAGE_SHORT,
 } from "../../../data/players";
@@ -48,7 +51,16 @@ export async function generateMetadata({ params }) {
   // demand ("Is X still in the 2026 World Cup?") and the description leads with
   // the current standing. Pre-tournament it stays on the evergreen "last World
   // Cup?" framing that's been pulling the impressions.
-  const description = live
+  // Once a legend has played, lead the description with the live goals/apps
+  // answer ("X has scored N goals in M appearances ... so far") — the exact
+  // "how many goals has X scored" long-tail, and a fresh snippet on each push.
+  // Gated on the tally EXISTING (a game played), NOT on `live`: the hottest
+  // "how many goals" demand is group-stage when Messi/Ronaldo are scoring, and
+  // they're still status.stage="group" (live=false). All 5 stay ≤160 chars.
+  const stats = goalsSentence(player);
+  const description = stats
+    ? `${head.a} ${stats}`
+    : live
     ? `${head.a} ${player.name}'s ${ordinal} and likely last World Cup at ${player.ageAtTournament}. Records, milestones & full schedule.`
     : `Yes — ${player.name} plays for ${player.country} at the 2026 World Cup, his ${ordinal} and likely last at ${player.ageAtTournament}. Group ${player.wc2026.group}. Records, milestones & full schedule.`;
   const title = live
@@ -77,10 +89,15 @@ function formatMatchDate(dateStr) {
 }
 
 const SITE_URL = "https://finalchapterfc.com";
+const PUBLISHED = "2026-05-24"; // site launch — datePublished baseline
 
 // Person schema for SEO — gives Google enough structured data to
 // surface Knowledge Panel-style displays on player-name queries.
 function buildPersonJsonLd(player) {
+  // Per-player freshness: the date of THIS legend's latest recorded result, so
+  // a one-legend push doesn't claim the other four changed (an honest
+  // dateModified, unlike a single global timestamp smeared across all pages).
+  const modified = playerUpdatedAt(player) || PUBLISHED;
   return {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -92,6 +109,8 @@ function buildPersonJsonLd(player) {
     description: player.bio,
     image: `${SITE_URL}${player.photo.src}`,
     url: `${SITE_URL}/player/${player.id}`,
+    datePublished: PUBLISHED,
+    dateModified: modified,
     knowsAbout: ["Association Football", "FIFA World Cup"],
     award: player.careerHonors,
     memberOf: {
@@ -106,7 +125,8 @@ function buildPersonJsonLd(player) {
         "The first 48-team FIFA World Cup, hosted across the USA, Canada, and Mexico from June 11 to July 19, 2026.",
       startDate: "2026-06-11",
       endDate: "2026-07-19",
-      eventStatus: "https://schema.org/EventScheduled",
+      eventStatus: tournamentEventStatus(),
+      dateModified: modified,
       sport: "Association Football",
       image: `${SITE_URL}${player.photo.src}`,
       location: [
@@ -150,8 +170,17 @@ function buildFaqJsonLd(player) {
   // the World Cup" intent is the first question search engines associate with
   // the page once the tournament is underway.
   const head = statusHeadline(player);
-  const statusQ = { q: head.q, a: head.a };
-  const entries = [statusQ, ...player.faqs];
+  const entries = [{ q: head.q, a: head.a }];
+  // Add the live "how many goals" answer once a game is played — the structured
+  // companion to the visible "stats so far" block, on the same long-tail.
+  const gs = goalsSentence(player);
+  if (gs) {
+    entries.push({
+      q: `How many goals has ${player.name} scored at the 2026 World Cup?`,
+      a: gs,
+    });
+  }
+  entries.push(...player.faqs);
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -159,6 +188,23 @@ function buildFaqJsonLd(player) {
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
+// BreadcrumbList — one of the few rich results Google still renders for an
+// ordinary site, so the SERP shows a "The Final Chapter › Who's Still Standing ›
+// {Player}" trail instead of a raw URL. All absolute https URLs (Google ignores
+// fragment items, so the middle node points at the real /status page).
+function buildBreadcrumbJsonLd(crumbs) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.url,
     })),
   };
 }
@@ -181,6 +227,9 @@ export default async function PlayerPage({ params }) {
   const curIdx = stageIndex(status.stage);
   // Running 2026 goals/apps for the "so far" line on the timeline's 2026 card.
   const tally2026 = tournament2026Tally(player);
+  // Answer-first "stats so far" sentence (null until a game is played) — the
+  // crawlable answer to "how many goals has X scored at the 2026 World Cup".
+  const statsSentence = goalsSentence(player);
   const eliminated = status.alive === false || status.stage === "eliminated";
   const isChampion = status.stage === "champion";
 
@@ -188,6 +237,13 @@ export default async function PlayerPage({ params }) {
     <>
       <JsonLd data={buildPersonJsonLd(player)} />
       {faqJsonLd && <JsonLd data={faqJsonLd} />}
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "The Final Chapter", url: SITE_URL },
+          { name: "Who's Still Standing", url: `${SITE_URL}/status` },
+          { name: player.name, url: `${SITE_URL}/player/${player.id}` },
+        ])}
+      />
       <JsonLdDedupe />
       <Nav />
 
@@ -235,6 +291,18 @@ export default async function PlayerPage({ params }) {
           ) : null}
         </div>
       </section>
+
+      {/* Answer-first "stats so far" block — a crawlable H2 + one-sentence
+          answer near the top of the body, targeting "{player} world cup 2026
+          stats / goals". Server-rendered (baked into static HTML on each agent
+          push); auto-hides before the first game via the null guard. */}
+      {statsSentence ? (
+        <section className="stats-so-far" aria-label={`${player.name} 2026 World Cup stats`}>
+          <p className="section-label">2026 World Cup &middot; So Far</p>
+          <h2 className="stats-so-far-q">{firstName}&apos;s 2026 World Cup stats</h2>
+          <p className="stats-so-far-a">{statsSentence}</p>
+        </section>
+      ) : null}
 
       {/* Profile Hero */}
       <section className="profile-hero">

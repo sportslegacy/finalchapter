@@ -189,6 +189,18 @@ jobs:
           git add data/players.js data/autoUpdate.js
           git commit -m "result: auto-update legend match result(s)"
           git push
+          # IndexNow: proactively tell Bing/Yandex to recrawl the pages a result
+          # push changes (home, /status, /road, the player pages) instead of
+          # waiting for a passive crawl — the during-game freshness ping for the
+          # non-Google engines (Bing is already verified via layout.js). Best-
+          # effort: a non-2xx must NEVER fail the job or block the deploy. (Google
+          # does not consume IndexNow; its recrawl is nudged by the sitemap
+          # lastmod, now wired to the real content clock.)
+          IN_KEY="8d3f1a6c4b9e7205f3a8c1d6e0b94725"
+          curl -s -m 20 -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            -d "{\"host\":\"finalchapterfc.com\",\"key\":\"$IN_KEY\",\"keyLocation\":\"https://finalchapterfc.com/$IN_KEY.txt\",\"urlList\":[\"https://finalchapterfc.com/\",\"https://finalchapterfc.com/status\",\"https://finalchapterfc.com/road-to-the-final\",\"https://finalchapterfc.com/player/messi\",\"https://finalchapterfc.com/player/ronaldo\",\"https://finalchapterfc.com/player/modric\",\"https://finalchapterfc.com/player/neymar\",\"https://finalchapterfc.com/player/debruyne\"]}" \
+            && echo "IndexNow ping sent" || echo "IndexNow ping failed (non-fatal)"
 
       # --- Failure alerting: a silent failure (e.g. Anthropic credits run out)
       # went unnoticed for ~1.5 days once. These two steps surface it: a failed
