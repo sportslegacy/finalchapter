@@ -13,6 +13,7 @@ import {
 import { autoUpdate } from "../../data/autoUpdate";
 import Nav from "../components/Nav";
 import AgoTime from "../components/AgoTime";
+import LiveScore from "../components/LiveScore";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
 
@@ -142,6 +143,9 @@ export default function StatusPage() {
             const out = st.alive === false || st.stage === "eliminated";
             const champ = st.stage === "champion";
             const lastResult = latestResultLabel(p);
+            const liveMatch = p.wc2026?.matches?.find(
+              (m) => !m.result && m.kickoffUtc
+            );
             return (
               <Link
                 key={p.id}
@@ -196,6 +200,9 @@ export default function StatusPage() {
                       );
                     })}
                   </ol>
+                  {liveMatch ? (
+                    <LiveScore match={liveMatch} country={p.country} />
+                  ) : null}
                   {lastResult ? (
                     <div
                       className={`status-card-result outcome-${lastResult[0].toLowerCase()}`}
