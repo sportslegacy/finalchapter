@@ -1255,10 +1255,21 @@ export function latestPlayedMatch(player) {
   return null;
 }
 
-// Compact "W 2-1 v Algeria" label for the most recent result, or null.
+// Compact "W 2-1 v Algeria" label for the most recent result, or null. Spans
+// group matches AND knockout games, so the /status "Last:" line keeps advancing
+// through the knockouts (where results live in wc2026.knockout[], not matches[]).
 export function latestResultLabel(player) {
-  const m = latestPlayedMatch(player);
-  if (!m) return null;
+  const candidates = [
+    ...(player.wc2026?.matches || [])
+      .filter((m) => m.result && m.kickoffUtc)
+      .map((m) => ({ t: new Date(m.kickoffUtc).getTime(), opponent: m.opponent, result: m.result })),
+    ...(player.wc2026?.knockout || [])
+      .filter((k) => k.result)
+      .map((k) => ({ t: k.kickoffUtc ? new Date(k.kickoffUtc).getTime() : Infinity, opponent: k.opponent, result: k.result })),
+  ];
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => b.t - a.t);
+  const m = candidates[0];
   return `${m.result.outcome} ${m.result.score} v ${m.opponent}`;
 }
 
@@ -1272,11 +1283,16 @@ export function latestResultLabel(player) {
 // deliberately NOT tracked here — we don't have a reliable 2026 assist source,
 // and a fabricated 0 would be wrong. Returns null before any game is played.
 export function tournament2026Tally(player) {
-  const played = (player.wc2026?.matches || []).filter((m) => m.result);
-  if (!played.length) return null;
+  // Count BOTH group matches and knockout games (knockout goals/apps must feed
+  // the running tally too — both carry the same legendGoals/legendOut fields).
+  const results = [
+    ...(player.wc2026?.matches || []).filter((m) => m.result).map((m) => m.result),
+    ...(player.wc2026?.knockout || []).filter((k) => k.result).map((k) => k.result),
+  ];
+  if (!results.length) return null;
   return {
-    goals: played.reduce((s, m) => s + (m.result.legendGoals || 0), 0),
-    apps: played.reduce((s, m) => s + (m.result.legendOut ? 0 : 1), 0),
+    goals: results.reduce((s, r) => s + (r.legendGoals || 0), 0),
+    apps: results.reduce((s, r) => s + (r.legendOut ? 0 : 1), 0),
   };
 }
 
@@ -1318,9 +1334,14 @@ export function tournamentEventStatus() {
 // (the granularity trap a single global timestamp would create). Null until a
 // game is played.
 export function playerUpdatedAt(player) {
-  const ts = (player.wc2026?.matches || [])
-    .filter((m) => m.result && m.kickoffUtc)
-    .map((m) => new Date(m.kickoffUtc).getTime());
+  const ts = [
+    ...(player.wc2026?.matches || [])
+      .filter((m) => m.result && m.kickoffUtc)
+      .map((m) => new Date(m.kickoffUtc).getTime()),
+    ...(player.wc2026?.knockout || [])
+      .filter((k) => k.kickoffUtc)
+      .map((k) => new Date(k.kickoffUtc).getTime()),
+  ];
   return ts.length ? new Date(Math.max(...ts)).toISOString() : null;
 }
 
@@ -1336,12 +1357,22 @@ export function playerUpdatedAt(player) {
 //   wc2026.knockout: [                 // OPTIONAL — add one entry per round as
 //     { stage: "r32",                  //   the legend plays it. stage ∈ ROAD_STAGES.
 //       opponent: "Switzerland",       //   the named opponent once known
-//       result: { outcome: "W", score: "2-1", scorers: "…" } },  // same shape as a match result; absent until played
+//       kickoffUtc: "2026-06-28T19:00:00.000Z",  // the game's kickoff — lets the
+//                                        //   detector tell a new round from an
+//                                        //   already-recorded one (date compare)
+//       result: { outcome: "W", score: "2-1", scorers: "…",
+//                 legendGoals: 1, legendOut: false } },  // same shape as a match
+//                                        //   result (incl. the tally fields, so
+//                                        //   knockout goals/apps feed the "so far"
+//                                        //   line); pens go in score, e.g.
+//                                        //   "1-1 (4-3 pens)", outcome from the
+//                                        //   ADVANCEMENT POV (W = advanced).
 //   ]
 //
-// Absent ⇒ that round's node shows the round date placeholder. Keep this in
-// sync with wc2026.status.stage (the lane lights nodes from status, not from
-// the knockout[] array) — the array only supplies opponent/score labels.
+// Absent ⇒ that round's node shows the round date placeholder. The lane LIGHTS
+// nodes from wc2026.status.stage (the single source of truth — advance it as the
+// legend progresses), NOT from this array; knockout[] only supplies the
+// opponent/score caption + the kickoff the auto-updater uses to detect rounds.
 
 // First date of each knockout round (mirrors tournament.keyDates).
 export const KNOCKOUT_STAGE_DATES = {

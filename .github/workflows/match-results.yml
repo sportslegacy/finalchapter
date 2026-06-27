@@ -107,8 +107,11 @@ jobs:
             why. A missing update is far better than a wrong one. (Disagreement on
             an opponent's scorer minute is fine; our card never shows it.)
 
-            STEP 3. EDIT ONLY data/players.js. For each verified match, on that
-            player's wc2026.matches entry add:
+            STEP 3. EDIT ONLY data/players.js. Each pending entry carries a
+            `type`: "group" (a group fixture) or "knockout" (a knockout round the
+            detector found on ESPN). Handle each per its type.
+
+            STEP 3A — TYPE "group": on that player's wc2026.matches entry add:
               result: { outcome: "W"|"D"|"L", score: "own-opp", scorers: "..." }
             - outcome is from the LEGEND'S nation's POV (W/D/L).
             - score is own-opp order, e.g. legend's team 2, opponent 0 => "2-0".
@@ -137,6 +140,35 @@ jobs:
             - DO NOT flip status.stage / status.alive unless the match
               mathematically eliminates the team or clinches advancement; a single
               group game in isolation does neither.
+
+            STEP 3B — TYPE "knockout": the legend's nation played a KNOCKOUT game
+            (the entry carries `stage` = the round they were in = the round just
+            played, plus `opponent` and `kickoffUtc`). Knockout games can't end
+            level — extra time + penalties decide — so from >=2 sources establish
+            whether the nation ADVANCED or was ELIMINATED (penalties count). Then:
+            - APPEND one entry to that player's wc2026.knockout[] array (create the
+              array if it doesn't exist yet):
+                { stage: "<the pending entry's stage>", opponent: "<opponent>",
+                  kickoffUtc: "<the pending entry's kickoffUtc>",
+                  result: { outcome: "W"|"L", score: "own-opp", scorers: "...",
+                            legendGoals: <N>, legendOut: <true if he didn't play> } }
+              outcome = W if the nation ADVANCED (incl. on penalties), L if it went
+              out. score is own-opp; for a shootout write it like "1-1 (4-3 pens)".
+              scorers / legendGoals / legendOut exactly as in 3A (they feed the
+              same "so far" tally).
+            - FLIP wc2026.status.stage — THIS is what advances /road-to-the-final,
+              /status, the player strip and the dynamic title, so get it right:
+                * ADVANCED → next round in this exact order:
+                  r32 → r16 → qf → sf → final → champion (winning the FINAL ⇒
+                  "champion"). Keep status.alive = true.
+                * ELIMINATED → set status.alive = false and LEAVE status.stage at
+                  the round just lost (the lane renders "out" there).
+              If you cannot confidently tell advanced-vs-out from >=2 sources, SKIP
+              (the SAFETY GATE applies — a wrong flip shows false info).
+            - UPDATE wc2026.status.note (next round + date, or "knocked out" /
+              "champions").
+            - Do NOT touch wc2026.matches[] or groupTable for a knockout game, and
+              do NOT change any worldCups[] entry / career totals.
 
             STEP 4. VERIFY: run the stat-integrity Check 1 command from CLAUDE.md
             (must print OK for all 5 players — a result must NOT change it) and
