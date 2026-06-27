@@ -214,6 +214,19 @@ Built 2026-06-14, made fully reliable 2026-06-20. Runs the result loop without a
 - **Secret:** repo secret `ANTHROPIC_API_KEY` (Settings → Secrets → Actions). Repo is public — the CLI never echoes the key.
 - **Retired:** the Mac Claude scheduled tasks (`belgium-egypt-result-jun15`, `messi-algeria-result-jun16`) — they only ran while the app was open and missed matches; both disabled. The per-match dated GitHub crons + `gen-match-cron.mjs` are also superseded by cron-job.org (script left in repo but unused).
 
+### Live in-match data layer (ESPN client-side) — `LiveNow` + `LiveGroupTable` (built 2026-06-26)
+
+Complements the agent loop above: the agent records the **authoritative final** (~10–15 min after FT, with scorers/milestones/group flips), while this layer shows **live scores + current standings during and right after a match** straight from the browser. **Why it matters:** the site now stays current even when the agent is late — the exact cron timing that caused the "I check and it's not updated" pain is no longer load-bearing. Both pull **ESPN's free public API** (`site.api.espn.com/apis/.../fifa.world/...`), which sends `access-control-allow-origin: *` and needs **no key** → fetched **client-side**, so the site stays a **pure static export** with **zero added cost/runtime**. Both render **null on any fetch/parse error**, so a changed/broken ESPN API can NEVER break a page — it just goes dormant.
+
+- **`app/components/LiveNow.js`** — live score, **country-based** ("is this nation playing right now?") rather than fixture-based, so it covers **group AND knockouts with zero per-round data** (no need to pre-load knockout opponents/kickoffs). **Only the legend's OWN nation is matched** (the 5 names map exactly to ESPN's `displayName`, verified); the opponent is whatever ESPN reports, so tricky opponent names (Côte d'Ivoire, Korea Republic…) can't break it. Mounted on the **player status banner** (alive only), **homepage hero** "underway" branch, and **/status** cards (alive only). Design rules that survived an adversarial review (don't revert):
+  - **`showFinal` prop, default false → live-only.** Player/status pages show the score ONLY while `state==="in"`; the FT score there would just duplicate the recorded result (note + "Last:" + schedule card). **Only the hero passes `showFinal`** (it has no recorded-result line, and briefly bridges the FT→record gap).
+  - **Shared module-level scoreboard cache** (25s TTL + in-flight dedup) collapses the up-to-5 instances on /status into ~one ESPN request per cycle.
+  - **Date range is US-Eastern, anchored to the SERVER clock** (`useServerOffset`), queried ±1 day, so a wrong device clock or the ET/UTC day boundary can't hide a live game. EDT = UTC-4 for the whole tournament.
+  - **Lifecycle:** one poll chain only (an `inFlight` re-entrancy guard stops a visibility-toggle-mid-poll from spawning a duplicate chain); polling **pauses when the tab is hidden** and **restarts on `visibilitychange` AND `pageshow`** (the latter is the only reliable bfcache signal on iOS Safari — mirrors `Countdown`/`MatchCountdown`). Adaptive interval: 30s while live, 90s idle.
+  - **FT-grace:** a finished game lingers ~1.5h (window keyed off kickoff, `FT_GRACE_MS`) so the score doesn't vanish at the whistle; `state==="in"` is always authoritative for live-vs-final.
+  - **a11y:** the score div is `role="status" aria-live="polite" aria-atomic="true"` so screen readers announce goals.
+- **`app/components/LiveGroupTable.js`** — live group standings. Renders the static agent-maintained `wc2026.groupTable` as the **instant SSR/SEO fallback**, then on mount fetches ESPN's **standings** endpoint and swaps to the CURRENT table — so the standing is never stale between a legend's OWN matches (the static table only refreshed on those). **Sort by ESPN's own tiebreak-aware `rank` stat**, NOT a re-derived points→GD — re-deriving silently inverts 2nd/3rd (and the "advancing" marker) on a goals-scored tiebreak, exactly the tense final-round case visitors check. Replaces the old window-gated `LiveScore` component (deleted).
+
 ### Road to the Final (`/road-to-the-final`) — lit by status, captioned by knockout[]
 
 The five-lane knockout-path view (built 2026-06-06; the legends-lens alternative to a generic bracket — see backlog). Three rules so it stays accurate with near-zero maintenance:
@@ -528,9 +541,18 @@ In rough priority if traffic justifies more work:
 - ✅ React #418 hydration error eliminated (Countdown `suppressHydrationWarning` + MatchCountdown mounted-gate)
 - ✅ SportsEvent enhancement fields (`image`, `location`→Place+address, `performer`) on homepage + player pages
 
-## Session handoff — current state (last updated 2026-06-13, tournament LIVE)
+## Session handoff — current state (last updated 2026-06-26, tournament LIVE — knockouts about to start)
 
 Quick orientation for a fresh session. Details live in the gotchas + "three tournament SEO pages" section above.
+
+**2026-06-26 session — live in-match data layer (the big one this week):**
+- **Built the live ESPN data layer** — `LiveNow` (live scores, country-based → knockout-proof) + `LiveGroupTable` (live group standings). See the new **"Live in-match data layer"** gotcha for the full design + the non-revert rules. Both client-side off ESPN's free keyless CORS API → site stays static, zero cost, can't break a page (null on error). Commits `f895583` (first LiveScore), `5581af8` (live standings), `0ce6c36` (hero+status), **`9a8a203`** (knockout-proof `LiveNow` rewrite + adversarial-review hardening).
+- **Why it was built:** the user's recurring pain was "I check during/after a match and nothing's updated" — the agent only records the FINAL ~10–15 min post-FT. The live layer fills that gap (live score during the game, current standings instantly at FT) and, crucially, **makes the agent's exact timing no longer load-bearing.**
+- **Ran an adversarial-review workflow** (4 lenses × independent verification) on `LiveNow` before shipping → fixed 7 confirmed issues (standings `rank` sort, poll-chain re-entrancy + `pageshow`/bfcache, `showFinal` live-only gate to kill FT duplication, `aria-live`, NaN-date hardening, fade-in). No hydration/#418 risk (confirmed). All verified in Claude Preview against the live Belgium 5–1 New Zealand game.
+- **Agent loop is healthy** — recorded Belgium 5–1 NZ and Brazil's group games autonomously; the earlier failures were the Anthropic Console **credit run-out**, not the cron/code. (Reminder: user should enable auto-reload on Console billing.)
+- **Tournament state:** group stage finishing. Brazil (Neymar) + Belgium (KDB) already through to the **Round of 32**; Croatia/Portugal/Argentina play their group finales next (Croatia–Ghana, Portugal–Colombia, Argentina–Jordan). Knockouts start ~Jun 28 — `LiveNow` will cover them with no data work; the agent should start adding `wc2026.knockout[]` entries per round.
+
+**2026-06-11 → 06-13 session — tournament opens, schedule fixed, first result loop fires:**
 
 **2026-06-11 → 06-13 session — tournament opens, schedule fixed, first result loop fires:**
 - **THE LIVE RESULT LOOP IS RUNNING.** First result pushed 2026-06-13: **Brazil 1-1 Morocco** (Saibari ~17–21', Vinícius Júnior 32') on Neymar's opener card — he sat out injured (calf), recorded as team-level `D 1-1` with scorers `"Vinícius Júnior 32′ · Neymar out (calf)"`, status note → Haiti return Jun 19 (commit `7e7f348`). See the new **"match-result update loop"** operational recipe. This is now the weekly P0; the user pings after each legend's game.
