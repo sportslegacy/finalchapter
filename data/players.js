@@ -214,14 +214,14 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
-      status: { stage: "group", alive: true, note: "Brace in a 5-0 rout of Uzbekistan — Ronaldo becomes the first man to score at six World Cups; Portugal top Group K. Next: Colombia, Jun 27" },
+      status: { stage: "r32", alive: true, note: "Goalless draw with Colombia — Portugal finish 2nd in Group K and into the Round of 32 (Jun 28+)" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       groupTable: {
-        asOf: "Jun 23",
+        asOf: "Jun 28",
         teams: [
-          { name: "Portugal", played: 2, points: 4 },
-          { name: "Colombia", played: 1, points: 3 },
-          { name: "DR Congo", played: 1, points: 1 },
+          { name: "Colombia", played: 3, points: 7 },
+          { name: "Portugal", played: 3, points: 5 },
+          { name: "DR Congo", played: 2, points: 1 },
           { name: "Uzbekistan", played: 2, points: 0 },
         ],
       },
@@ -251,6 +251,7 @@ export const players = [
           kickoffUtc: "2026-06-27T23:30:00.000Z",
           venue: "Hard Rock Stadium",
           city: "Miami, FL",
+          result: { outcome: "D", score: "0-0", scorers: "Goalless draw · Ronaldo held scoreless" },
         },
       ],
       storyline:
