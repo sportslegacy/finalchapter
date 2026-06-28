@@ -338,9 +338,8 @@ export default async function PlayerPage({ params }) {
             tournament (the labels read as career totals, so excluding the
             in-progress cup looked stale — "5 World Cups" while he's playing his
             6th). The stored worldCup* fields stay pre-2026 (stat-integrity check
-            verifies those); we add the live tally2026 here for display. Assists
-            are the exception — we don't track 2026 assists (no reliable source),
-            so that stays the pre-2026 number rather than fabricate a 0. */}
+            verifies those); we add the live tally2026 here for display — goals,
+            assists AND apps, all from the same ESPN-verified source. */}
         <div className="profile-stats">
           <div className="profile-stat">
             <CountUp
@@ -350,7 +349,10 @@ export default async function PlayerPage({ params }) {
             <div className="profile-stat-label">WC Goals</div>
           </div>
           <div className="profile-stat">
-            <CountUp value={player.worldCupAssists} className="profile-stat-value" />
+            <CountUp
+              value={player.worldCupAssists + (tally2026?.assists || 0)}
+              className="profile-stat-value"
+            />
             <div className="profile-stat-label">WC Assists</div>
           </div>
           <div className="profile-stat">
@@ -526,6 +528,9 @@ export default async function PlayerPage({ params }) {
                   <div className="timeline-stats-row">
                     <span className="timeline-stat">
                       <strong>{tally2026.goals}</strong> goals
+                    </span>
+                    <span className="timeline-stat">
+                      <strong>{tally2026.assists}</strong> assists
                     </span>
                     <span className="timeline-stat">
                       <strong>{tally2026.apps}</strong> apps

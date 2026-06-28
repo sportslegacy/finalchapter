@@ -446,7 +446,7 @@ export const players = [
           kickoffUtc: "2026-06-27T21:00:00.000Z",
           venue: "Lincoln Financial Field",
           city: "Philadelphia, PA",
-          result: { outcome: "W", score: "2-1", scorers: "Modrić assist · Vlašić 83′, Sučić 31′" },
+          result: { outcome: "W", score: "2-1", scorers: "Modrić assist · Vlašić 83′, Sučić 31′", legendAssists: 1 },
         },
       ],
       storyline:
@@ -1282,9 +1282,10 @@ export function latestResultLabel(player) {
 //   result.legendOut: true → the legend did NOT feature (injury/suspension)
 // apps therefore = played group/knockout games MINUS the ones he sat out — so
 // e.g. Neymar (out injured for two games, one cameo) reads 1 app, not 3 (the
-// exact apps-accuracy trap from the stat-integrity notes). Assists are
-// deliberately NOT tracked here — we don't have a reliable 2026 assist source,
-// and a fabricated 0 would be wrong. Returns null before any game is played.
+// exact apps-accuracy trap from the stat-integrity notes). Assists ARE tracked
+// (result.legendAssists) — they come from the same source as goals: ESPN's match
+// summary credits "Assisted by X" per goal (verified), so tracking goals but not
+// assists was an inconsistency. Returns null before any game is played.
 export function tournament2026Tally(player) {
   // Count BOTH group matches and knockout games (knockout goals/apps must feed
   // the running tally too — both carry the same legendGoals/legendOut fields).
@@ -1295,6 +1296,7 @@ export function tournament2026Tally(player) {
   if (!results.length) return null;
   return {
     goals: results.reduce((s, r) => s + (r.legendGoals || 0), 0),
+    assists: results.reduce((s, r) => s + (r.legendAssists || 0), 0),
     apps: results.reduce((s, r) => s + (r.legendOut ? 0 : 1), 0),
   };
 }
@@ -1313,10 +1315,14 @@ export function goalsSentence(player) {
   const t = tournament2026Tally(player);
   if (!t || t.apps === 0) return null;
   const apps = plural(t.apps, "appearance");
-  if (t.goals === 0) {
-    return `${player.name} has not scored in ${apps} at the 2026 World Cup so far.`;
-  }
-  return `${player.name} has scored ${plural(t.goals, "goal")} in ${apps} at the 2026 World Cup so far.`;
+  const goalPart = t.goals > 0 ? `has scored ${plural(t.goals, "goal")}` : "has not scored";
+  // Mention assists too (same ESPN source) so a goalless playmaker like Modrić
+  // reads fairly: "has not scored but provided 1 assist".
+  const assistPart =
+    t.assists > 0
+      ? `${t.goals > 0 ? " and" : " but"} provided ${plural(t.assists, "assist")}`
+      : "";
+  return `${player.name} ${goalPart}${assistPart} in ${apps} at the 2026 World Cup so far.`;
 }
 
 // schema.org eventStatus for the tournament-level SportsEvent blocks. Derived
@@ -1364,10 +1370,12 @@ export function playerUpdatedAt(player) {
 //                                        //   detector tell a new round from an
 //                                        //   already-recorded one (date compare)
 //       result: { outcome: "W", score: "2-1", scorers: "…",
-//                 legendGoals: 1, legendOut: false } },  // same shape as a match
-//                                        //   result (incl. the tally fields, so
-//                                        //   knockout goals/apps feed the "so far"
-//                                        //   line); pens go in score, e.g.
+//                 legendGoals: 1, legendAssists: 0, legendOut: false } },  // same
+//                                        //   shape as a match result (incl. the
+//                                        //   tally fields legendGoals/legendAssists
+//                                        //   /legendOut, so knockout goals/assists/
+//                                        //   apps feed the "so far" line + hero);
+//                                        //   pens go in score, e.g.
 //                                        //   "1-1 (4-3 pens)", outcome from the
 //                                        //   ADVANCEMENT POV (W = advanced).
 //   ]

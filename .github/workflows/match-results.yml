@@ -121,13 +121,16 @@ jobs:
               actual scorer(s); if relevant note the legend's absence like the
               existing Neymar card ("… · Neymar out (calf)").
             - ALSO set the structured tally fields on that SAME result object:
-              `legendGoals: <N>` = how many goals the LEGEND HIMSELF scored this
-              game (omit if 0), and `legendOut: true` ONLY if the legend did NOT
-              feature at all (injury / suspension / unused sub). These drive the
-              "so far" goals + apps tally on the player timeline; a result with no
-              `legendOut` counts as one appearance, so you MUST add
-              `legendOut: true` whenever he didn't play, or his apps will overcount
-              (the Neymar-injured-games case).
+              `legendGoals: <N>` = goals the LEGEND HIMSELF scored (omit if 0);
+              `legendAssists: <N>` = goals he ASSISTED (omit if 0) — ESPN's match
+              SUMMARY endpoint (`.../fifa.world/summary?event=<id>`, get the id
+              from the scoreboard) credits "Assisted by <name>" on each goal in
+              keyEvents[].text / participants[1], so count the goals assisted by
+              the legend; and `legendOut: true` ONLY if the legend did NOT feature
+              at all (injury / suspension / unused sub). These drive the "so far"
+              goals/assists/apps tally AND the live profile-hero totals; a result
+              with no `legendOut` counts as one appearance, so you MUST add
+              `legendOut: true` whenever he didn't play (the Neymar trap).
             - ALSO update that player's wc2026.status.note to reflect the result
               and point at their next match.
             - ALSO refresh that player's wc2026.groupTable IF it exists: fetch the
@@ -151,11 +154,12 @@ jobs:
                 { stage: "<the pending entry's stage>", opponent: "<opponent>",
                   kickoffUtc: "<the pending entry's kickoffUtc>",
                   result: { outcome: "W"|"L", score: "own-opp", scorers: "...",
-                            legendGoals: <N>, legendOut: <true if he didn't play> } }
+                            legendGoals: <N>, legendAssists: <N>,
+                            legendOut: <true if he didn't play> } }
               outcome = W if the nation ADVANCED (incl. on penalties), L if it went
               out. score is own-opp; for a shootout write it like "1-1 (4-3 pens)".
-              scorers / legendGoals / legendOut exactly as in 3A (they feed the
-              same "so far" tally).
+              scorers / legendGoals / legendAssists / legendOut exactly as in 3A
+              (they feed the same "so far" tally + hero totals).
             - FLIP wc2026.status.stage — THIS is what advances /road-to-the-final,
               /status, the player strip and the dynamic title, so get it right:
                 * ADVANCED → next round in this exact order:
