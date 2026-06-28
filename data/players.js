@@ -20,15 +20,15 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "group", alive: true, note: "Beat Austria 2-0 — Messi's brace (17th & 18th WC goals) breaks Klose's all-time record. Argentina top Group J. Next: Jordan, Jun 27" },
+      status: { stage: "r32", alive: true, note: "Beat Jordan 3-1 — Messi curled in a trademark free kick (80′) off the bench as Argentina win Group J with a perfect nine points. Into the Round of 32 (Jun 28+)" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       groupTable: {
-        asOf: "Jun 22",
+        asOf: "Jun 28",
         teams: [
-          { name: "Argentina", played: 2, points: 6 },
-          { name: "Austria", played: 2, points: 3 },
-          { name: "Algeria", played: 2, points: 3 },
-          { name: "Jordan", played: 2, points: 0 },
+          { name: "Argentina", played: 3, points: 9 },
+          { name: "Austria", played: 3, points: 4 },
+          { name: "Algeria", played: 3, points: 4 },
+          { name: "Jordan", played: 3, points: 0 },
         ],
       },
       matches: [
@@ -57,6 +57,7 @@ export const players = [
           kickoffUtc: "2026-06-28T02:00:00.000Z",
           venue: "AT&T Stadium",
           city: "Arlington, TX",
+          result: { outcome: "W", score: "3-1", scorers: "Messi 80′, Lo Celso 19′, L. Martínez 31′ (pen)", legendGoals: 1 },
         },
       ],
       storyline:
