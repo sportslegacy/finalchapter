@@ -1513,6 +1513,28 @@ a {
   background: currentColor;
   opacity: 0.9;
 }
+/* "LIVE" = a group match is actually in progress and folded into the table
+   provisionally — NOW the red pulsing treatment is correct (a match really is
+   on), unlike the calm "current" between matchdays. */
+.group-standings-asof.is-livegame {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32em;
+  color: #ff4d4d;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.group-standings-asof.is-livegame .gs-live-dot {
+  background: #ff4d4d;
+  opacity: 1;
+  animation: live-pulse 1.6s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .group-standings-asof.is-livegame .gs-live-dot {
+    animation: none;
+  }
+}
 .group-standings-list {
   list-style: none;
   margin: 0;
