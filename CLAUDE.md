@@ -419,6 +419,8 @@ All five `public/players/*.jpg` are sourced from Wikimedia Commons under CC lice
 
 We learned the hard way: it's easy to update a stat number in one place and not the other. The page renders count-of-past-WCs as `worldCups.length - 1`, which is independent from the top-level `worldCupApps` total. They can silently drift.
 
+**The profile hero DISPLAYS the live career total = stored + 2026 (added 2026-06-27).** The stored `worldCupGoals`/`worldCupAssists`/`worldCupApps` fields stay PRE-2026 (sum of completed WCs — Check 1 below verifies exactly that, unchanged). But the hero stat boxes ADD the live `tournament2026Tally` so they reflect current reality, not a frozen pre-tournament record (user-flagged: "5 World Cups" while Ronaldo is playing his 6th, "8 goals" while he's on 10). So the hero shows `worldCupGoals + tally.goals` (Messi 13→**18**, matching his record-breaking note), `worldCupApps + tally.apps`, and World Cups = `worldCups.length - 1 + (tally ? 1 : 0)` (he's appeared in 6). **Assists are the exception** — we don't track 2026 assists (no reliable source; won't fabricate a 0), so the hero shows the pre-2026 assist number. This is DISPLAY-only: the stored data + Check 1 are untouched, and the per-tournament breakdown still lives in the "so far" block + timeline.
+
 After ANY edit to `data/players.js`, run **both** of these checks. They catch different bug classes.
 
 #### Check 1: numeric — per-WC sums match the stated totals

@@ -334,9 +334,19 @@ export default async function PlayerPage({ params }) {
           {player.wc2026.group}
         </div>
         <div className="profile-quote">&ldquo;{player.quote}&rdquo;</div>
+        {/* Hero totals reflect his FULL World Cup record INCLUDING the live 2026
+            tournament (the labels read as career totals, so excluding the
+            in-progress cup looked stale — "5 World Cups" while he's playing his
+            6th). The stored worldCup* fields stay pre-2026 (stat-integrity check
+            verifies those); we add the live tally2026 here for display. Assists
+            are the exception — we don't track 2026 assists (no reliable source),
+            so that stays the pre-2026 number rather than fabricate a 0. */}
         <div className="profile-stats">
           <div className="profile-stat">
-            <CountUp value={player.worldCupGoals} className="profile-stat-value" />
+            <CountUp
+              value={player.worldCupGoals + (tally2026?.goals || 0)}
+              className="profile-stat-value"
+            />
             <div className="profile-stat-label">WC Goals</div>
           </div>
           <div className="profile-stat">
@@ -344,12 +354,15 @@ export default async function PlayerPage({ params }) {
             <div className="profile-stat-label">WC Assists</div>
           </div>
           <div className="profile-stat">
-            <CountUp value={player.worldCupApps} className="profile-stat-value" />
+            <CountUp
+              value={player.worldCupApps + (tally2026?.apps || 0)}
+              className="profile-stat-value"
+            />
             <div className="profile-stat-label">WC Apps</div>
           </div>
           <div className="profile-stat">
             <CountUp
-              value={player.worldCups.length - 1}
+              value={player.worldCups.length - 1 + (tally2026 ? 1 : 0)}
               className="profile-stat-value"
             />
             <div className="profile-stat-label">World Cups</div>
