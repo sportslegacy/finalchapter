@@ -593,7 +593,7 @@ export const players = [
     worldCupApps: 13,
     wc2026: {
       group: "C",
-      status: { stage: "r32", alive: true, note: "Brazil beat Scotland 3-0 (Vinícius Júnior brace, Cunha) to win Group C — and Neymar came off the bench at 76′ for his first appearance since the calf tear. Into the Round of 32 (Jun 28+)" },
+      status: { stage: "r16", alive: true, note: "Brazil beat Japan 2-1 in the Round of 32 (Casemiro, Martinelli) — Neymar an unused substitute. Into the Round of 16 (Jul 4+)" },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
       groupTable: {
         asOf: "Jun 25",
@@ -631,6 +631,14 @@ export const players = [
           venue: "Hard Rock Stadium",
           city: "Miami, FL",
           result: { outcome: "W", score: "3-0", scorers: "Vinícius Júnior 7′, 45+3′, Cunha 60′ · Neymar on at 76′ (1st game back)" },
+        },
+      ],
+      knockout: [
+        {
+          stage: "r32",
+          opponent: "Japan",
+          kickoffUtc: "2026-06-29T17:00Z",
+          result: { outcome: "W", score: "2-1", scorers: "Casemiro 56′, Martinelli 90+5′ · Neymar unused sub", legendOut: true },
         },
       ],
       storyline:
