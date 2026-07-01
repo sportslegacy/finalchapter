@@ -774,7 +774,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "r32", alive: true, note: "Belgium thrash New Zealand 5-1 — De Bruyne scores from distance (66′) as Belgium win Group G. Into the Round of 32 (Jun 28+)" },
+      status: { stage: "r16", alive: true, note: "Belgium edge Senegal 3-2 after extra time — Tielemans' 120th-minute penalty completes a comeback from 2-0 down. Into the Round of 16 (Jul 4+)" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       groupTable: {
         asOf: "Jun 27",
@@ -812,6 +812,14 @@ export const players = [
           venue: "BC Place",
           city: "Vancouver",
           result: { outcome: "W", score: "5-1", scorers: "De Bruyne 66′, Trossard 28′ 50′, Lukaku 86′, Saelemaekers 90+4′", legendGoals: 1 },
+        },
+      ],
+      knockout: [
+        {
+          stage: "r32",
+          opponent: "Senegal",
+          kickoffUtc: "2026-07-01T20:00Z",
+          result: { outcome: "W", score: "3-2 (AET)", scorers: "Lukaku 86′, Tielemans 89′ & 120+5′ pen" },
         },
       ],
       storyline:
