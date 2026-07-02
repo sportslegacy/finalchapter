@@ -380,11 +380,15 @@ export default async function PlayerPage({ params }) {
         </section>
       )}
 
-      {/* 2026 Match Schedule */}
+      {/* 2026 Match Schedule. Once the legend is through to the knockouts the
+          group is history, so the heading drops "Schedule" (these are results
+          now) and a Knockout Run section is added below. */}
       <section className="schedule-section">
         <div className="section-header">
           <div className="section-label">World Cup 2026</div>
-          <h2 className="section-title">Group Stage Schedule</h2>
+          <h2 className="section-title">
+            {curIdx >= 1 ? "Group Stage" : "Group Stage Schedule"}
+          </h2>
         </div>
 
         {/* Count down to the next UNPLAYED match (first one without a result).
@@ -461,6 +465,65 @@ export default async function PlayerPage({ params }) {
           ))}
         </div>
       </section>
+
+      {/* Knockout Run — appears once the legend reaches the Round of 32. The
+          group games above are the qualifying record; this shows the knockout
+          journey (games as they're recorded, via wc2026.knockout[]) plus a link
+          to the full projected path on /road-to-the-final. Empty knockout[] ⇒
+          just the current-stage line + the road link (ready for the R32). */}
+      {curIdx >= 1 && (
+        <section className="schedule-section">
+          <div className="section-header">
+            <div className="section-label">World Cup 2026 &middot; Knockouts</div>
+            <h2 className="section-title">Knockout Run</h2>
+          </div>
+          {player.wc2026.knockout?.length ? (
+            <div className="match-list">
+              {player.wc2026.knockout.map((k, i) => (
+                <div key={i} className="match-item is-played">
+                  <div>
+                    <div className="match-teams">
+                      <span className="match-ko-stage">{stageLabel(k.stage)}</span>
+                      {player.country}
+                      <span className="match-vs"> vs </span>
+                      {k.opponent}
+                    </div>
+                    {k.result?.scorers ? (
+                      <div className="match-scorers">{k.result.scorers}</div>
+                    ) : null}
+                  </div>
+                  <div className="match-details">
+                    {k.result ? (
+                      <div
+                        className={`match-result outcome-${k.result.outcome.toLowerCase()}`}
+                      >
+                        <span className="match-result-badge">
+                          {k.result.outcome}
+                        </span>
+                        <span className="match-result-score">
+                          {k.result.score}
+                        </span>
+                        <span className="match-result-ft">FT</span>
+                      </div>
+                    ) : (
+                      <div className="match-date">{stageLabel(k.stage)}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          <p className="knockout-next">
+            <span className="knockout-next-stage">{statusLine}</span>
+            <Link href="/road-to-the-final" className="knockout-next-link">
+              {eliminated
+                ? "See how their run unfolded"
+                : `Follow ${player.country}'s road to the final`}{" "}
+              &rarr;
+            </Link>
+          </p>
+        </section>
+      )}
 
       {/* Milestones at stake — what's on the line in 2026 */}
       {player.milestonesAtStake?.length > 0 && (
