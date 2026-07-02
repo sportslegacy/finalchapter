@@ -1,134 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { tournament, stageIndex } from "../../data/players";
+import { stageIndex } from "../../data/players";
+import {
+  sameTeam,
+  getStandings,
+  resolveGroups,
+  getScoreboard,
+  resolveNextOpponent,
+} from "./espnNext";
 
 // The "Who they could face" projection panel on /road-to-the-final. It ships
-// server-rendered as a pot-SEEDING projection, then on mount fetches ESPN's free
-// APIs (CORS:*, no key — same source as LiveGroupTable) and narrows to reality:
+// server-rendered as a pot-SEEDING projection, then on mount fetches ESPN (via
+// the shared espnNext helpers) and narrows to reality:
 //   • group finished  → replace the seed chips with the real winner/runner-up.
 //   • legend's own group decided → collapse the two "if win / if 2nd" branches.
-//   • legend's NEXT knockout opponent is set (ESPN lists e.g. "Brazil v Norway
-//     — round-of-16" once the feeding R32 is played) → show that ONE confirmed
+//   • legend's NEXT knockout opponent set (ESPN lists e.g. "Brazil v Norway —
+//     round-of-16" once the feeding R32 is played) → show that ONE confirmed
 //     opponent instead of the seed candidates.
 // Any fetch/parse error keeps the static projection — it can never break.
-
-function canon(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/\bdr\b/g, " ")
-    .replace(/[^a-z ]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean)
-    .sort()
-    .join(" ");
-}
-function sameTeam(a, b) {
-  const ca = canon(a);
-  const cb = canon(b);
-  return !!ca && !!cb && (ca === cb || ca.includes(cb) || cb.includes(ca));
-}
-
-// our group letter → [{ name, flag }] + a flat name→{name,flag} lookup (so a
-// resolved opponent from any group keeps our flag).
-const GROUP_TEAMS = {};
-const ALL_TEAMS = [];
-for (const g of tournament.groups) {
-  GROUP_TEAMS[g.id] = g.teams.map((t) => ({ name: t.name, flag: t.flag }));
-  for (const t of g.teams) ALL_TEAMS.push({ name: t.name, flag: t.flag });
-}
-function teamWithFlag(name) {
-  const ours = ALL_TEAMS.find((t) => sameTeam(t.name, name));
-  return ours ? { name: ours.name, flag: ours.flag } : { name, flag: "" };
-}
-
-// Shared caches (60s) so the up-to-5 lanes share ONE request each.
-function makeCache(url) {
-  let c = { at: 0, data: null, inflight: null };
-  return () => {
-    const now = Date.now();
-    if (c.data && now - c.at < 60000) return Promise.resolve(c.data);
-    if (c.inflight) return c.inflight;
-    c.inflight = fetch(url, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => {
-        c = { at: Date.now(), data: j, inflight: null };
-        return j;
-      })
-      .catch(() => {
-        c.inflight = null;
-        return null;
-      });
-    return c.inflight;
-  };
-}
-const getStandings = makeCache(
-  "https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings"
-);
-function scoreboardUrl() {
-  const day = (o) =>
-    new Date(Date.now() + o * 864e5).toISOString().slice(0, 10).replace(/-/g, "");
-  return `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${day(
-    -2
-  )}-${day(12)}`;
-}
-const getScoreboard = makeCache(scoreboardUrl());
-
-// Walk the standings JSON → { letter: { complete, winner, runnerUp } }.
-function resolveGroups(json) {
-  const out = {};
-  const groups = [];
-  const walk = (n) => {
-    if (!n || typeof n !== "object") return;
-    if (typeof n.name === "string" && /^Group [A-L]$/.test(n.name) && n.standings?.entries) {
-      groups.push(n);
-    } else {
-      for (const k in n) walk(n[k]);
-    }
-  };
-  walk(json);
-  for (const grp of groups) {
-    const letter = grp.name.split(" ")[1];
-    const stat = (e, name) => {
-      const s = (e.stats || []).find((x) => x.name === name);
-      return s ? Number(s.value) : 0;
-    };
-    const entries = grp.standings.entries
-      .map((e) => ({
-        name: e.team?.displayName || "?",
-        rank: stat(e, "rank"),
-        played: stat(e, "gamesPlayed"),
-      }))
-      .sort((a, b) => (a.rank || 99) - (b.rank || 99));
-    const complete = entries.length === 4 && entries.every((e) => e.played >= 3);
-    const toOurs = (espnName) => ({ ...teamWithFlag(espnName), grp: letter });
-    out[letter] = {
-      complete,
-      winner: entries[0] ? toOurs(entries[0].name) : null,
-      runnerUp: entries[1] ? toOurs(entries[1].name) : null,
-    };
-  }
-  return out;
-}
-
-// The nation's NEXT upcoming fixture with a REAL opponent (ESPN lists these once
-// the feeding games resolve; placeholder slots read "Round of 32 X Winner"). →
-// { name, flag } or null.
-function resolveNextOpponent(sb, country) {
-  const now = Date.now();
-  let best = null;
-  for (const e of sb.events || []) {
-    if (e.status?.type?.state !== "pre") continue;
-    const names = (e.competitions?.[0]?.competitors || []).map((c) => c.team?.displayName);
-    if (!names.some((n) => sameTeam(n, country))) continue;
-    const opp = names.find((n) => !sameTeam(n, country)) || "";
-    if (!opp || /winner|round of/i.test(opp)) continue; // placeholder slot
-    const ko = new Date(e.date).getTime();
-    if (!Number.isFinite(ko)) continue;
-    if (!best || ko < best.ko) best = { ko, opp };
-  }
-  return best ? teamWithFlag(best.opp) : null;
-}
 
 function ProjBranch({ title, rounds }) {
   return (
@@ -202,7 +92,6 @@ export default function RoadProjLive({ proj, country, currentStage }) {
         }
       }
     });
-    // Only bother with the fixture lookup once the legend is in the knockouts.
     if (curIdx >= 1) {
       getScoreboard().then((sb) => {
         if (!cancelled && sb) {

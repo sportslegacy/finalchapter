@@ -12,6 +12,7 @@ import Nav from "../components/Nav";
 import JsonLd from "../components/JsonLd";
 import JsonLdDedupe from "../components/JsonLdDedupe";
 import RoadProjLive from "../components/RoadProjLive";
+import RoadNextOpp from "../components/RoadNextOpp";
 
 const SITE_URL = "https://finalchapterfc.com";
 
@@ -220,7 +221,19 @@ export default function RoadToFinalPage() {
                     >
                       <span className="road-node-stage">{node.short}</span>
                       <span className="road-node-cap">
-                        {nodeCaption(node, group, groupTeams)}
+                        {node.state === "current" &&
+                        node.stage !== "group" &&
+                        !node.result ? (
+                          // The legend's next knockout game: resolve the real
+                          // opponent from ESPN's fixtures ("vs Norway") the moment
+                          // it's set, before it's recorded in knockout[].
+                          <RoadNextOpp
+                            country={p.country}
+                            fallback={nodeCaption(node, group, groupTeams)}
+                          />
+                        ) : (
+                          nodeCaption(node, group, groupTeams)
+                        )}
                       </span>
                     </li>
                   ))}
