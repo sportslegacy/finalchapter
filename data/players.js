@@ -215,7 +215,7 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
-      status: { stage: "r32", alive: true, note: "Goalless draw with Colombia — Portugal finish 2nd in Group K and into the Round of 32 (Jun 28+)" },
+      status: { stage: "r16", alive: true, note: "Beat Croatia 2-1 in the Round of 32 — Ronaldo converted a 68′ penalty, Gonçalo Ramos headed a stoppage-time winner. Into the Round of 16 (Jul 4+)" },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       groupTable: {
         asOf: "Jun 28",
@@ -253,6 +253,14 @@ export const players = [
           venue: "Hard Rock Stadium",
           city: "Miami, FL",
           result: { outcome: "D", score: "0-0", scorers: "Goalless draw · Ronaldo held scoreless" },
+        },
+      ],
+      knockout: [
+        {
+          stage: "r32",
+          opponent: "Croatia",
+          kickoffUtc: "2026-07-02T23:00Z",
+          result: { outcome: "W", score: "2-1", scorers: "Ronaldo 68′ (pen) · Ramos 90+4′", legendGoals: 1 },
         },
       ],
       storyline:
@@ -409,7 +417,7 @@ export const players = [
     worldCupApps: 19,
     wc2026: {
       group: "L",
-      status: { stage: "r32", alive: true, note: "Croatia beat Ghana 2-1 — Modrić's corner teed up Vlašić's late winner (Sučić opened); Croatia finish 2nd in Group L and into the Round of 32 (Jun 28+)" },
+      status: { stage: "r32", alive: false, note: "Knocked out — Croatia lose 2-1 to Portugal in the Round of 32, undone by a Gonçalo Ramos header in stoppage time after Perišić had cancelled out Ronaldo's penalty. Modrić's tournament ends in the Round of 32." },
       groupTeams: ["England", "Croatia", "Ghana", "Panama"],
       groupTable: {
         asOf: "Jun 27",
@@ -447,6 +455,14 @@ export const players = [
           venue: "Lincoln Financial Field",
           city: "Philadelphia, PA",
           result: { outcome: "W", score: "2-1", scorers: "Modrić assist · Vlašić 83′, Sučić 31′", legendAssists: 1 },
+        },
+      ],
+      knockout: [
+        {
+          stage: "r32",
+          opponent: "Portugal",
+          kickoffUtc: "2026-07-02T23:00Z",
+          result: { outcome: "L", score: "1-2", scorers: "Perišić 53′" },
         },
       ],
       storyline:
