@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 // tally (`soFar`) once games are played — a real bar with a dashed OPEN TOP to
 // signal it's still growing; before kickoff (soFar null) it's the dashed "?"
 // placeholder. Bars grow from zero when scrolled into view. Reduced-motion aware.
-export default function GoalChart({ worldCups, soFar = null }) {
+export default function GoalChart({ worldCups, soFar = null, done = false }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(false);
   const startedRef = useRef(false);
@@ -49,7 +49,8 @@ export default function GoalChart({ worldCups, soFar = null }) {
       {worldCups.map((wc) => {
         const g = goalsFor(wc);
         const placeholder = g == null; // 2026 before any game (soFar null)
-        const soFarBar = wc.year === 2026 && !placeholder; // live, in-progress
+        const soFarBar = wc.year === 2026 && !placeholder; // 2026, has a tally
+        const inProgress = soFarBar && !done; // dashed open top only while alive
         const pct = placeholder ? 0 : (g / maxGoals) * 100;
         const height = !shown
           ? "0%"
@@ -61,13 +62,15 @@ export default function GoalChart({ worldCups, soFar = null }) {
             <div className="goal-bar-value">{placeholder ? "?" : g}</div>
             <div className="goal-bar-track">
               <div
-                className={`goal-bar-fill${placeholder ? " future" : soFarBar ? " sofar" : ""}`}
+                className={`goal-bar-fill${placeholder ? " future" : inProgress ? " sofar" : ""}`}
                 style={{ height }}
               />
             </div>
             <div className="goal-bar-year">
               {`'${String(wc.year).slice(2)}`}
-              {soFarBar ? <span className="goal-bar-sofar"> so far</span> : null}
+              {soFarBar ? (
+                <span className="goal-bar-sofar"> {done ? "final" : "so far"}</span>
+              ) : null}
             </div>
           </div>
         );

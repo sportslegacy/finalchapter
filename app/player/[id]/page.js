@@ -232,6 +232,9 @@ export default async function PlayerPage({ params }) {
   const statsSentence = goalsSentence(player);
   const eliminated = status.alive === false || status.stage === "eliminated";
   const isChampion = status.stage === "champion";
+  // Their 2026 tournament is OVER (out or champion) → the tally is FINAL, not
+  // "so far". (computed here because the timeline map shadows `isChampion`.)
+  const done2026 = eliminated || isChampion;
 
   return (
     <>
@@ -298,7 +301,9 @@ export default async function PlayerPage({ params }) {
           push); auto-hides before the first game via the null guard. */}
       {statsSentence ? (
         <section className="stats-so-far" aria-label={`${player.name} 2026 World Cup stats`}>
-          <p className="section-label">2026 World Cup &middot; So Far</p>
+          <p className="section-label">
+            2026 World Cup &middot; {done2026 ? "Final" : "So Far"}
+          </p>
           <h2 className="stats-so-far-q">{firstName}&apos;s 2026 World Cup stats</h2>
           <p className="stats-so-far-a">{statsSentence}</p>
         </section>
@@ -552,7 +557,11 @@ export default async function PlayerPage({ params }) {
 
         <div className="goal-chart-wrap">
           <div className="goal-chart-caption">Goals by World Cup</div>
-          <GoalChart worldCups={player.worldCups} soFar={tally2026?.goals ?? null} />
+          <GoalChart
+            worldCups={player.worldCups}
+            soFar={tally2026?.goals ?? null}
+            done={done2026}
+          />
         </div>
 
         <div className="timeline">
@@ -602,7 +611,7 @@ export default async function PlayerPage({ params }) {
                       Age {player.ageAtTournament}
                     </span>
                     <span className="timeline-stat timeline-stat-sofar">
-                      so far
+                      {done2026 ? "final" : "so far"}
                     </span>
                   </div>
                 )}

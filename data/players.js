@@ -1354,15 +1354,25 @@ function plural(n, word) {
 export function goalsSentence(player) {
   const t = tournament2026Tally(player);
   if (!t || t.apps === 0) return null;
+  // Once the legend is out (or champion), the tournament is OVER for them — so
+  // it's a FINAL tally, not "so far", and reads in the past tense.
+  const st = player.wc2026?.status || {};
+  const done = st.alive === false || st.stage === "eliminated" || st.stage === "champion";
   const apps = plural(t.apps, "appearance");
-  const goalPart = t.goals > 0 ? `has scored ${plural(t.goals, "goal")}` : "has not scored";
+  const goalPart =
+    t.goals > 0
+      ? `${done ? "scored" : "has scored"} ${plural(t.goals, "goal")}`
+      : done
+        ? "did not score"
+        : "has not scored";
   // Mention assists too (same ESPN source) so a goalless playmaker like Modrić
-  // reads fairly: "has not scored but provided 1 assist".
+  // reads fairly: "did not score but provided 1 assist".
   const assistPart =
     t.assists > 0
       ? `${t.goals > 0 ? " and" : " but"} provided ${plural(t.assists, "assist")}`
       : "";
-  return `${player.name} ${goalPart}${assistPart} in ${apps} at the 2026 World Cup so far.`;
+  const tail = done ? "at the 2026 World Cup." : "at the 2026 World Cup so far.";
+  return `${player.name} ${goalPart}${assistPart} in ${apps} ${tail}`;
 }
 
 // schema.org eventStatus for the tournament-level SportsEvent blocks. Derived
