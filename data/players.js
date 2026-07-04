@@ -20,7 +20,7 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "r32", alive: true, note: "Beat Jordan 3-1 — Messi curled in a trademark free kick (80′) off the bench as Argentina win Group J with a perfect nine points. Into the Round of 32 (Jun 28+)" },
+      status: { stage: "r16", alive: true, note: "Beat Cape Verde 3-2 after extra time in the Round of 32 — Messi opened the scoring (29′) before L. Martínez and a late own goal saw Argentina through. Into the Round of 16 (Jul 4+)" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       groupTable: {
         asOf: "Jun 28",
@@ -58,6 +58,14 @@ export const players = [
           venue: "AT&T Stadium",
           city: "Arlington, TX",
           result: { outcome: "W", score: "3-1", scorers: "Messi 80′, Lo Celso 19′, L. Martínez 31′ (pen)", legendGoals: 1 },
+        },
+      ],
+      knockout: [
+        {
+          stage: "r32",
+          opponent: "Cape Verde",
+          kickoffUtc: "2026-07-03T22:00Z",
+          result: { outcome: "W", score: "3-2 (AET)", scorers: "Messi 29′, L. Martínez 92′, Borges OG 111′", legendGoals: 1 },
         },
       ],
       storyline:
