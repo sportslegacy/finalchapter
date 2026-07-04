@@ -552,7 +552,7 @@ export default async function PlayerPage({ params }) {
 
         <div className="goal-chart-wrap">
           <div className="goal-chart-caption">Goals by World Cup</div>
-          <GoalChart worldCups={player.worldCups} />
+          <GoalChart worldCups={player.worldCups} soFar={tally2026?.goals ?? null} />
         </div>
 
         <div className="timeline">

@@ -2990,6 +2990,18 @@ body.nav-menu-open {
     color-mix(in srgb, var(--player-accent, var(--accent-gold)) 55%, transparent);
 }
 
+/* 2026 "so far" bar — a real proportional fill, but with a dashed OPEN TOP to
+   signal the tally is still growing (distinct from the finished solid bars). */
+.goal-bar-fill.sofar {
+  border-top: 2px dashed var(--player-accent, var(--accent-gold));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.goal-bar-sofar {
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
 .goal-bar-year {
   font-size: 0.7rem;
   color: var(--text-muted);
