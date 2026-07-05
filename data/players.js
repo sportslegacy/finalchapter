@@ -617,7 +617,7 @@ export const players = [
     worldCupApps: 13,
     wc2026: {
       group: "C",
-      status: { stage: "r16", alive: true, note: "Brazil beat Japan 2-1 in the Round of 32 (Casemiro, Martinelli) — Neymar an unused substitute. Into the Round of 16 (Jul 4+)" },
+      status: { stage: "r16", alive: false, note: "Brazil lost 2-1 to Norway in the Round of 16 (Haaland brace) — Neymar scored a late consolation penalty. Knocked out; his final World Cup ends in the last 16." },
       groupTeams: ["Brazil", "Morocco", "Haiti", "Scotland"],
       groupTable: {
         asOf: "Jun 25",
@@ -663,6 +663,12 @@ export const players = [
           opponent: "Japan",
           kickoffUtc: "2026-06-29T17:00Z",
           result: { outcome: "W", score: "2-1", scorers: "Casemiro 56′, Martinelli 90+5′ · Neymar unused sub", legendOut: true },
+        },
+        {
+          stage: "r16",
+          opponent: "Norway",
+          kickoffUtc: "2026-07-05T20:00Z",
+          result: { outcome: "L", score: "1-2", scorers: "Neymar 90+10′ (pen) · Haaland 79′, 90′", legendGoals: 1 },
         },
       ],
       storyline:
