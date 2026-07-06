@@ -223,7 +223,7 @@ export const players = [
     worldCupApps: 22,
     wc2026: {
       group: "K",
-      status: { stage: "r16", alive: true, note: "Beat Croatia 2-1 in the Round of 32 — Ronaldo converted a 68′ penalty, Gonçalo Ramos headed a stoppage-time winner. Into the Round of 16 (Jul 4+)" },
+      status: { stage: "r16", alive: false, note: "Knocked out in the Round of 16 — Spain won 0-1 on Mikel Merino's 90+1′ stoppage-time winner. Ronaldo's final World Cup ends here." },
       groupTeams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
       groupTable: {
         asOf: "Jun 28",
@@ -269,6 +269,12 @@ export const players = [
           opponent: "Croatia",
           kickoffUtc: "2026-07-02T23:00Z",
           result: { outcome: "W", score: "2-1", scorers: "Ronaldo 68′ (pen) · Ramos 90+4′", legendGoals: 1 },
+        },
+        {
+          stage: "r16",
+          opponent: "Spain",
+          kickoffUtc: "2026-07-06T19:00Z",
+          result: { outcome: "L", score: "0-1", scorers: "Merino 90+1′ winner (Spain) · Ronaldo held scoreless" },
         },
       ],
       storyline:
