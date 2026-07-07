@@ -20,7 +20,7 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "r16", alive: true, note: "Beat Cape Verde 3-2 after extra time in the Round of 32 — Messi opened the scoring (29′) before L. Martínez and a late own goal saw Argentina through. Into the Round of 16 (Jul 4+)" },
+      status: { stage: "qf", alive: true, note: "Roared back from 0-2 down to beat Egypt 3-2 in the Round of 16 — Romero (79′, assisted by Messi) and Messi himself (83′) hauled Argentina level before Enzo Fernández's stoppage-time header (90+2′) won it. Into the quarter-finals (Jul 9-11)" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       groupTable: {
         asOf: "Jun 28",
@@ -66,6 +66,12 @@ export const players = [
           opponent: "Cape Verde",
           kickoffUtc: "2026-07-03T22:00Z",
           result: { outcome: "W", score: "3-2 (AET)", scorers: "Messi 29′, L. Martínez 92′, Borges OG 111′", legendGoals: 1 },
+        },
+        {
+          stage: "r16",
+          opponent: "Egypt",
+          kickoffUtc: "2026-07-07T16:00Z",
+          result: { outcome: "W", score: "3-2", scorers: "Messi 83′, Romero 79′, E. Fernández 90+2′", legendGoals: 1, legendAssists: 1 },
         },
       ],
       storyline:
