@@ -810,7 +810,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "r16", alive: true, note: "Belgium edge Senegal 3-2 after extra time — Tielemans' 120th-minute penalty completes a comeback from 2-0 down. Into the Round of 16 (Jul 4+)" },
+      status: { stage: "qf", alive: true, note: "Belgium thrash the USA 4-1 in the Round of 16 — De Ketelaere brace, with De Bruyne an unused sub. Into the quarter-finals vs Spain (Jul 10)" },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       groupTable: {
         asOf: "Jun 27",
@@ -856,6 +856,12 @@ export const players = [
           opponent: "Senegal",
           kickoffUtc: "2026-07-01T20:00Z",
           result: { outcome: "W", score: "3-2 (AET)", scorers: "Lukaku 86′, Tielemans 89′ & 120+5′ pen" },
+        },
+        {
+          stage: "r16",
+          opponent: "United States",
+          kickoffUtc: "2026-07-07T00:00Z",
+          result: { outcome: "W", score: "4-1", scorers: "De Ketelaere 9′ & 33′, Vanaken 57′, Lukaku 90+3′ · De Bruyne unused sub", legendOut: true },
         },
       ],
       storyline:
