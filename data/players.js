@@ -816,7 +816,7 @@ export const players = [
     worldCupApps: 15,
     wc2026: {
       group: "G",
-      status: { stage: "qf", alive: true, note: "Belgium thrash the USA 4-1 in the Round of 16 — De Ketelaere brace, with De Bruyne an unused sub. Into the quarter-finals vs Spain (Jul 10)" },
+      status: { stage: "qf", alive: false, note: "Knocked out — Spain win the quarter-final 2-1, Mikel Merino heading home an 88th-minute winner. De Ketelaere had equalised; De Bruyne started but was withdrawn on 86′. The Golden Generation's last World Cup ends in the last eight." },
       groupTeams: ["Belgium", "Egypt", "Iran", "New Zealand"],
       groupTable: {
         asOf: "Jun 27",
@@ -868,6 +868,12 @@ export const players = [
           opponent: "United States",
           kickoffUtc: "2026-07-07T00:00Z",
           result: { outcome: "W", score: "4-1", scorers: "De Ketelaere 9′ & 33′, Vanaken 57′, Lukaku 90+3′ · De Bruyne unused sub", legendOut: true },
+        },
+        {
+          stage: "qf",
+          opponent: "Spain",
+          kickoffUtc: "2026-07-10T19:00Z",
+          result: { outcome: "L", score: "1-2", scorers: "De Ketelaere 41′ · De Bruyne started, off 86′" },
         },
       ],
       storyline:
