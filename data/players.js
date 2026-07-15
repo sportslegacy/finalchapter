@@ -20,7 +20,7 @@ export const players = [
       // Live tournament status — update one line per player after each match,
       // then push. The /status hub + its OG card regenerate from this.
       // stage ∈ group | r32 | r16 | qf | sf | final | champion | eliminated
-      status: { stage: "sf", alive: true, note: "Edged Switzerland 3-1 after extra time in the quarter-final — Messi teed up Mac Allister's header (10′) before Julián Álvarez (112′) and Lautaro Martínez (120+1′) sealed it in extra time. Into the semi-finals (Jul 14-15)" },
+      status: { stage: "final", alive: true, note: "Beat England 2-1 in the semi-final — Messi assisted both goals (Enzo Fernández 85′, Lautaro Martínez 90+2′) to complete another comeback. Into the FINAL (Jul 19)" },
       groupTeams: ["Argentina", "Algeria", "Austria", "Jordan"],
       groupTable: {
         asOf: "Jun 28",
@@ -78,6 +78,12 @@ export const players = [
           opponent: "Switzerland",
           kickoffUtc: "2026-07-12T01:00Z",
           result: { outcome: "W", score: "3-1 (AET)", scorers: "Mac Allister 10′ (Messi assist), J. Álvarez 112′, L. Martínez 120+1′", legendAssists: 1 },
+        },
+        {
+          stage: "sf",
+          opponent: "England",
+          kickoffUtc: "2026-07-15T19:00Z",
+          result: { outcome: "W", score: "2-1", scorers: "E. Fernández 85′ (Messi assist), L. Martínez 90+2′ (Messi assist)", legendAssists: 2 },
         },
       ],
       storyline:
