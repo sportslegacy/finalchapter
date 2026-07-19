@@ -19,15 +19,14 @@ name: Match-result auto-update
 # Requires repo secret ANTHROPIC_API_KEY (Settings -> Secrets -> Actions).
 
 on:
-  schedule:
-    # BACKUP ONLY — do not rely on this. GitHub heavily throttles scheduled cron
-    # on quiet public repos (it gapped 8h+ and missed matches). The PRIMARY,
-    # reliable trigger is an external cron-job.org schedule that POSTs to the
-    # workflow_dispatch endpoint (below) every 15 min — GitHub honors a dispatch
-    # instantly, unlike its own cron. This 6-hourly entry is just a free fallback
-    # if cron-job.org is ever down. (See CLAUDE.md "Reliable trigger — cron-job.org".)
-    - cron: "13 */6 * * *"
-  # PRIMARY TRIGGER: cron-job.org POSTs here every 15 min (workflow_id
+  # PROJECT WOUND DOWN 2026-07-19 (World Cup over). The GitHub `schedule` cron is
+  # disabled below and the job is hard-gated off (`if: false`) so nothing runs /
+  # bills ANTHROPIC_API_KEY. ALSO delete the external cron-job.org job that POSTs
+  # to workflow_dispatch every 15 min — that trigger lives outside this repo and
+  # keeps firing until removed there. See POSTMORTEM.md wind-down checklist.
+  # schedule:
+  #   - cron: "13 */6 * * *"
+  # PRIMARY TRIGGER (retired): cron-job.org POSTs here every 15 min (workflow_id
   # match-results.yml, body {"ref":"main"}, fine-grained PAT with Actions:write).
   # The detector gates the Claude step, so each dispatch is a free no-op until a
   # match is actually pending.
@@ -52,6 +51,10 @@ env:
 
 jobs:
   fill-results:
+    # PROJECT WOUND DOWN 2026-07-19 — hard-off. Even if an external dispatch still
+    # fires, this job no-ops and never bills the API key. Remove `if: false` to
+    # reactivate. (See POSTMORTEM.md.)
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
